@@ -1,0 +1,29 @@
+const os = require('os')
+const fs = require('fs')
+const path = require('path')
+const Database = require('better-sqlite3-multiple-ciphers')
+
+const isBSoft = import.meta.env.VITE_BUILD_TARGET == 'BSoft'
+const roamingPath = path.join(os.homedir(), 'AppData', 'Roaming')
+const buildTarget = isBSoft ? 'SpeedWin' : 'CornerPro'
+const folderPath = path.join(roamingPath, `${buildTarget}-data`)
+
+if (!fs.existsSync(folderPath)) {
+  fs.mkdirSync(folderPath, { recursive: true })
+}
+
+const dbFilePath = path.join(folderPath, 'database.sqlite')
+if (!fs.existsSync(dbFilePath)) {
+  fs.writeFileSync(dbFilePath, '')
+}
+
+const db = new Database(dbFilePath, { timeout: 5000 })
+
+db.pragma(`cipher='sqlcipher'`)
+db.pragma(`legacy=4`)
+db.pragma(`key=${import.meta.env.VITE_KEY_DB}`)
+
+db.pragma('journal_mode = WAL')
+db.pragma('foreign_keys = ON')
+
+export default db

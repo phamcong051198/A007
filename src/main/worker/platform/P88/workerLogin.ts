@@ -1,0 +1,138 @@
+import fetch from 'node-fetch'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+
+import { setTimeout as delay } from 'timers/promises'
+import { parentPort, MessagePort } from 'worker_threads'
+import { accountLogToFile } from '@/worker/lib/accountLogToFile'
+import { Account, Setting } from '@db/model'
+import { AccountType, SettingType } from '@shared/common/types'
+import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
+import { OPTIONS_PROXY, STATUS_ACCOUNT, STATUS_LOGIN } from '@shared/main/constants'
+import { API_ENDPOINTS, buildHeadersLogin } from '@/worker/platform/P88/common/contants'
+import {
+  extractCookie,
+  handleLoginFail,
+  parseLoginResponse,
+  updateAccountStatus
+} from '@/worker/platform/P88/helper'
+import { getBalanceP88bet } from '@/worker/platform/P88/actions/getBalance'
+
+const port = parentPort
+if (!port) throw new Error('IllegalState')
+
+port.on('message', async ({ account }: { account: AccountType }) => {
+  await loginToP88Bet(port, account)
+})
+
+/**
+ * Hàm login chính
+ */
+async function loginToP88Bet(port: MessagePort, account: AccountType) {
+  try {
+    if (!Account.findOne({ id: account.id })) {
+      process.exit(0)
+    }
+
+    await updateAccountStatus(port, account, 'Checking Login Info...')
+    await accountLogToFile(
+      account.platformName,
+      account.loginID,
+      'Login Status: Checking Login Info...',
+      'Program'
+    )
+
+    // validate proxy
+    const { status, data } = isProxyConfigValid(account)
+    if (!status) {
+      await handleLoginFail(
+        port,
+        account,
+        'Proxy Error: Invalid proxy address format – unable to determine valid URI.'
+      )
+      process.exit(0)
+    }
+
+    // build proxy agent
+    const proxyUrl =
+      account.proxyScope !== OPTIONS_PROXY.NONE
+        ? `http://${data.newUsername}:${data.newPassword}@${data.newIpAddress}:${data.newPort}`
+        : undefined
+    const proxyAgent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : undefined
+
+    // call API
+    const res = await fetch(API_ENDPOINTS.AUTH, {
+      method: 'POST',
+      headers: buildHeadersLogin(account),
+      ...(proxyAgent && { agent: proxyAgent }),
+      body: new URLSearchParams({
+        captcha: '',
+        captchaToken: '',
+        loginId: account.loginID,
+        password: account.password
+      })
+    })
+
+    const cookieHeader = extractCookie(res.headers.get('set-cookie'))
+    const { status: loginStatus, message } = await parseLoginResponse(res)
+
+    if (loginStatus === 'success') {
+      await accountLogToFile(account.platformName, account.loginID, 'Login Success', 'Program')
+
+      const accountUpdated = Account.update(
+        { id: account.id },
+        {
+          cookie: cookieHeader
+        }
+      ) as AccountType
+
+      const { ErrorCode, Data } = await getBalanceP88bet(accountUpdated)
+      const credit = Number(Data.trim())
+
+      if (ErrorCode == 0 && !Number.isNaN(credit)) {
+        const setting = Setting.findAll()[0] as SettingType
+        port.postMessage({
+          type: 'DataUpdateAccount',
+          data: Account.update(
+            { id: account.id },
+            {
+              checkBoxBet: 1,
+              checkBoxRefresh: 1,
+              checkBoxAutoLogin: 1,
+              typeCrawl: setting.gameType,
+              credit: Data,
+              status: STATUS_ACCOUNT.LOGOUT,
+              statusLogin: STATUS_LOGIN.SUCCESS,
+              textLog: `Login ${account.loginID} successfully!`
+            }
+          )
+        })
+        await delay(2000)
+        process.exit(0)
+      }
+    }
+
+    await accountLogToFile(
+      account.platformName,
+      account.loginID,
+      `Login Fail: ${message}`,
+      'Program'
+    )
+    port.postMessage({
+      type: 'DataUpdateAccount',
+      data: Account.update(
+        { id: account.id },
+        {
+          status: STATUS_ACCOUNT.EXIT,
+          statusLogin: STATUS_LOGIN.FAIL,
+          textLog: `Login failed: ${message}`
+        }
+      )
+    })
+
+    process.exit(0)
+  } catch (err) {
+    console.error('Lỗi loginToP88Bet:', err)
+    await handleLoginFail(port, account, `Unexpected error: ${String(err)}`)
+    process.exit(0)
+  }
+}

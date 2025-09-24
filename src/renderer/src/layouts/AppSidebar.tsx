@@ -14,6 +14,7 @@ import Feature from '@renderer/icons/feature'
 import { getThemeClass } from '@shared/common/constants'
 import { useSidebar } from '@renderer/context/SidebarContext'
 import { useCount } from '@renderer/context/CountContext'
+import DataFlow from '@renderer/icons/dataflow'
 
 type NavItem = {
   name: string
@@ -37,7 +38,8 @@ const navItems: NavItem[] = [
     name: 'Success List',
     path: 'success-list',
     badgeKey: 'totalSuccessList'
-  }
+  },
+  { icon: <DataFlow />, name: 'League Data', path: 'league-data' }
 ]
 
 const NavItemComponent = ({

@@ -12,6 +12,7 @@ import BetList from '@renderer/pages/BetList'
 import WaitingList from '@renderer/pages/WaitingList'
 import ContraList from '@renderer/pages/ContraList'
 import SuccessList from '@renderer/pages/SuccessList'
+import LeagueData from '@renderer/pages/League Data'
 
 function Router() {
   return (
@@ -27,6 +28,7 @@ function Router() {
           <Route path="waiting-list" element={<WaitingList />} />
           <Route path="contra-list" element={<ContraList />} />
           <Route path="success-list" element={<SuccessList />} />
+          <Route path="league-data" element={<LeagueData />} />
           <Route path="program-settings" element={<ProgramSetting />}>
             <Route index element={<Navigate to="general-setting" replace />} />
             <Route path="general-setting" element={<GeneralSetting />} />

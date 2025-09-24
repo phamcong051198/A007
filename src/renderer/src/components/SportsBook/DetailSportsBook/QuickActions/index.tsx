@@ -1,12 +1,5 @@
 import AccountList from '@renderer/components/SportsBook/DetailSportsBook/QuickActions/AccountList'
-import AccountListSwitch from '@renderer/components/SportsBook/DetailSportsBook/QuickActions/AccountListSwitch'
-import AccountSwitchingIntervalSetting from '@renderer/components/SportsBook/DetailSportsBook/QuickActions/AccountSwitchingIntervalSetting'
-import AccountSwitchingIsOnOff from '@renderer/components/SportsBook/DetailSportsBook/QuickActions/AccountSwitchingIsOnOff'
-import AccountSwitchingTypeSetting from '@renderer/components/SportsBook/DetailSportsBook/QuickActions/AccountSwitchingTypeSetting'
-import DelayLoginSetting from '@renderer/components/SportsBook/DetailSportsBook/QuickActions/DelayLoginSetting'
-import HighlightAccount from '@renderer/components/SportsBook/DetailSportsBook/QuickActions/HighlightAccount'
 import ProxySetting from '@renderer/components/SportsBook/DetailSportsBook/QuickActions/ProxySetting'
-import VIPAccountCheckerSetting from '@renderer/components/SportsBook/DetailSportsBook/QuickActions/VIPAccountCheckerSetting'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,10 +17,6 @@ export default function QuickActionsPlatform({ sportsBook }: { sportsBook: DataP
 
   const handleLogoutAll_Platform = () => {
     window.electron.ipcRenderer.send('LogoutAll_Platform', sportsBook.platform)
-  }
-
-  const handleDelayeLoginAll_Platform = () => {
-    window.electron.ipcRenderer.send('DelayLoginAll_Platform', sportsBook.platform)
   }
 
   return (
@@ -54,26 +43,7 @@ export default function QuickActionsPlatform({ sportsBook }: { sportsBook: DataP
           Logout All
         </DropdownMenuItem>
         <DropdownMenuSeparator className="border border-border-default" />
-        <DropdownMenuItem
-          className="font-semibold cursor-pointer  focus:text-white focus:bg-[#22262F] px-[16px] py-[8px] rounded-[4px]"
-          onClick={handleDelayeLoginAll_Platform}
-        >
-          Delayed Login All
-        </DropdownMenuItem>
-
-        <DelayLoginSetting sportsBook={sportsBook} />
-        <DropdownMenuSeparator className="border border-border-default" />
         <AccountList sportsBook={sportsBook} />
-        <VIPAccountCheckerSetting sportsBook={sportsBook} />
-
-        <DropdownMenuSeparator className="border border-border-default" />
-
-        <AccountListSwitch sportsBook={sportsBook} />
-        <AccountSwitchingIntervalSetting sportsBook={sportsBook} />
-        <AccountSwitchingTypeSetting sportsBook={sportsBook} />
-        <AccountSwitchingIsOnOff sportsBook={sportsBook} />
-        <HighlightAccount sportsBook={sportsBook} />
-
         <DropdownMenuSeparator className="border border-border-default" />
 
         <ProxySetting sportsBook={sportsBook} />

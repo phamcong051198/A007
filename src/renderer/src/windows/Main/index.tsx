@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 
 import AppLayout from '@renderer/layouts/AppLayout'
 import DialogWithCountdown from '@renderer/components/Dialog/DialogWithCountdownProps'
@@ -7,17 +6,11 @@ import { useCount } from '@renderer/context/CountContext'
 import SessionExpirePopup from '@renderer/components/Dialog/SessionExpirePopup'
 
 export default function Main() {
-  const { t, i18n } = useTranslation('main')
   const { setTotalBetList, setTotalWaitingList, setTotalContraList, setTotalSuccessList } =
     useCount()
 
-  const refreshToken = localStorage.getItem('refreshToken')
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState('')
-
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng)
-  }
 
   useEffect(() => {
     const listenerMapping = [
@@ -54,45 +47,6 @@ export default function Main() {
           window.electron.ipcRenderer.send('CloseAppByToken')
         }, 5000)
       }
-    })
-  }, [])
-  useEffect(() => {
-    window.electron.onRefreshToken((_event) => {
-      window.electron.ipcRenderer.send('refreshTokenOnServer', refreshToken)
-    })
-
-    window.electron.ipcRenderer.once(
-      'setToken',
-      (_event, { success, accessTokenNew, refreshToken }) => {
-        if (success) {
-          localStorage.setItem('accessToken', accessTokenNew)
-          localStorage.setItem('refreshToken', refreshToken)
-          window.electron.ipcRenderer.send('reconnectionToken', accessTokenNew)
-          alert('Failed to reconnectionToken token:')
-        } else {
-          window.electron.ipcRenderer.send('CloseAppByToken')
-          alert('Failed to refresh token:')
-        }
-      }
-    )
-  }, [])
-  useEffect(() => {
-    window.electron.syncExpiredDate((_event, data) => {
-      const expiredDate = new Date(data?.expiredDate)
-
-      const formattedDate =
-        expiredDate.getUTCFullYear() +
-        '-' +
-        String(expiredDate.getUTCMonth() + 1).padStart(2, '0') +
-        '-' +
-        String(expiredDate.getUTCDate()).padStart(2, '0') +
-        ' ' +
-        String(expiredDate.getUTCHours()).padStart(2, '0') +
-        ':' +
-        String(expiredDate.getUTCMinutes()).padStart(2, '0') +
-        ':' +
-        String(expiredDate.getUTCSeconds()).padStart(2, '0')
-      window.electron.ipcRenderer.send('setExpiredDate', formattedDate, data?.versionLatest)
     })
   }, [])
 

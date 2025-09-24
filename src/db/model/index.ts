@@ -1,11 +1,9 @@
 import db from '@db/config/database'
 import accountSchema from '@db/schema/account'
-import accountSwitchSchema from '@db/schema/accountSwitch'
 import betListResultSchema from '@db/schema/betListResult'
 import contraListSchema from '@db/schema/contraList'
 import dataBetSchema from '@db/schema/dataBet'
 import eventViva88Schema from '@db/schema/eventViva88'
-import blockLeagueSchema from '@db/schema/blockLeague'
 import leagueViva88Schema from '@db/schema/leagueViva88'
 import nameLeagueSchema from '@db/schema/nameLeague'
 import nameTeamSchema from '@db/schema/nameTeam'
@@ -17,7 +15,6 @@ import settingPerMatchLimitSettingSchema from '@db/schema/settingPerMatchLimitSe
 import sportsBookSchema from '@db/schema/sportsBook'
 import successListSchema from '@db/schema/successList'
 import waitingListSchema from '@db/schema/waitingList'
-import allowLeagueSchema from '@db/schema/allowLeague'
 import perMatchLimitPlatformSchema from '@db/schema/perMatchLimitPlatform'
 import platformPerMatchDetailsSchema from '@db/schema/platformPerMatchDetails'
 import accountPairSchema from '@db/schema/accountPair'
@@ -327,9 +324,6 @@ export const BetListResult = createModel('BetListResult', betListResultSchema)
 export const WaitingList = createModel('WaitingList', waitingListSchema)
 export const ContraList = createModel('ContraList', contraListSchema)
 export const SuccessList = createModel('SuccessList', successListSchema)
-export const BlockLeague = createModel('BlockLeague', blockLeagueSchema)
-export const AllowLeague = createModel('AllowLeague', allowLeagueSchema)
-export const AccountSwitch = createModel('AccountSwitch', accountSwitchSchema)
 
 export const SettingPerMatchLimit = createModel(
   'SettingPerMatchLimit',

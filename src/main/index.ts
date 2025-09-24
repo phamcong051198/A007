@@ -2,9 +2,16 @@
 import { is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { join } from 'path'
-import { Account, clearTable, Setting, SettingLeagueFilter, SettingTableView } from '@db/model'
+import {
+  Account,
+  clearTable,
+  Platform,
+  Setting,
+  SettingLeagueFilter,
+  SettingTableView
+} from '@db/model'
 import { SettingTableViewType } from '@shared/common/types'
-import { DEFAULT_ACCOUNT_STATUS, DEFAULT_SETTING } from '@shared/main/constants'
+import { DEFAULT_ACCOUNT_STATUS, DEFAULT_SETTING, PLATFORM_DATA } from '@shared/main/constants'
 import { SettingLeagueFilterType, SettingType } from '@shared/common/types'
 import { createMainWindow } from '@/browserWindows/mainWindow'
 
@@ -52,7 +59,11 @@ function createWindow() {
       event.reply('LoginResult', { success: true })
 
       loginWindow.close()
+
       mainWindow = await createMainWindow(account)
+      if (!Platform.count()) {
+        Platform.insertMany(PLATFORM_DATA)
+      }
       return
     }
     return event.reply('LoginResult', { success: false, message: 'Invalid credentials.' })

@@ -2,17 +2,11 @@ import { is } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain } from 'electron'
 import {
   Account,
-  AccountSwitch,
-  AllowLeague,
   BetListResult,
-  BlockLeague,
-  clearTable,
   ContraList,
-  NameLeague,
   PerMatchDetail,
   Platform,
   Setting,
-  SettingLeagueFilter,
   SettingPerMatchLimit,
   SettingTableView,
   SportsBook,
@@ -29,7 +23,6 @@ import {
   handleLogoutAccount
 } from '@/browserWindows/service/handleLoginLogoutAccount'
 import {
-  NameLeagueType,
   PlatformType,
   SettingPerMatchLimitType,
   SettingType,
@@ -39,7 +32,6 @@ import { GetAccount1Account2 } from '@/browserWindows/service/getAccount1Account
 import { GetListAccountPair } from '@/browserWindows/service/getListAccountPair'
 import { getSuggestedClient } from '@/browserWindows/service/getSuggestedClient'
 import { handleAddControls } from '@/browserWindows/service/handleAddControls'
-import { handleDelayLogin } from '@/browserWindows/service/handleDelayLogin'
 import { handleListReportFile } from '@/browserWindows/service/handleListReportFile'
 import { handleLoginAll } from '@/browserWindows/service/handleLoginAll'
 import { handleLoginAll_Platform } from '@/browserWindows/service/handleLoginAll_Platform'
@@ -59,11 +51,8 @@ import {
 } from '@shared/common/types'
 import { DEFAULT_SPORTS_BOOK_CONFIG, DEFAULT_TEAM_NAME_LIMIT } from '@shared/main/constants'
 import { DataBetSettingPayload, SchedulerType } from '@shared/main/types'
-import { handleSwitchListAccount } from './service/handleSwitchAccount'
-import { handleUpdateDataListAccountSwitch } from './service/handleUpdateDataListAccountSwitch'
-import { initSocket } from './service/socket'
 
-export async function createMainWindow(account: { username: string }) {
+export async function createMainWindow() {
   const mainWindow = new BrowserWindow({
     width: 1440,
     height: 960,
@@ -313,25 +302,6 @@ export async function createMainWindow(account: { username: string }) {
 
   //******************************************************************************************************* */
 
-  //************************************** ProxyServerSettingGeneral *********************************************** */
-
-  ipcMain.on('UpdateDataProxyServerSettingsGeneral', (_, data) => {
-    const settings = Setting.findAll() as SettingType[]
-    if (!settings.length) return
-
-    Setting.update(
-      { id: settings[0].id },
-      {
-        ipAddress: data.ipAddress,
-        port: data.port || '0',
-        username: data.username,
-        password: data.password
-      }
-    )
-  })
-
-  //***************************************************************************************************** */
-
   //************************************** ListPlatformBookWindow *********************************************** */
 
   ipcMain.handle('GetListPlatform', () => {
@@ -424,11 +394,6 @@ export async function createMainWindow(account: { username: string }) {
 
   ipcMain.on('DeleteAccount', (_, account) => {
     handleDeleteAccount(mainWindow, account, activeSportsBook)
-  })
-
-  ipcMain.on('UpdateDelaySec_Platform', (_, data: { platform: string; dataUpdate: object }) => {
-    const dataUpdate = data.dataUpdate
-    SportsBook.update({ name: activeSportsBook, platform: data.platform }, { ...dataUpdate })
   })
 
   ipcMain.on('DeletePlatform', (_, namePlatform) => {
@@ -572,19 +537,6 @@ export async function createMainWindow(account: { username: string }) {
     handleLogoutAll_Platform(mainWindow, activeSportsBook, platform)
   })
 
-  ipcMain.on('DelayLoginAll_Platform', (_, platform) => {
-    handleDelayLogin(mainWindow, platform)
-  })
-
-  ipcMain.on('DataUpdateDelayedLoginSetting', (_, data) => {
-    const { sportsBookId, platform, delayLoginSec_from, delayLoginSec_to } = data
-    SportsBook.update({ name: sportsBookId, platform }, { delayLoginSec_from, delayLoginSec_to })
-  })
-
-  ipcMain.handle('DataDelayedLoginSetting', (_, data) => {
-    return SportsBook.findOne({ platform: data })
-  })
-
   ipcMain.on('Data_ProxyServerSetting_Platform', (_, data) => {
     const { platformName, formData } = data
 
@@ -598,179 +550,6 @@ export async function createMainWindow(account: { username: string }) {
         proxyPassword: formData.password || null
       }
     )
-  })
-
-  ipcMain.handle('VIPAccountCheckerSetting', (_, data) => {
-    const sportsBookByPlatform = SportsBook.findOne({ platform: data }) as SportsBookType
-    return sportsBookByPlatform.VIPAccountLogout
-  })
-
-  ipcMain.on('updateVIPAccountCheckerSetting', (_, data) => {
-    const { platform, VIPAccountLogout } = data
-    SportsBook.update({ platform }, { VIPAccountLogout })
-  })
-
-  //************************************************************************************* */
-
-  //************************************** accountSwitchList *********************************************** */
-
-  ipcMain.handle('GetListAccountSwitchByPlatform', (_, platformName) => {
-    return AccountSwitch.findAll({ platformName })
-  })
-
-  ipcMain.on('SaveAccountListSwitchWindow', (_, data) => {
-    const { sportsBookId, platformName, dataAccountNew } = data
-
-    const dataSportsBook = handleGetDataSportsBook(sportsBookId)
-    mainWindow.webContents.send('DataSportsBook', dataSportsBook)
-    handleUpdateDataListAccountSwitch(dataAccountNew, platformName)
-  })
-
-  ipcMain.on('SaveAccountListSwitchWindowAuto', (_, data, platformName) => {
-    if (!data || !data.length) {
-      return
-    }
-    handleUpdateDataListAccountSwitch(data, platformName)
-  })
-
-  ipcMain.handle('getPlatform', (_, platformName) => {
-    const data = Platform.findOne({ name: platformName }) as PlatformType
-    return data.url
-  })
-
-  //************************************************************************************* */
-
-  //************************************** accountSwitchInterval *********************************************** */
-
-  ipcMain.handle('DataSwitchIntervalSetting', (_, platformName) => {
-    return SportsBook.findOne({ platform: platformName })
-  })
-
-  ipcMain.on('DataUpdateSwitchIntervalSetting', (_, data) => {
-    const {
-      sportsBookId,
-      platform,
-      switchIntervalSetting_from,
-      switchIntervalSetting_to,
-      switchIntervalSettingMinutes
-    } = data
-
-    const dataSportsBook = handleGetDataSportsBook(sportsBookId)
-    mainWindow.webContents.send('DataSportsBook', dataSportsBook)
-    SportsBook.update(
-      { name: sportsBookId, platform: platform },
-      { switchIntervalSetting_from, switchIntervalSetting_to, switchIntervalSettingMinutes }
-    )
-  })
-
-  //************************************************************************************* */
-
-  //************************************** accountSwitchTypeSetting *********************************************** */
-
-  ipcMain.on('DataUpdateSwitchTypeSetting', (_, data) => {
-    const { sportsBookId, platform, accountType } = data
-
-    const dataSportsBook = handleGetDataSportsBook(sportsBookId)
-    mainWindow.webContents.send('DataSportsBook', dataSportsBook)
-    SportsBook.update({ name: sportsBookId, platform }, { accountType })
-  })
-
-  //************************************************************************************* */
-
-  //************************************** accountSwitchSettingOff *********************************************** */
-
-  ipcMain.on('DataUpdateSwitchSettingOFF', (_, data) => {
-    const { sportsBookId, platform, switchAccountSetting } = data
-
-    const dataSportsBook = handleGetDataSportsBook(sportsBookId)
-    mainWindow.webContents.send('DataSportsBook', dataSportsBook)
-    SportsBook.update(
-      { name: sportsBookId, platform },
-      { switchAccountSetting: switchAccountSetting }
-    )
-  })
-
-  //************************************************************************************* */
-
-  //************************************** DataUpdateSwitchHighLight *********************************************** */
-
-  ipcMain.on('DataUpdateSwitchHighLight', (_, data) => {
-    const { sportsBookId, platformName, formData } = data
-    SportsBook.update({ name: sportsBookId, platform: platformName }, { ...formData })
-
-    const dataSportsBook = handleGetDataSportsBook(activeSportsBook)
-    mainWindow.webContents.send('DataSportsBook', dataSportsBook)
-  })
-
-  ipcMain.handle('GetDataSettingLeagueFilter', () => {
-    return SettingLeagueFilter.findAll()[0]
-  })
-
-  ipcMain.handle('GetDataBlockLeague', () => {
-    return BlockLeague.findAll()
-  })
-
-  ipcMain.handle('GetDataAllowLeague', () => {
-    return AllowLeague.findAll()
-  })
-
-  ipcMain.handle('GetDataLeague', () => {
-    const data = NameLeague.findAll() as NameLeagueType[]
-    const result: { id: number; league: string }[] = Object.values(
-      data
-        .filter(
-          (item) =>
-            item.league &&
-            item.league.trim() !== '' &&
-            item.league !== null &&
-            !item.league.includes('Corners')
-        )
-        .reduce<Record<string, { id: number; league: string }>>((acc, item) => {
-          acc[item.league] = { id: item.id, league: item.league.trim() }
-          return acc
-        }, {})
-    ).sort((a, b) => a.league.localeCompare(b.league))
-
-    return result
-  })
-
-  let filterTypeRoot = SettingLeagueFilter.findAll()[0].filterType as string
-  ipcMain.on(
-    'DataLeagueFilter',
-    async (
-      _,
-      {
-        filterType,
-        blockMajorLeague,
-        allowMajorLeague,
-        listAllowLeagueTable,
-        listBlockLeagueTable
-      }: {
-        filterType: string
-        blockMajorLeague: number
-        allowMajorLeague: number
-        listAllowLeagueTable: { id: number | string; league: string }[]
-        listBlockLeagueTable: { id: number | string; league: string }[]
-      }
-    ) => {
-      SettingLeagueFilter.update({}, { filterType, blockMajorLeague, allowMajorLeague })
-      const newBlockLeagues = listBlockLeagueTable.map(({ league }) => ({ league }))
-      const newAllowLeagues = listAllowLeagueTable.map(({ league }) => ({ league }))
-
-      await Promise.all([clearTable('BlockLeague'), clearTable('AllowLeague')])
-      await Promise.all([
-        BlockLeague.insertMany(newBlockLeagues),
-        AllowLeague.insertMany(newAllowLeagues)
-      ])
-      if (filterTypeRoot !== filterType) {
-        filterTypeRoot = filterType
-        clearTable('DataBet')
-      }
-    }
-  )
-
-  ipcMain.on('switchIntervalSetting', (_, platform, data, isOn) => {
-    handleSwitchListAccount(platform, mainWindow, data, isOn)
   })
 
   //************************************************************************************* */
@@ -797,50 +576,6 @@ export async function createMainWindow(account: { username: string }) {
     }
 
     app.quit()
-  })
-
-  ipcMain.on('reconnectionToken', async (_event, token) => {
-    initSocket(token, 'en', mainWindow)
-  })
-
-  ipcMain.on('refreshTokenOnServer', async (event, token) => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_URL}/user/auth/refresh_token`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken: token })
-      })
-      if (!response.ok) {
-        return event.reply('LoginResult', { success: false, message: 'Invalid credentials.' })
-      }
-
-      const responseData = (await response.json()) as {
-        data: { accessToken: string; refreshToken: string }
-      }
-
-      const { accessToken, refreshToken } = responseData.data
-      event.reply('setToken', { success: true, accessToken, refreshToken })
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Login error:', error)
-        event.reply('LoginResult', {
-          success: false,
-          message: `Login Fail: ${error.message}`
-        })
-      } else {
-        console.error('Login error:', error)
-        event.reply('LoginResult', {
-          success: false,
-          message: 'An error occurred during login. Please try again.'
-        })
-      }
-    }
-  })
-
-  ipcMain.on('setExpiredDate', async (_event, expiredDate) => {
-    mainWindow.setTitle(
-      `B-Soft Vietnam ${app.getVersion()}         User: ${account.username}/ Expiry Date: ${expiredDate}`
-    )
   })
 
   ipcMain.on('QuitApp', async () => {

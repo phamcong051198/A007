@@ -133,3 +133,31 @@ export const TYPE_ODD_DETAIL = {
   HDP: 'SPREAD',
   OU: 'TOTAL'
 }
+
+export const PLATFORM_DATA = [
+  {
+    uuid: 'f7a57136-fc82-4538-903d-a1d39b3f9623',
+    name: '3in1Bet',
+    url: 'https://www.8611357.com/'
+  },
+  {
+    uuid: 'd4990a1a-c8ae-41d2-bd54-851967141d6b',
+    name: 'P88Bet',
+    url: 'https://www.p88.bet/'
+  },
+  {
+    uuid: 'dc0077f9-5cc8-4ad1-9c02-7a4fc89b7e45',
+    name: 'Sbobet',
+    url: 'https://www.sbobet.com/'
+  },
+  {
+    uuid: 'dc0077f9-5cc8-4ad1-9c02-7a4fc89b7e89',
+    name: 'Viva88Bet',
+    url: 'https://www.viva88.net/'
+  },
+  {
+    uuid: '197f36e1-71d1-4a7b-9c2c-3fd90269287f',
+    name: 'WBet',
+    url: 'https://true88.com/'
+  }
+]

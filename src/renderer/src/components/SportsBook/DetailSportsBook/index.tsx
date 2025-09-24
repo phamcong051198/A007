@@ -7,7 +7,6 @@ import ExclamationTriangle from '@renderer/icons/exclamation-triangle'
 import QuickActionsPlatform from '@renderer/components/SportsBook/DetailSportsBook/QuickActions'
 import AddAccount from '@renderer/components/SportsBook/DetailSportsBook/AddAccount'
 import DeletePlatform from '@renderer/components/SportsBook/DetailSportsBook/DeletePlatform'
-import DeylaySec from '@renderer/components/SportsBook/DetailSportsBook/DelaySec'
 import HeaderListAccount from '@renderer/components/SportsBook/DetailSportsBook/HeaderListAccount'
 
 interface DetailSportsBookProps {
@@ -38,44 +37,7 @@ const DetailSportsBook: React.FC<DetailSportsBookProps> = ({
     switchAccountSetting: sportsBook.switchAccountSetting
   })
 
-  const [delayLogin, setDelayLogin] = useState(null)
-
   const [showAlertError, setShowAlertError] = useState(false)
-  const [settingOff, setSettingOff] = useState<string>('')
-
-  useEffect(() => {
-    const DelayLogin = (_, { platform, delayLogin }) => {
-      if (sportsBook.platform == platform) {
-        setDelayLogin(delayLogin === 0 ? null : delayLogin)
-      }
-    }
-
-    window.electron.ipcRenderer.on('DelayLogin', DelayLogin)
-
-    return () => {
-      window.electron.ipcRenderer.removeAllListeners('DelayLogin')
-    }
-  }, [])
-
-  useEffect(() => {
-    fetchSettingSwitch()
-  }, [sportsBook])
-
-  const fetchSettingSwitch = async () => {
-    const data = await window.electron.ipcRenderer.invoke(
-      'DataSwitchIntervalSetting',
-      sportsBook.platform
-    )
-    if (data) {
-      setSettingOff(data.switchAccountSetting)
-      if (data.switchAccountSetting == 'on') {
-        setInputs({ ...inputs, switchIntervalSettingMinutes: data.switchIntervalSettingMinutes })
-        window.electron.ipcRenderer.send('switchIntervalSetting', sportsBook.platform, data, true)
-      } else {
-        window.electron.ipcRenderer.send('switchIntervalSetting', sportsBook.platform, data, false)
-      }
-    }
-  }
 
   const handleContextMenu = (event) => {
     setPlatform(sportsBook)
@@ -84,26 +46,6 @@ const DetailSportsBook: React.FC<DetailSportsBookProps> = ({
     setPosition({
       x: event.clientX,
       y: event.clientY
-    })
-  }
-
-  const handleInputChange = (key: keyof typeof inputs, value: string) => {
-    let cleanValue = value.replace(/\D/g, '')
-
-    if (/^0+$/.test(cleanValue)) {
-      cleanValue = '0'
-    } else {
-      cleanValue = cleanValue.replace(/^0+/, '')
-    }
-
-    setInputs((prev) => ({
-      ...prev,
-      [key]: cleanValue
-    }))
-
-    window.electron.ipcRenderer.send('UpdateDelaySec_Platform', {
-      platform: sportsBook.platform,
-      dataUpdate: { [key]: cleanValue }
     })
   }
 
@@ -125,13 +67,7 @@ const DetailSportsBook: React.FC<DetailSportsBookProps> = ({
         <div className="h-full flex-1">
           <div className="flex items-center px-[11px] py-[1px] justify-between rounded-t-[11px] bg-bg-gray border-b border-border-default">
             <p className="text-[18px] font-semibold">{sportsBook.platform}</p>
-            <DeylaySec
-              sportsBook={sportsBook}
-              inputs={inputs}
-              delayLogin={delayLogin}
-              settingOff={settingOff}
-              handleInputChange={handleInputChange}
-            />
+
             <div className=" border-gray-500 flex items-center gap-[12px]">
               <QuickActionsPlatform sportsBook={sportsBook} />
               <AddAccount handleAddAccount={handleAddAccount} sportsBook={sportsBook} />

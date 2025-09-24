@@ -3,45 +3,34 @@ import { BrowserWindow } from 'electron'
 
 import createWorkerCrawlP88 from './platform/P88/workerCrawl?nodeWorker'
 import createWorkerLoginP88 from './platform/P88/workerLogin?nodeWorker'
-import createWorkerSwitchAccountP88 from './platform/P88/workerSwitchAccount?nodeWorker'
 
 import createWorkerLoginSbobet from './platform/Sbobet/workerLogin?nodeWorker'
 import createWorkerCrawlSbobet from './platform/Sbobet/workerCrawl?nodeWorker'
-import createWorkerSwitchAccountSbobet from './platform/Sbobet/workerSwitchAccount?nodeWorker'
 
 import createWorkerCrawlViva88 from './platform/Viva88/workerCrawl?nodeWorker'
 import createWorkerHandleDataViva88 from './platform/Viva88/workerHandleData?nodeWorker'
 import createWorkerLoginViva88 from './platform/Viva88/workerLogin?nodeWorker'
-import createWorkerSwitchAccountViva from './platform/Viva88/workerSwitchAccount?nodeWorker'
 
 import createWorkerLoginWbet from './platform/Wbet/workerLogin?nodeWorker'
 import createWorkerCrawlWbet from './platform/Wbet/workerCrawl?nodeWorker'
-import createWorkerSwitchAccountWBet from './platform/Wbet/workerSwitchAccount?nodeWorker'
 
 import createWorkerLogin3IN1Bet from './platform/3In1bet/workerLogin?nodeWorker'
 import createWorkerCrawl3IN1Bet from './platform/3In1bet/workerCrawl?nodeWorker'
-import createWorkerSwitchAccount3IN1Bet from './platform/3In1bet/workerSwitchAccount?nodeWorker'
 
 import createWorkerAutoLogin from './workerAutoLogin?nodeWorker'
 import createWorkerPlaceBet from './workerPlaceBet?nodeWorker'
 
-import { handleLogoutAccount } from '@/browserWindows/service/handleLoginLogoutAccount'
 import handleBetList from '@/worker/lib/handleBetList'
 import handleContraList from '@/worker/lib/handleContraList'
 import handleSuccessList from '@/worker/lib/handleSuccessList'
+
 import { sendAccountUpdate } from '@/worker/lib/sendAccountUpdate'
 import { sendCount } from '@/worker/lib/sendCount'
 import { Account, ContraList, SuccessList, WaitingList } from '@db/model'
-import {
-  UpdateAccountByPlatFormSwitch,
-  UpdateAccountSwitchByPlatFormSwitch
-} from './lib/getAccountListByFlatform'
-import createWorkerScheduledLogin from './workerScheduledLogin?nodeWorker'
-import createWorkerScheduledLogout from './workerScheduledLogout?nodeWorker'
 import { sendPlatformUpdate } from '@/worker/lib/sendPlatformUpdate'
 import { QueueHandler } from '@shared/main/types'
 import { PLATFORM } from '@shared/main/constants'
-import { AccountType, SportsBook } from '@shared/common/types'
+import { AccountType } from '@shared/common/types'
 
 let workerCrawlP88: Worker | null = null
 let workerCrawlWbet: Worker | null = null
@@ -52,12 +41,6 @@ let workerHandleDataViva88: Worker | null = null
 
 let workerPlaceBet: Worker | null = null
 let workerAutoLogin: Worker | null = null
-
-let workerSwitchAccountP88: Worker | null = null
-let workerSwitchAccountViva: Worker | null = null
-let workerSwitchAccountSbobet: Worker | null = null
-let workerSwitchAccountWbet: Worker | null = null
-let workerSwitchAccount3IN1bet: Worker | null = null
 
 const platformHandlers: Record<string, QueueHandler> = {
   P88Bet: {
@@ -442,273 +425,4 @@ export function checkQueue(account: AccountType) {
 export function checkQueuePlatform(namePlatform: string) {
   const handler = platformHandlers[namePlatform]
   handler.queue = []
-}
-
-type SwitchWorkerFn = (
-  platformName: string,
-  mainWindow: BrowserWindow,
-  data: SportsBook,
-  isOn: boolean
-) => void
-
-const workerMap: Record<string, SwitchWorkerFn> = {
-  P88Bet: startWorkerSwitchP88,
-  Viva88Bet: startWorkerSwitchViva,
-  Sbobet: startWorkerSwitchSbobet,
-  WBet: startWorkerSwitchWBet,
-  '3in1Bet': startWorkerSwitch3IN1Bet
-}
-
-export function enqueueWorkerSwitchAccount(
-  platformName: string,
-  mainWindow: BrowserWindow,
-  data: SportsBook,
-  isOn: boolean
-) {
-  const workerFn = workerMap[platformName]
-  if (workerFn) {
-    workerFn(platformName, mainWindow, data, isOn)
-  } else {
-    console.warn(`No worker found for platform: ${platformName}`)
-  }
-}
-
-export async function startWorkerSwitchP88(platformName: string, mainWindow, data, isOn) {
-  if (isOn) {
-    if (!workerSwitchAccountP88) {
-      workerSwitchAccountP88 = createWorkerSwitchAccountP88({ workerData: 'worker' })
-      setTimeout(
-        () => {
-          workerSwitchAccountP88?.postMessage({
-            action: 'Start',
-            data: {
-              platformName: platformName,
-              valueSwitch: data
-            }
-          })
-        },
-        Number(data.switchIntervalSettingMinutes) * 60 * 1000
-      )
-      workerSwitchAccountP88.on('message', (msg) => {
-        if (msg.accountResult1) {
-          UpdateAccountByPlatFormSwitch(msg.accountResult1)
-          UpdateAccountSwitchByPlatFormSwitch(msg.accountResult2, platformName)
-          if (msg.accountResult1.checkBoxAutoLogin === 1) {
-            enqueueWorker(msg.accountResult1, mainWindow)
-          }
-
-          if (!mainWindow.isDestroyed()) {
-            mainWindow.webContents.send('DataUpdateSwitch', msg.accountResult1)
-          }
-        }
-      })
-
-      workerSwitchAccountP88.on('exit', (code) => {
-        console.log('Exit WorkerSwitchAccount...', code)
-        workerSwitchAccountP88 = null
-      })
-
-      workerSwitchAccountP88.on('error', (error) => {
-        console.error('WorkerSwitchAccount error:', error)
-      })
-    }
-  } else {
-    if (workerSwitchAccountP88) {
-      workerSwitchAccountP88.terminate()
-      workerSwitchAccountP88 = null
-      console.log('Worker đã bị tắt.')
-    }
-  }
-}
-
-export async function startWorkerSwitchViva(platformName: string, mainWindow, data, isOn) {
-  if (isOn) {
-    if (!workerSwitchAccountViva) {
-      workerSwitchAccountViva = createWorkerSwitchAccountViva({ workerData: 'worker' })
-      setTimeout(
-        () => {
-          workerSwitchAccountViva?.postMessage({
-            action: 'Start',
-            data: {
-              platformName: platformName,
-              valueSwitch: data
-            }
-          })
-        },
-        Number(data.switchIntervalSettingMinutes) * 60 * 1000
-      )
-      workerSwitchAccountViva.on('message', (msg) => {
-        if (msg.accountResult1) {
-          UpdateAccountByPlatFormSwitch(msg.accountResult1)
-          UpdateAccountSwitchByPlatFormSwitch(msg.accountResult2, platformName)
-          if (msg.accountResult1.checkBoxAutoLogin === 1) {
-            enqueueWorker(msg.accountResult1, mainWindow)
-          }
-
-          if (!mainWindow.isDestroyed()) {
-            mainWindow.webContents.send('DataUpdateSwitch', msg.accountResult1)
-          }
-        }
-      })
-
-      workerSwitchAccountViva.on('exit', (code) => {
-        console.log('Exit WorkerSwitchAccount...', code)
-        workerSwitchAccountViva = null
-      })
-
-      workerSwitchAccountViva.on('error', (error) => {
-        console.error('WorkerSwitchAccount error:', error)
-      })
-    }
-  } else {
-    if (workerSwitchAccountViva) {
-      workerSwitchAccountViva.terminate()
-      workerSwitchAccountViva = null
-      console.log('Worker đã bị tắt.')
-    }
-  }
-}
-
-export async function startWorkerSwitchSbobet(platformName: string, mainWindow, data, isOn) {
-  if (isOn) {
-    if (!workerSwitchAccountSbobet) {
-      workerSwitchAccountSbobet = createWorkerSwitchAccountSbobet({ workerData: 'worker' })
-      setTimeout(
-        () => {
-          workerSwitchAccountSbobet?.postMessage({
-            action: 'Start',
-            data: {
-              platformName: platformName,
-              valueSwitch: data
-            }
-          })
-        },
-        Number(data.switchIntervalSettingMinutes) * 60 * 1000
-      )
-      workerSwitchAccountSbobet.on('message', (msg) => {
-        if (msg.accountResult1) {
-          UpdateAccountByPlatFormSwitch(msg.accountResult1)
-          UpdateAccountSwitchByPlatFormSwitch(msg.accountResult2, platformName)
-          if (msg.accountResult1.checkBoxAutoLogin === 1) {
-            enqueueWorker(msg.accountResult1, mainWindow)
-          }
-
-          if (!mainWindow.isDestroyed()) {
-            mainWindow.webContents.send('DataUpdateSwitch', msg.accountResult1)
-          }
-        }
-      })
-
-      workerSwitchAccountSbobet.on('exit', (code) => {
-        console.log('Exit WorkerSwitchAccount...', code)
-        workerSwitchAccountSbobet = null
-      })
-
-      workerSwitchAccountSbobet.on('error', (error) => {
-        console.error('WorkerSwitchAccount error:', error)
-      })
-    }
-  } else {
-    if (workerSwitchAccountSbobet) {
-      workerSwitchAccountSbobet.terminate()
-      workerSwitchAccountSbobet = null
-      console.log('Worker đã bị tắt.')
-    }
-  }
-}
-
-export async function startWorkerSwitchWBet(platformName: string, mainWindow, data, isOn) {
-  if (isOn) {
-    if (!workerSwitchAccountWbet) {
-      workerSwitchAccountWbet = createWorkerSwitchAccountWBet({ workerData: 'worker' })
-      setTimeout(
-        () => {
-          workerSwitchAccountWbet?.postMessage({
-            action: 'Start',
-            data: {
-              platformName: platformName,
-              valueSwitch: data
-            }
-          })
-        },
-        Number(data.switchIntervalSettingMinutes) * 60 * 1000
-      )
-      workerSwitchAccountWbet.on('message', (msg) => {
-        if (msg.accountResult1) {
-          UpdateAccountByPlatFormSwitch(msg.accountResult1)
-          UpdateAccountSwitchByPlatFormSwitch(msg.accountResult2, platformName)
-          if (msg.accountResult1.checkBoxAutoLogin === 1) {
-            enqueueWorker(msg.accountResult1, mainWindow)
-          }
-
-          if (!mainWindow.isDestroyed()) {
-            mainWindow.webContents.send('DataUpdateSwitch', msg.accountResult1)
-          }
-        }
-      })
-
-      workerSwitchAccountWbet.on('exit', (code) => {
-        console.log('Exit WorkerSwitchAccount...', code)
-        workerSwitchAccountWbet = null
-      })
-
-      workerSwitchAccountWbet.on('error', (error) => {
-        console.error('WorkerSwitchAccount error:', error)
-      })
-    }
-  } else {
-    if (workerSwitchAccountWbet) {
-      workerSwitchAccountWbet.terminate()
-      workerSwitchAccountWbet = null
-      console.log('Worker đã bị tắt.')
-    }
-  }
-}
-
-export async function startWorkerSwitch3IN1Bet(platformName: string, mainWindow, data, isOn) {
-  if (isOn) {
-    if (!workerSwitchAccount3IN1bet) {
-      workerSwitchAccount3IN1bet = createWorkerSwitchAccount3IN1Bet({ workerData: 'worker' })
-      setTimeout(
-        () => {
-          workerSwitchAccount3IN1bet?.postMessage({
-            action: 'Start',
-            data: {
-              platformName: platformName,
-              valueSwitch: data
-            }
-          })
-        },
-        Number(data.switchIntervalSettingMinutes) * 60 * 1000
-      )
-      workerSwitchAccount3IN1bet.on('message', (msg) => {
-        if (msg.accountResult1) {
-          UpdateAccountByPlatFormSwitch(msg.accountResult1)
-          UpdateAccountSwitchByPlatFormSwitch(msg.accountResult2, platformName)
-          if (msg.accountResult1.checkBoxAutoLogin === 1) {
-            enqueueWorker(msg.accountResult1, mainWindow)
-          }
-
-          if (!mainWindow.isDestroyed()) {
-            mainWindow.webContents.send('DataUpdateSwitch', msg.accountResult1)
-          }
-        }
-      })
-
-      workerSwitchAccount3IN1bet.on('exit', (code) => {
-        console.log('Exit WorkerSwitchAccount...', code)
-        workerSwitchAccount3IN1bet = null
-      })
-
-      workerSwitchAccount3IN1bet.on('error', (error) => {
-        console.error('WorkerSwitchAccount error:', error)
-      })
-    }
-  } else {
-    if (workerSwitchAccount3IN1bet) {
-      workerSwitchAccount3IN1bet.terminate()
-      workerSwitchAccount3IN1bet = null
-      console.log('Worker đã bị tắt.')
-    }
-  }
 }

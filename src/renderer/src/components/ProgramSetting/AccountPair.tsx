@@ -503,13 +503,7 @@ const PlatformSettingsSection = ({ typeAccount }: { typeAccount: 'account1' | 'a
   )
 }
 
-const GeneralSettingsSection = ({
-  typeAccount,
-  handleShowPopupLineRange
-}: {
-  typeAccount: 'account1' | 'account2'
-  handleShowPopupLineRange: (lineKey: string, typeAccount: 'account1' | 'account2') => void
-}) => {
+const GeneralSettingsSection = ({ typeAccount }: { typeAccount: 'account1' | 'account2' }) => {
   const { Combination } = useContext(AccountPairContext)
   const { listAccountPair, setListAccountPair, currentAccountPair } = Combination
 
@@ -570,14 +564,6 @@ const BetSettingsSection = () => {
   const { Combination } = useContext(AccountPairContext)
   const { currentAccountPair } = Combination
 
-  const [currentLineKey, setCurrentLineKey] = useState('')
-  const [currentTypeAccount, setCurrentTypeAccount] = useState<'account1' | 'account2'>('account1')
-
-  const handleShowPopupLineRange = (lineKey: string, typeAccount: 'account1' | 'account2') => {
-    setCurrentLineKey(lineKey)
-    setCurrentTypeAccount(typeAccount)
-  }
-
   if (!currentAccountPair || !currentAccountPair.id) {
     return (
       <div className="mt-4 bg-[#0C0E12] border border-[#22262F] rounded p-8 text-center">
@@ -598,17 +584,11 @@ const BetSettingsSection = () => {
         <div className="grid grid-cols-2">
           <div className="border-r border-[#22262F]">
             <PlatformSettingsSection typeAccount="account1" />
-            <GeneralSettingsSection
-              typeAccount="account1"
-              handleShowPopupLineRange={handleShowPopupLineRange}
-            />
+            <GeneralSettingsSection typeAccount="account1" />
           </div>
           <div>
             <PlatformSettingsSection typeAccount="account2" />
-            <GeneralSettingsSection
-              typeAccount="account2"
-              handleShowPopupLineRange={handleShowPopupLineRange}
-            />
+            <GeneralSettingsSection typeAccount="account2" />
           </div>
         </div>
       </div>

@@ -2,13 +2,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
 import ChevronDown from '@renderer/icons/chevron-down'
 import LogIn from '@renderer/icons/log-in'
 import LogOut from '@renderer/icons/log-out'
-import Settings from '@renderer/icons/settings'
 
 export default function QuickActions() {
   const handleLoginAll = () => {

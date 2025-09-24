@@ -105,10 +105,6 @@ const ListEventSuccessList = () => {
       </div>
 
       <TableData dataTable={dataTable} enableScroll={settings.enableScroll} />
-
-      {/* {showInfoTicketSuccess && ticket && (
-        <InfoTicketSuccess setShowInfoTicketSuccess={setShowInfoTicketSuccess} ticket={ticket} />
-      )} */}
     </div>
   )
 }

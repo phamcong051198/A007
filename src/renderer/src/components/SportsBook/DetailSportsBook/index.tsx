@@ -11,43 +11,10 @@ import HeaderListAccount from '@renderer/components/SportsBook/DetailSportsBook/
 
 interface DetailSportsBookProps {
   sportsBook: DataPlatformType
-  setVisible: Dispatch<SetStateAction<boolean>>
-  setPosition: Dispatch<
-    SetStateAction<{
-      x: number
-      y: number
-    }>
-  >
-  setPlatform: Dispatch<SetStateAction<DataPlatformType | null>>
 }
 
-const DetailSportsBook: React.FC<DetailSportsBookProps> = ({
-  sportsBook,
-  setVisible,
-  setPosition,
-  setPlatform
-}) => {
-  const [inputs, setInputs] = useState({
-    delayNormal: sportsBook.delayNormal,
-    delaySameGame: sportsBook.delaySameGame,
-    switchIntervalSetting_from: sportsBook.switchIntervalSetting_from,
-    switchIntervalSetting_to: sportsBook.switchIntervalSetting_to,
-    switchIntervalSettingMinutes: sportsBook.switchIntervalSettingMinutes,
-    accountSwitchSettingOFF: sportsBook.accountType,
-    switchAccountSetting: sportsBook.switchAccountSetting
-  })
-
+const DetailSportsBook: React.FC<DetailSportsBookProps> = ({ sportsBook }) => {
   const [showAlertError, setShowAlertError] = useState(false)
-
-  const handleContextMenu = (event) => {
-    setPlatform(sportsBook)
-    event.preventDefault()
-    setVisible(true)
-    setPosition({
-      x: event.clientX,
-      y: event.clientY
-    })
-  }
 
   const handleAddAccount = () => {
     if (sportsBook.accounts.length === 300) {
@@ -78,7 +45,7 @@ const DetailSportsBook: React.FC<DetailSportsBookProps> = ({
           <HeaderListAccount />
         </div>
       </div>
-      <div className="pb-[16px]" onContextMenu={handleContextMenu}>
+      <div className="pb-[16px]">
         {sportsBook.accounts &&
           sportsBook.accounts.length > 0 &&
           sportsBook.accounts.map((account, index) => (

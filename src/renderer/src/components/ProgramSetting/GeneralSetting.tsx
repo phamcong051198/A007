@@ -2,20 +2,14 @@ import { useContext, useState } from 'react'
 import { CheckCircle } from 'lucide-react'
 
 import { SettingContext } from '@renderer/context/SettingContext'
-import ExclamationTriangle from '@renderer/icons/exclamation-triangle'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { InputNumber } from '../ui/input-number'
 import { Label } from '../ui/label'
 import { Button } from '../ui/button'
-import { NotificationBetAmountRandom } from '@renderer/components/Setting/ButtonSaveSettings/NotificationBetAmountRandom'
 
 export default function GeneralSetting() {
   const context = useContext(SettingContext)
-
-  const [title, setTitle] = useState('Notification')
-  const [messageError, setMessageError] = useState('')
-  const [showAlertMsg, setShowAlertMsg] = useState(false)
 
   if (!context) return null
 
@@ -50,16 +44,6 @@ export default function GeneralSetting() {
 
   return (
     <div className="bg-layout-color flex flex-col overflow-y-auto overflow-x-hidden max-h-[calc(100vh-200px)]">
-      <NotificationBetAmountRandom
-        title={title}
-        messageError={messageError}
-        showAlertDialog={showAlertMsg}
-        setShowAlertDialog={setShowAlertMsg}
-        actionYes={() => {
-          setShowAlertMsg(false)
-        }}
-        ReactElement={<ExclamationTriangle className="w-28 size-11 text-[#FF8C00] mr-1" />}
-      />
       <h1 className="text-lg font-bold mb-5 border-b pb-2 mt-8 border-b-[#22262F]">
         Game Configuration
       </h1>

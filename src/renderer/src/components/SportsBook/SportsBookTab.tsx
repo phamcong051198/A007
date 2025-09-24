@@ -8,9 +8,6 @@ export default function SportsBookTab() {
   const { id: activeId } = useParams()
 
   const [dataSportBook, setDataSportBook] = useState<DataPlatformType[]>([])
-  const [visible, setVisible] = useState(false)
-  const [position, setPosition] = useState({ x: 0, y: 0 })
-  const [platform, setPlatform] = useState<DataPlatformType | null>(null)
 
   const fetchData = async () => {
     const data = await window.electron.ipcRenderer.invoke('GetDataSportsBook')
@@ -62,13 +59,7 @@ export default function SportsBookTab() {
       <div className="overflow-y-auto custom-scrollbar">
         <AccountUpdateProvider>
           {dataSportBook.map((sportsBook) => (
-            <DetailSportsBook
-              key={sportsBook.id}
-              sportsBook={sportsBook}
-              setVisible={setVisible}
-              setPosition={setPosition}
-              setPlatform={setPlatform}
-            />
+            <DetailSportsBook key={sportsBook.id} sportsBook={sportsBook} />
           ))}
         </AccountUpdateProvider>
       </div>

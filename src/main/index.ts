@@ -53,14 +53,11 @@ function createWindow() {
 
   ipcMain.on('AttemptLogin', async (event, { username, password }) => {
     if (username == import.meta.env.VITE_BUILD_U && password == import.meta.env.VITE_BUILD_P) {
-      const account = {
-        username
-      }
       event.reply('LoginResult', { success: true })
 
       loginWindow.close()
 
-      mainWindow = await createMainWindow(account)
+      mainWindow = await createMainWindow()
       if (!Platform.count()) {
         Platform.insertMany(PLATFORM_DATA)
       }

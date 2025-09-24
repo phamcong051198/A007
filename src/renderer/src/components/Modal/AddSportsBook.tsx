@@ -14,9 +14,8 @@ export default function AddSportsBookModal({ openAddSportsBook, setOpenAddSports
   useEffect(() => {
     const fetchData = async () => {
       const data = await window.electron.ipcRenderer.invoke('GetListPlatform')
-      const filteredData = data.filter((p) => p.name !== 'Isn88')
 
-      setListPlatForm(filteredData)
+      setListPlatForm(data)
     }
 
     fetchData()

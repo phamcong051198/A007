@@ -1,27 +1,7 @@
 import PropTypes from 'prop-types'
 type Theme = 'blue' | 'green' | 'purple'
 const ExclamationTriangle = ({ className }) => {
-  const buildTarget = import.meta.env.VITE_BUILD_TARGET
-
-  let theme: Theme = 'blue'
-  switch (buildTarget) {
-    case 'BSoft':
-      theme = 'blue'
-      break
-    case 'BSoft-switch':
-      theme = 'green'
-      break
-    case 'BSoft-corners':
-      theme = 'purple'
-      break
-    default:
-      theme = 'blue'
-  }
-
   const themeClass = 'text-[#D92D20]'
-  // if (theme === 'blue') themeClass = 'text-[#155EEF]'
-  // else if (theme === 'green') themeClass = 'text-[#7F56D9]'
-  // else if (theme === 'purple') themeClass = 'text-[#14B800]'
 
   return (
     <svg

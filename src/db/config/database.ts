@@ -3,9 +3,8 @@ const fs = require('fs')
 const path = require('path')
 const Database = require('better-sqlite3-multiple-ciphers')
 
-const isBSoft = import.meta.env.VITE_BUILD_TARGET == 'BSoft'
 const roamingPath = path.join(os.homedir(), 'AppData', 'Roaming')
-const buildTarget = isBSoft ? 'SpeedWin' : 'CornerPro'
+const buildTarget = 'A007'
 const folderPath = path.join(roamingPath, `${buildTarget}-data`)
 
 if (!fs.existsSync(folderPath)) {

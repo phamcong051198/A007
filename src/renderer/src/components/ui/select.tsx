@@ -14,24 +14,7 @@ const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => {
-  const buildTarget = import.meta.env.VITE_BUILD_TARGET
-
-  let theme = 'blue'
-
-  switch (buildTarget) {
-    case 'BSoft':
-      theme = 'blue'
-      break
-    case 'BSoft-switch':
-      theme = 'green'
-      break
-    case 'BSoft-corners':
-      theme = 'purple'
-      break
-    default:
-      theme = 'blue'
-  }
-
+  const theme = 'blue'
   const themeClasses = {
     blue: 'focus:border-[#155EEF] focus:ring-[#155EEF]',
     green: 'focus:border-[#14B800] focus:ring-[#14B800]',
@@ -135,24 +118,7 @@ const SelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
 >(({ className, children, ...props }, ref) => {
-  const buildTarget = import.meta.env.VITE_BUILD_TARGET
-
-  let theme = 'blue'
-
-  switch (buildTarget) {
-    case 'BSoft':
-      theme = 'blue'
-      break
-    case 'BSoft-switch':
-      theme = 'green'
-      break
-    case 'BSoft-corners':
-      theme = 'purple'
-      break
-    default:
-      theme = 'blue'
-  }
-
+  const theme = 'blue'
   const themeClasses = {
     blue: 'focus:bg-[#EFF6FF] focus:text-[#155EEF]',
     green: 'focus:bg-[#ECFDF5] focus:text-[#14B800]',

@@ -1,6 +1,5 @@
 import * as AlertDialog from '@radix-ui/react-alert-dialog'
 import { Button } from '@/components/ui/button'
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 export default function ClearAccountsDialog({ onClear }: { onClear: () => void }) {
   return (
@@ -30,7 +29,7 @@ export default function ClearAccountsDialog({ onClear }: { onClear: () => void }
 
             <AlertDialog.Action asChild>
               <Button
-                className={`${isBSoft ? 'bg-blue-color' : 'bg-purple-color'} text-white w-24 border-none h-7 font-semibold  hover:bg-opacity-90 rounded-[8px]`}
+                className={`${'bg-blue-color'} text-white w-24 border-none h-7 font-semibold  hover:bg-opacity-90 rounded-[8px]`}
                 onClick={onClear}
               >
                 Yes

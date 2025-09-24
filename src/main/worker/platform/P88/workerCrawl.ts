@@ -19,7 +19,6 @@ import { insertRecords } from '@/worker/lib/insertRecords'
 import { systemLogToFile } from '@/worker/lib/systemLogToFile'
 import { buildHeadersP88Bet, gameTypeMapP88 } from '@/worker/platform/P88/common/contants'
 import { PLATFORM, STATUS_ACCOUNT, STATUS_LOGIN } from '@shared/main/constants'
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 let gameType: string | null = null
 
@@ -298,7 +297,7 @@ const handleData = async ({ dataP88, account }) => {
     const [id, name, events] = league
 
     const hasCorners = name.toLowerCase().includes('corners')
-    if ((isBSoft && hasCorners) || (!isBSoft && !hasCorners)) continue
+    if (hasCorners) continue
 
     for (const event of events) {
       if (!isAccountActive(account.id) || !checkGameType(account.platformName, gameType)) return
@@ -307,11 +306,9 @@ const handleData = async ({ dataP88, account }) => {
       const home = event[1]
       const away = event[2]
 
-      const formatName = (str: string) =>
-        isBSoft ? str.trim() : str.replace(/ \(Corners\)$/, '').trim()
+      const formatName = (str: string) => str.trim()
 
-      const formatLeague = (str: string) =>
-        isBSoft ? str.trim() : str.replace(/ Corners$/, '').trim()
+      const formatLeague = (str: string) => str.trim()
 
       const standardHomeName = NameTeam.findOne({
         nameTeam: formatName(home),

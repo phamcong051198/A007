@@ -1,5 +1,5 @@
-appId: SpeedWin-appId
-productName: SpeedWin
+appId: A007-appId
+productName: A007
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
   - '!resources/**'
   - '!BetLog/**'
 win:
-  executableName: SpeedWin
+  executableName: A007
   icon: build/icon.png
 nsis:
   artifactName: ${productName}-${version}.${ext}
@@ -48,7 +48,7 @@ appImage:
 npmRebuild: false
 publish:
   provider: generic
-  url: https://upload.vbsoft.vip/bsoft/
+  url:
 extraResources:
   - from: 'resources/.cache/puppeteer/chrome'
     to: '.cache/puppeteer/chrome'

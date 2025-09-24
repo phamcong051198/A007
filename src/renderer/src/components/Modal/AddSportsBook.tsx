@@ -4,7 +4,6 @@ import InformationCircle from '@renderer/icons/information-circle'
 import { AlertDialog, AlertDialogContent } from '@renderer/components/ui/alert-dialog'
 import BookOpenBorder from '@renderer/icons/book-open-border'
 import SearchLg from '@renderer/icons/search-lg'
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 export default function AddSportsBookModal({ openAddSportsBook, setOpenAddSportsBook }) {
   const [searchTerm, setSearchTerm] = useState('')
@@ -121,7 +120,7 @@ export default function AddSportsBookModal({ openAddSportsBook, setOpenAddSports
           </main>
           <footer className="flex gap-[12px] justify-end px-[24px] py-[16px]">
             <button
-              className={`${isBSoft ? 'bg-blue-color' : 'bg-purple-color'} text-sm border-none block w-[80px] h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
+              className={`${'bg-blue-color'} text-sm border-none block w-[80px] h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
               onClick={() => setOpenAddSportsBook(false)}
             >
               Exit
@@ -142,14 +141,12 @@ export default function AddSportsBookModal({ openAddSportsBook, setOpenAddSports
             </button>
           </header>
           <main className="flex-1 flex justify-center items-center pb-2">
-            <InformationCircle
-              className={`${isBSoft ? 'text-blue-color' : 'text-purple-color'} size-8 mr-1 `}
-            />
+            <InformationCircle className={`${'text-blue-color'} size-8 mr-1 `} />
             <span className="text-sm ">{platForm?.name} already added !</span>
           </main>
           <footer className="rounded-b-lg items-center flex justify-end pr-4 pb-2">
             <button
-              className={`${isBSoft ? 'bg-blue-color' : 'bg-purple-color'} h-[24px] w-[80px] font-semibold text-xs rounded-[6px] border-none hover:bg-opacity-90 `}
+              className={`${'bg-blue-color'} h-[24px] w-[80px] font-semibold text-xs rounded-[6px] border-none hover:bg-opacity-90 `}
               onClick={() => setNotification(false)}
             >
               OK

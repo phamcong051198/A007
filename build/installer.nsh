@@ -1,4 +1,4 @@
-!define APP_NAME "SpeedWin"
+!define APP_NAME "A007"
 
 !define DEFAULT_INSTALL_PATH "C:\${APP_NAME}"
 !define INSTALL_REGISTRY_KEY "Software\${APP_NAME}"

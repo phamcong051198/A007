@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import { CheckCircle } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
@@ -14,11 +15,8 @@ import Settings from '@renderer/icons/settings'
 import Feature from '@renderer/icons/feature'
 import { getThemeClass } from '@shared/common/constants'
 import { PasswordChangeModal } from '@renderer/components/PasswordChangeModal'
-import { CheckCircle } from 'lucide-react'
 import { useSidebar } from '@renderer/context/SidebarContext'
 import { useCount } from '@renderer/context/CountContext'
-
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 type NavItem = {
   name: string
@@ -76,7 +74,7 @@ const NavItemComponent = ({
           {item.icon}
           {badgeValue !== null && badgeValue > 0 && (
             <span
-              className={`${isBSoft ? 'bg-blue-color' : 'bg-purple-color'} absolute -top-[12px] -left-[10px] bg-blue-color min-w-[18px] text-white text-[9px] p-1 rounded-full leading-none flex items-center justify-center`}
+              className={`${'bg-blue-color'} absolute -top-[12px] -left-[10px] bg-blue-color min-w-[18px] text-white text-[9px] p-1 rounded-full leading-none flex items-center justify-center`}
             >
               {badgeValue}
             </span>
@@ -251,11 +249,7 @@ const AppSidebar: React.FC = () => {
         >
           {!collapsed && (
             <Link to="sports-book">
-              <img
-                src={isBSoft ? 'images/logo-main-app.png' : 'images/logo-corners-app.png'}
-                alt="Logo"
-                className="cursor-pointer"
-              />
+              <img src={'images/logo-main-app.png'} alt="Logo" className="cursor-pointer" />
             </Link>
           )}
           <button className="cursor-pointer" onClick={toggleSidebar} aria-label="Toggle sidebar">

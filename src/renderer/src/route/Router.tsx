@@ -3,7 +3,6 @@ import { Path } from '@renderer/route/Path'
 import Main from '@renderer/windows/Main'
 import Setting from '@renderer/windows/Setting'
 import Login from '@renderer/windows/Login'
-import InitApp from '@renderer/windows/InitApp'
 import ProxyServerSettingsGeneral from '@renderer/windows/ProxyServerSettingsGeneral'
 import SportsBookPerMatchLimitSetting from '@renderer/windows/SportsBookPerMatchLimitSetting'
 import { SettingProvider } from '@renderer/context/SettingContext'
@@ -90,7 +89,6 @@ function Router() {
           }
         />
         <Route path={Path.login} element={<Login />} />
-        <Route path={Path.initApp} element={<InitApp />} />
         <Route path={Path.proxyServerSettingsGeneral} element={<ProxyServerSettingsGeneral />} />
         <Route
           path={Path.sportsBookPerMatchLimitSetting}

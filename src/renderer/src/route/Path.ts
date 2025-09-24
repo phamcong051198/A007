@@ -4,7 +4,6 @@ export const Path = {
   betSetting: '/betSetting',
   accountPair: '/accountPair',
   login: '/login',
-  initApp: '/initApp',
   listSportBook: '/listSportBook',
   addSelectedAccountPair: '/addSelectedAccountPair',
   proxyServerSettingsGeneral: '/proxyServerSettingsGeneral',

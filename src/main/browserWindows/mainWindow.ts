@@ -1,3 +1,5 @@
+import { is } from '@electron-toolkit/utils'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import {
   Account,
   AccountSwitch,
@@ -18,7 +20,6 @@ import {
   SuccessList,
   WaitingList
 } from '@db/model'
-import { is } from '@electron-toolkit/utils'
 import { join } from 'path'
 import { handleAddAccountPlatForm } from '@/browserWindows/service/handleAddAccountPlatForm'
 import { handleDeleteAccount } from '@/browserWindows/service/handleDeleteAccount'
@@ -35,7 +36,6 @@ import {
   SettingType,
   SportsBookType
 } from '@shared/common/types'
-import { app, BrowserWindow, ipcMain } from 'electron'
 import { GetAccount1Account2 } from '@/browserWindows/service/getAccount1Account2'
 import { GetListAccountPair } from '@/browserWindows/service/getListAccountPair'
 import { getSuggestedClient } from '@/browserWindows/service/getSuggestedClient'
@@ -51,7 +51,6 @@ import {
   SaveAccountCombination,
   SaveAccountCombinationByArray
 } from '@/browserWindows/service/saveAccountCombination'
-import { setupAutoUpdater } from '@/browserWindows/service/setupAutoUpdater'
 import { updateDataAccount } from '@/browserWindows/service/updateDataAccount'
 import { updateDataListAccount } from '@/browserWindows/service/updateDataListAccount'
 import { systemLogToFile } from '@/worker/lib/systemLogToFile'
@@ -62,20 +61,11 @@ import {
 } from '@shared/common/types'
 import { DEFAULT_SPORTS_BOOK_CONFIG, DEFAULT_TEAM_NAME_LIMIT } from '@shared/main/constants'
 import { DataBetSettingPayload, SchedulerType } from '@shared/main/types'
-import { handleCollectUserSettingOnApp } from './service/collectUserSettingOnApp'
 import { handleSwitchListAccount } from './service/handleSwitchAccount'
 import { handleUpdateDataListAccountSwitch } from './service/handleUpdateDataListAccountSwitch'
 import { initSocket } from './service/socket'
 
-export async function createMainWindow(
-  account: {
-    id: string
-    username: string
-    isActive: boolean
-    role: string
-  },
-  accessToken?: string
-) {
+export async function createMainWindow(account: { username: string }) {
   const mainWindow = new BrowserWindow({
     width: 1440,
     height: 960,
@@ -89,8 +79,7 @@ export async function createMainWindow(
     vibrancy: 'under-window',
     visualEffectState: 'active',
     trafficLightPosition: { x: 15, y: 10 },
-    icon:
-      import.meta.env.VITE_BUILD_TARGET === 'BSoft' ? 'build/icon.png' : 'build/icon-corners.png',
+    icon: 'build/icon.png',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
@@ -108,7 +97,6 @@ export async function createMainWindow(
     mainWindow.show()
     if (!is.dev) {
       await systemLogToFile(`[Main] SetupAutoCheckUpdate has been activated`, 'Program')
-      setupAutoUpdater()
     }
   })
 
@@ -826,24 +814,6 @@ export async function createMainWindow(
       handleListReportFile(flattenedDataSuccessList, 'SuccessListReport', date)
     }
 
-    const arraySaveBe = handleCollectUserSettingOnApp()
-
-    try {
-      const headers = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`
-      }
-      await fetch(`${import.meta.env.VITE_URL}/user/users/setting`, {
-        method: 'PUT',
-        headers: headers,
-        body: JSON.stringify(arraySaveBe)
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Login error:', error)
-      }
-    }
-
     app.quit()
   })
 
@@ -891,41 +861,6 @@ export async function createMainWindow(
     )
   })
 
-  ipcMain.handle('ChangePassword', async (_, { currentPassword, newPassword }) => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_URL}/user/users/password`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`
-        },
-        body: JSON.stringify({
-          oldPassword: currentPassword,
-          newPassword
-        })
-      })
-
-      const data = (await response.json()) as { message?: string }
-
-      if (!response.ok) {
-        throw new Error(data?.message || 'Failed to change password')
-      }
-
-      await systemLogToFile('User password changed successfully', 'Program')
-      return { success: true, message: 'Password changed successfully' }
-    } catch (error) {
-      await systemLogToFile(
-        `ChangePassword error: ${error instanceof Error ? error.message : String(error)}`,
-        'Error'
-      )
-
-      if (error instanceof Error) {
-        throw new Error(error.message)
-      }
-      throw new Error('Failed to change password. Please try again.')
-    }
-  })
-
   ipcMain.on('QuitApp', async () => {
     const date = new Date()
       .toISOString()
@@ -943,24 +878,6 @@ export async function createMainWindow(
       const flattenedDataSuccessList = successList.flatMap((item) => JSON.parse(item.dataPair))
       handleListReportFile(flattenedDataSuccessList, 'SuccessListReport', date)
     }
-
-    const arraySaveBe = handleCollectUserSettingOnApp()
-    try {
-      const headers = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`
-      }
-      await fetch(`${import.meta.env.VITE_URL}/user/users/setting`, {
-        method: 'PUT',
-        headers: headers,
-        body: JSON.stringify(arraySaveBe)
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Login error:', error)
-      }
-    }
-
     app.quit()
   })
 

@@ -1,9 +1,8 @@
+import { useParams } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { useReactTable, ColumnResizeMode, getCoreRowModel, flexRender } from '@tanstack/react-table'
 import { AccountType } from '@shared/common/types'
 import { createColumnsAccountList } from '@renderer/components/AccountList/defaultColumnsAccountList'
-import { useParams } from 'react-router-dom'
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 const cellKey = (rowIndex: number, columnId: string) => `${rowIndex}-${columnId}`
 interface CellPosition {
@@ -659,7 +658,7 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
               Cancel
             </button>
             <button
-              className={`${isBSoft ? 'bg-blue-color' : 'bg-purple-color'} text-white w-[80px] border-none  h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
+              className={`${'bg-blue-color'} text-white w-[80px] border-none  h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
               onClick={handleSaveAccountList}
             >
               Save

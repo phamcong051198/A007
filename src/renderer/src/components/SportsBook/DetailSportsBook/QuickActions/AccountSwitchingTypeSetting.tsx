@@ -12,8 +12,6 @@ import {
   SelectValue
 } from '@renderer/components/ui/select'
 
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
-
 function AccountSwitchingTypeSetting({ sportsBook }: { sportsBook: DataPlatformType }) {
   const { id: sportsBookId } = useParams()
   const [openModalSetting, setOpenModalSetting] = useState(false)
@@ -136,7 +134,7 @@ function AccountSwitchingTypeSetting({ sportsBook }: { sportsBook: DataPlatformT
               Cancel
             </button>
             <button
-              className={`${isBSoft ? 'bg-blue-color' : 'bg-purple-color'} flex-1 border-none block h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
+              className={`${'bg-blue-color'} flex-1 border-none block h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
               onClick={handleOk}
             >
               Save

@@ -6,7 +6,6 @@ import { DataPlatformType } from '@shared/common/types'
 import ClockPlus from '@renderer/icons/clock-plus'
 import { InputNumber } from '@renderer/components/ui/input-number'
 import { Button } from '@renderer/components/ui/button'
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 function AccountSwitchingIntervalSetting({ sportsBook }: { sportsBook: DataPlatformType }) {
   const { id: sportsBookId } = useParams()

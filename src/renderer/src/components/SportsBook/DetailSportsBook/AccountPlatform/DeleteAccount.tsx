@@ -11,7 +11,6 @@ import {
 } from '@renderer/components/ui/alert-dialog'
 import TrashIcon from '@renderer/icons/trash'
 import QuestionMarkCircle from '@renderer/icons/question-mark-circle'
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 function DeleteAccount({ deleteAccount }) {
   return (
@@ -27,9 +26,7 @@ function DeleteAccount({ deleteAccount }) {
           <div className="flex items-start gap-4">
             <div className="flex-shrink-0">
               <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center">
-                <QuestionMarkCircle
-                  className={`${isBSoft ? 'text-blue-color' : 'text-purple-color '} size-9`}
-                />
+                <QuestionMarkCircle className={`${'text-blue-color'} size-9`} />
               </div>
             </div>
 

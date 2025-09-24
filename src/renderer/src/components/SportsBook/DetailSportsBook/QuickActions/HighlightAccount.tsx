@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { DropdownMenuItem } from '@renderer/components/ui/dropdown-menu'
 import { AlertDialog, AlertDialogContent } from '@renderer/components/ui/alert-dialog'
 import SearchBorderLg from '@renderer/icons/search-border-lg'
 import { SportsBookType } from '@shared/common/types'
-import { useParams } from 'react-router-dom'
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 function HighlightAccount({ sportsBook }: { sportsBook: SportsBookType }) {
   const { id: sportsBookId } = useParams()
@@ -94,7 +93,7 @@ function HighlightAccount({ sportsBook }: { sportsBook: SportsBookType }) {
               Cancel
             </button>
             <button
-              className={`${isBSoft ? 'bg-blue-color' : 'bg-purple-color'} flex-1 border-none block h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
+              className={`${'bg-blue-color'} flex-1 border-none block h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
               onClick={save}
             >
               Confirm

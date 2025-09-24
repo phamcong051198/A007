@@ -15,7 +15,6 @@ import { newDataTableEmpty, ROW_SIZE } from '@shared/common/constants'
 import { handleSaveReport } from '@renderer/lib/handleSaveReport'
 import DownloadCloudIcon from '@renderer/icons/download-cloud-icon'
 import { useCount } from '@renderer/context/CountContext'
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 const ListEventContraList = () => {
   const [strategy, setStrategy] = useState('')
@@ -106,7 +105,7 @@ const ListEventContraList = () => {
           </div>
         </div>
         <div
-          className={`${isBSoft ? 'bg-blue-color' : 'bg-purple-color'} "flex items-center justify-center cursor-pointer rounded-lg text-white "`}
+          className={`${'bg-blue-color'} "flex items-center justify-center cursor-pointer rounded-lg text-white "`}
           onClick={handleSave}
         >
           <div className="w-[126px] flex items-center justify-center py-[5px]">

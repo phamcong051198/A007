@@ -58,25 +58,8 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'default', size, asChild = false, ...props }, ref) => {
-    const buildTarget = import.meta.env.VITE_BUILD_TARGET
     const Comp = asChild ? Slot : 'button'
-
-    let theme: Theme = 'blue'
-
-    switch (buildTarget) {
-      case 'BSoft':
-        theme = 'blue'
-        break
-      case 'BSoft-switch':
-        theme = 'green'
-        break
-      case 'BSoft-corners':
-        theme = 'purple'
-        break
-      default:
-        theme = 'blue'
-    }
-
+    const theme: Theme = 'blue'
     let themeClass = ''
 
     // Manually determine theme class based on variant and theme

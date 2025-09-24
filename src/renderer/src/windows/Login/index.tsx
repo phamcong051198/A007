@@ -1,12 +1,8 @@
-import { Checkbox } from '@renderer/components/ui/checkbox'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Eye from '@renderer/icons/eye'
 import EyeSlash from '@renderer/icons/eye-slash'
+import { Checkbox } from '@renderer/components/ui/checkbox'
 import LoadingLogin from '@renderer/windows/Login/LoadingLogin'
-import LoadingUpdateApp from '@renderer/windows/Login/LoadingUpdateApp'
-
-import { useCallback, useEffect, useRef, useState } from 'react'
-
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 export default function Login() {
   const isAttemptingLogin = useRef(false)
@@ -132,11 +128,7 @@ export default function Login() {
       <div className="h-full">
         <div className="mb-[32px]">
           <div className="pb-[16px] flex justify-center">
-            <img
-              src={isBSoft ? 'images/logo-main-login.png' : 'images/logo-corners-login.png'}
-              alt="LogoLogin"
-              className="cursor-pointer"
-            />
+            <img src={'images/logo-main-login.png'} alt="LogoLogin" className="cursor-pointer" />
           </div>
           <div className="flex flex-col gap-3 items-center">
             <p className="text-white text-3xl">Log in to your account</p>
@@ -154,7 +146,7 @@ export default function Login() {
               <input
                 type="text"
                 maxLength={20}
-                className={`${isBSoft ? 'focus:border-blue-color' : 'focus:border-purple-color'} w-full h-[44px] outline-none text-white bg-layout-color border border-border-default rounded-[8px] px-[14px] py-[10px]`}
+                className={`${'focus:border-blue-color'} w-full h-[44px] outline-none text-white bg-layout-color border border-border-default rounded-[8px] px-[14px] py-[10px]`}
                 value={username}
                 onChange={(e) => {
                   setUserName(e.target.value)
@@ -166,7 +158,7 @@ export default function Login() {
             <div>
               <p className="text-sm text-[#CECFD2] mb-[6px]">Password</p>
               <div
-                className={`${isBSoft ? 'focus-within:border-blue-color' : 'focus-within:border-purple-color'} border h-[44px] border-border-default rounded-[8px] bg-layout-color flex  items-center justify-between`}
+                className={`${'focus-within:border-blue-color'} border h-[44px] border-border-default rounded-[8px] bg-layout-color flex  items-center justify-between`}
               >
                 <input
                   type={isPasswordVisible ? 'text' : 'password'}
@@ -208,7 +200,7 @@ export default function Login() {
 
           <div>
             <button
-              className={`text-white h-[44px] w-full rounded-[8px] mb-[16px] hover:opacity-90 ${isBSoft ? 'bg-blue-color' : 'bg-purple-color'}`}
+              className={`text-white h-[44px] w-full rounded-[8px] mb-[16px] hover:opacity-90 ${'bg-blue-color'}`}
               onClick={handleLogin}
             >
               Login
@@ -222,8 +214,7 @@ export default function Login() {
           </div>
         </div>
       </div>
-      {loadingLogin && <LoadingLogin isBSoft={isBSoft} />}
-      {loadingUpdateApp && <LoadingUpdateApp isBSoft={isBSoft} />}
+      {loadingLogin && <LoadingLogin />}
     </div>
   )
 }

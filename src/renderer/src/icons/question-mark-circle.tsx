@@ -3,22 +3,7 @@ import PropTypes from 'prop-types'
 type Theme = 'blue' | 'green' | 'purple'
 
 const QuestionMarkCircle = ({ className }) => {
-  const buildTarget = import.meta.env.VITE_BUILD_TARGET
-
-  let theme: Theme = 'blue'
-  switch (buildTarget) {
-    case 'BSoft':
-      theme = 'blue'
-      break
-    case 'BSoft-switch':
-      theme = 'green'
-      break
-    case 'BSoft-corners':
-      theme = 'purple'
-      break
-    default:
-      theme = 'blue'
-  }
+  const theme: Theme = 'blue'
 
   let themeClass = ''
   if (theme === 'blue') themeClass = 'text-[#155EEF]'

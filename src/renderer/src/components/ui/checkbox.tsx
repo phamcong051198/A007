@@ -8,23 +8,7 @@ const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
 >(({ className, ...props }, ref) => {
-  const buildTarget = import.meta.env.VITE_BUILD_TARGET
-
-  let theme = 'blue'
-
-  switch (buildTarget) {
-    case 'BSoft':
-      theme = 'blue'
-      break
-    case 'BSoft-switch':
-      theme = 'green'
-      break
-    case 'BSoft-corners':
-      theme = 'purple'
-      break
-    default:
-      theme = 'blue'
-  }
+  const theme = 'blue'
 
   const themeClasses = {
     blue: 'data-[state=checked]:bg-[#155EEF]',

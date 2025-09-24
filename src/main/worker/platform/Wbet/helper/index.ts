@@ -9,16 +9,9 @@ import {
   TYPE_ODD_HDP,
   TYPE_ODD_OU
 } from '@/worker/platform/Wbet/common/constants'
-import { Account, NameTeam } from '@db/model'
+import { NameTeam } from '@db/model'
 import { GAME_TYPES } from '@shared/common/constants'
-import {
-  PLATFORM,
-  STATUS_ACCOUNT,
-  STATUS_LOGIN,
-  TYPE_ODD,
-  TYPE_ODD_DETAIL
-} from '@shared/main/constants'
-import { isAccountActive } from '@/worker/lib/checkAccount'
+import { PLATFORM, TYPE_ODD, TYPE_ODD_DETAIL } from '@shared/main/constants'
 
 export const buildBodyBalance = (account: AccountType) => {
   return {
@@ -89,7 +82,7 @@ function round(value: number, decimals = 2): number {
   return Number(value.toFixed(decimals))
 }
 
-export async function handleDataOdds_HDP(dataOdds_HDP, leagues, matchs, isBSoft, gameType, WBet) {
+export async function handleDataOdds_HDP(dataOdds_HDP, leagues, matchs, gameType, WBet) {
   for (const key in dataOdds_HDP) {
     const arr = dataOdds_HDP[key]
 
@@ -122,23 +115,18 @@ export async function handleDataOdds_HDP(dataOdds_HDP, leagues, matchs, isBSoft,
         const nameHome = match ? match[5] : 'Unknown Home Team'
         const nameAway = match ? match[6] : 'Unknown Away Team'
 
-        if (isBSoft) {
-          if (nameLeague?.includes('-')) return
-        } else {
-          if (!nameLeague?.toUpperCase().includes('CORNERS') || nameHome.includes('1st Corner'))
-            return
-        }
+        if (nameLeague?.includes('-')) return
 
         const standardHomeName = NameTeam.findOne({
-          nameTeam: isBSoft ? nameHome : nameHome.replace(/ No\.of Corners$/, ''),
-          nameLeague: isBSoft ? nameLeague : nameLeague.replace(/ - CORNERS$/, ''),
+          nameTeam: nameHome,
+          nameLeague: nameLeague,
           platform: PLATFORM.WBET
         }) as NameTeamType
         if (!standardHomeName || !standardHomeName.team || !standardHomeName.league) return
 
         const standardAwayName = NameTeam.findOne({
-          nameTeam: isBSoft ? nameAway : nameAway.replace(/ No\.of Corners$/, ''),
-          nameLeague: isBSoft ? nameLeague : nameLeague.replace(/ - CORNERS$/, ''),
+          nameTeam: nameAway,
+          nameLeague: nameLeague,
           platform: PLATFORM.WBET
         }) as NameTeamType
         if (!standardAwayName || !standardAwayName.team || !standardAwayName.league) return
@@ -179,7 +167,7 @@ export async function handleDataOdds_HDP(dataOdds_HDP, leagues, matchs, isBSoft,
   }
 }
 
-export async function handleDataOdds_OU(dataOdds_OU, leagues, matchs, isBSoft, gameType, WBet) {
+export async function handleDataOdds_OU(dataOdds_OU, leagues, matchs, gameType, WBet) {
   for (const key in dataOdds_OU) {
     const arr = dataOdds_OU[key]
 
@@ -203,23 +191,18 @@ export async function handleDataOdds_OU(dataOdds_OU, leagues, matchs, isBSoft, g
         const nameHome = match ? match[5] : 'Unknown Home Team'
         const nameAway = match ? match[6] : 'Unknown Away Team'
 
-        if (isBSoft) {
-          if (nameLeague?.includes('-')) return
-        } else {
-          if (!nameLeague?.toUpperCase().includes('CORNERS') || nameHome.includes('1st Corner'))
-            return
-        }
+        if (nameLeague?.includes('-')) return
 
         const standardHomeName = NameTeam.findOne({
-          nameTeam: isBSoft ? nameHome : nameHome.replace(/ No\.of Corners$/, ''),
-          nameLeague: isBSoft ? nameLeague : nameLeague.replace(/ - CORNERS$/, ''),
+          nameTeam: nameHome,
+          nameLeague: nameLeague,
           platform: PLATFORM.WBET
         }) as NameTeamType
         if (!standardHomeName || !standardHomeName.team || !standardHomeName.league) return
 
         const standardAwayName = NameTeam.findOne({
-          nameTeam: isBSoft ? nameAway : nameAway.replace(/ No\.of Corners$/, ''),
-          nameLeague: isBSoft ? nameLeague : nameLeague.replace(/ - CORNERS$/, ''),
+          nameTeam: nameAway,
+          nameLeague: nameLeague,
           platform: PLATFORM.WBET
         }) as NameTeamType
         if (!standardAwayName || !standardAwayName.team || !standardAwayName.league) return

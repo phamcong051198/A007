@@ -189,22 +189,7 @@ export const newDataTableEmpty = {
 }
 
 export const getThemeClass = (mode: 'bg' | 'text' | 'hover' = 'bg') => {
-  const target = import.meta.env.VITE_BUILD_TARGET
-
-  let theme = 'blue'
-  switch (target) {
-    case 'BSoft':
-      theme = 'blue'
-      break
-    case 'BSoft-switch':
-      theme = 'green'
-      break
-    case 'BSoft-corners':
-      theme = 'purple'
-      break
-    default:
-      theme = 'blue'
-  }
+  const theme = 'blue'
 
   if (mode === 'bg') {
     if (theme === 'blue') return 'bg-[#155EEF]'

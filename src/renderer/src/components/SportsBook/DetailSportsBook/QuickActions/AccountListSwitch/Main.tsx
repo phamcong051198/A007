@@ -1,3 +1,6 @@
+import { useParams } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import * as Dialog from '@radix-ui/react-dialog'
 import {
   Select,
   SelectContent,
@@ -5,14 +8,6 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { useEffect, useRef, useState } from 'react'
-import * as Dialog from '@radix-ui/react-dialog'
-import ClearAccountsDialog from '@renderer/components/ClearAccountsDialog'
-import { NotificationError } from '@renderer/components/NotificationPopup/NotificationError'
-import { Button } from '@renderer/components/ui/button'
-import InformationCircle from '@renderer/icons/information-circle'
-import { findDuplicateLoginIDs } from '@renderer/lib/findDuplicateLoginIDs'
-import { AccountSwitchType, AccountType } from '@shared/common/types'
 import {
   ColumnDef,
   ColumnResizeDirection,
@@ -22,8 +17,13 @@ import {
   RowData,
   useReactTable
 } from '@tanstack/react-table'
-import { useParams } from 'react-router-dom'
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
+
+import ClearAccountsDialog from '@renderer/components/ClearAccountsDialog'
+import { NotificationError } from '@renderer/components/NotificationPopup/NotificationError'
+import { Button } from '@renderer/components/ui/button'
+import InformationCircle from '@renderer/icons/information-circle'
+import { findDuplicateLoginIDs } from '@renderer/lib/findDuplicateLoginIDs'
+import { AccountSwitchType, AccountType } from '@shared/common/types'
 
 declare module '@tanstack/react-table' {
   interface TableMeta<TData extends RowData> {
@@ -613,7 +613,7 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
           </div>
 
           <Button
-            className={`${isBSoft ? 'bg-blue-color' : 'bg-purple-color'} text-white w-[80px] border-none h-7 font-semibold  hover:bg-opacity-90 rounded-[8px]`}
+            className={`${'bg-blue-color'} text-white w-[80px] border-none h-7 font-semibold  hover:bg-opacity-90 rounded-[8px]`}
             onClick={handleSaveAccountList}
             disabled={hasError}
           >
@@ -662,7 +662,7 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
                 <Dialog.Close asChild>
                   <button
                     onClick={handleAddAccounts}
-                    className={`${isBSoft ? 'bg-blue-color' : 'bg-purple-color'} text-white w-[80px] border-none h-9 font-semibold  hover:bg-opacity-90 rounded-[8px]`}
+                    className={`${'bg-blue-color'} text-white w-[80px] border-none h-9 font-semibold  hover:bg-opacity-90 rounded-[8px]`}
                   >
                     Save
                   </button>

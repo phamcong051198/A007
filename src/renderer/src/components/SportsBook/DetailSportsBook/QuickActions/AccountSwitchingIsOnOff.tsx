@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { DropdownMenuItem } from '@renderer/components/ui/dropdown-menu'
 import { AlertDialog, AlertDialogContent } from '@renderer/components/ui/alert-dialog'
 import { DataPlatformType } from '@shared/common/types'
-import SearchBorderLg from '@renderer/icons/search-border-lg'
-import { useParams } from 'react-router-dom'
 import SwitchHorizontalBorder from '@renderer/icons/switch-horizontal-border'
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 function AccountSwitchingIsOnOff({ sportsBook }: { sportsBook: DataPlatformType }) {
   const { id: sportsBookId } = useParams()
@@ -86,7 +84,7 @@ function AccountSwitchingIsOnOff({ sportsBook }: { sportsBook: DataPlatformType 
               Cancel
             </button>
             <button
-              className={`${isBSoft ? 'bg-blue-color' : 'bg-purple-color'} flex-1 border-none block h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
+              className={`${'bg-blue-color'} flex-1 border-none block h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
               onClick={confirm}
             >
               Confirm

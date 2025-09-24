@@ -3,7 +3,6 @@ import { DropdownMenuItem } from '@renderer/components/ui/dropdown-menu'
 import { AlertDialog, AlertDialogContent } from '@renderer/components/ui/alert-dialog'
 import CheckCircle from '@renderer/icons/check-circle'
 import { SportsBookType } from '@shared/common/types'
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 function ProxySetting({ sportsBook }: { sportsBook: SportsBookType }) {
   const [formData, setFormData] = useState({
@@ -115,7 +114,7 @@ function ProxySetting({ sportsBook }: { sportsBook: SportsBookType }) {
               Cancel
             </button>
             <button
-              className={`${isBSoft ? 'bg-blue-color' : 'bg-purple-color'} text-white flex-1 border-none block h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
+              className={`${'bg-blue-color'} text-white flex-1 border-none block h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
               onClick={save}
             >
               Save

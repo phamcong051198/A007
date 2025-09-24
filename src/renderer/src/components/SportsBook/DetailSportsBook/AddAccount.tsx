@@ -3,7 +3,6 @@ import { Fragment } from 'react/jsx-runtime'
 
 import Plus from '@renderer/icons/plus'
 import FormAddControls from '@renderer/components/SportsBook/DetailSportsBook/FormAddControls'
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 export default function AddAccount({ handleAddAccount, sportsBook }) {
   const [showFormAddControls, setIsShowFormAddControls] = useState(false)
@@ -16,7 +15,7 @@ export default function AddAccount({ handleAddAccount, sportsBook }) {
   return (
     <Fragment>
       <button
-        className={`${isBSoft ? 'bg-blue-color' : 'bg-purple-color'} hover:opacity-90 text-sm w-[130px] h-[33px] rounded-[8px] text-white gap-[4px] flex items-center justify-center`}
+        className={`${'bg-blue-color'} hover:opacity-90 text-sm w-[130px] h-[33px] rounded-[8px] text-white gap-[4px] flex items-center justify-center`}
         onClick={() => handleAddAccount()}
         onContextMenu={handleRightClick}
       >

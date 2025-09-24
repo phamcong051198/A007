@@ -1,10 +1,9 @@
+import { useParams } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
 import { SportsBookType } from '@shared/common/types'
 import { DropdownMenuItem } from '@renderer/components/ui/dropdown-menu'
 import { AlertDialog, AlertDialogContent } from '@renderer/components/ui/alert-dialog'
 import ClockPlus from '@renderer/icons/clock-plus'
-import { useParams } from 'react-router-dom'
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 function DelayLoginSetting({ sportsBook }: { sportsBook: SportsBookType }) {
   const { id: sportsBookId } = useParams()
@@ -135,7 +134,7 @@ function DelayLoginSetting({ sportsBook }: { sportsBook: SportsBookType }) {
               Cancel
             </button>
             <button
-              className={`${isBSoft ? 'bg-blue-color' : 'bg-purple-color'} text-white flex-1 border-none block h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
+              className={`${'bg-blue-color'} text-white flex-1 border-none block h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
               onClick={save}
             >
               Save

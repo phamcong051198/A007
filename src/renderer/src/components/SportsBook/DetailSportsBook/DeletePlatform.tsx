@@ -10,7 +10,6 @@ import {
 } from '@renderer/components/ui/alert-dialog'
 import QuestionMarkCircle from '@renderer/icons/question-mark-circle'
 import Xmark from '@renderer/icons/x-mark'
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 export default function DeletePlatform({ sportsBook }) {
   const removePlatform = (namePlatform: string) => {
@@ -39,9 +38,7 @@ export default function DeletePlatform({ sportsBook }) {
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
                 <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center">
-                  <QuestionMarkCircle
-                    className={`${isBSoft ? 'text-blue-color' : 'text-purple-color '} size-9`}
-                  />
+                  <QuestionMarkCircle className={`${'text-blue-color'} size-9`} />
                 </div>
               </div>
 
@@ -87,41 +84,6 @@ export default function DeletePlatform({ sportsBook }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* <AlertDialog>
-        <AlertDialogTrigger>
-          <div className=" border border-transparent  hover:rounded-full hover:bg-gray-700 p-[5px] ">
-            <Xmark className="text-red-500 cursor-pointer  stroke-2 stroke-current " />
-          </div>
-        </AlertDialogTrigger>
-        <AlertDialogContent className="gap-0 p-0 w-96 h-[150px]  border-gray-400 shadow-[0px_4px_16px_rgba(17,17,26,0.1),_0px_8px_24px_rgba(17,17,26,0.1),_0px_16px_56px_rgba(17,17,26,0.1)]">
-          <AlertDialogHeader>
-            <AlertDialogTitle className=" flex justify-between p-2 bg-blue-50 text-sm rounded-t-lg">
-              Confirmation
-            </AlertDialogTitle>
-            <AlertDialogDescription className=" flex justify-center items-center flex-1 py-1 ">
-              <QuestionMarkCircle className="text-blue-500  mr-1" />
-              <span className="text-black text-sm font-medium">
-                Are you sure you want to close [{sportsBook.platform}]?
-              </span>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="rounded-b-lg p-0 bg-gray-100  flex items-center justify-between px-12">
-            <AlertDialogCancel
-              className="h-6 w-20 bg-white text-black font-semibold rounded border border-gray-400 hover:border-blue-400 hover:bg-white"
-              onClick={() => removePlatform(sportsBook.platform)}
-            >
-              Yes
-            </AlertDialogCancel>
-            <AlertDialogCancel className="h-6 w-20 bg-white text-black font-semibold rounded border border-gray-400 hover:border-blue-400 hover:bg-white ">
-              No
-            </AlertDialogCancel>
-            <AlertDialogCancel className="h-6 w-20 bg-white text-black font-semibold rounded border border-gray-400 hover:border-blue-400 hover:bg-white">
-              Cancel
-            </AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog> */}
     </div>
   )
 }

@@ -12,7 +12,6 @@ import LogIn from '@renderer/icons/log-in'
 import LogOut from '@renderer/icons/log-out'
 import Settings from '@renderer/icons/settings'
 import ScheduledLoginLogoutSetting from '@renderer/windows/ScheduledLoginLogoutSetting'
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 export default function QuickActions() {
   const [isScheduledLoginLogoutSettingOpen, setScheduledLoginLogoutSettingOpen] = useState(false)
@@ -32,7 +31,7 @@ export default function QuickActions() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger
-          className={`${isBSoft ? 'hover:border-blue-color' : 'hover:border-purple-color'} w-[165px] h-[40px] text-sm rounded-[8px] border border-border-default mr-[12px] text-white hover:opacity-90  `}
+          className={`${'hover:border-blue-color'} w-[165px] h-[40px] text-sm rounded-[8px] border border-border-default mr-[12px] text-white hover:opacity-90  `}
         >
           <div className="flex items-center justify-center gap-[4px]">
             <p>Quick Actions</p>

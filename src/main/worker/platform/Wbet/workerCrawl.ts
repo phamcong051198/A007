@@ -24,7 +24,6 @@ import {
   KEY_UX_MATCH_ODDS,
   PARAM_UX_MATCH
 } from '@/worker/platform/Wbet/common/constants'
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 let gameType: string | null = null
 
@@ -246,8 +245,8 @@ const handleData = async ({ dataMarket, account, proxyAgent }) => {
     const dataOdds_OU = dataOdds[KEY_UX_MATCH_ODDS.OU]
 
     await Promise.all([
-      handleDataOdds_HDP(dataOdds_HDP, leagues, matchs, isBSoft, gameType, WBet),
-      handleDataOdds_OU(dataOdds_OU, leagues, matchs, isBSoft, gameType, WBet)
+      handleDataOdds_HDP(dataOdds_HDP, leagues, matchs, gameType, WBet),
+      handleDataOdds_OU(dataOdds_OU, leagues, matchs, gameType, WBet)
     ])
 
     const timeEnd = new Date().getTime()

@@ -16,7 +16,6 @@ import { CONVERT_HDP } from '@shared/common/constants'
 import { SPREAD, TOTAL } from '@shared/common/constants'
 import { DataCrawlType, NameLeagueType, NameTeamType, SettingType } from '@shared/common/types'
 import { parentPort } from 'worker_threads'
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 const port = parentPort
 if (!port) throw new Error('IllegalState')
@@ -97,7 +96,7 @@ async function handleData(data: any) {
           }
 
           const hasCorners = leagueInfo.leaguenameen.toLowerCase().includes(' - corners')
-          if ((isBSoft && hasCorners) || (!isBSoft && !hasCorners)) continue
+          if (hasCorners) continue
 
           let findLeague: LeagueViva88Type | undefined
           if (leagueInfo.leagueid || leagueInfo.leaguenameen) {
@@ -106,7 +105,7 @@ async function handleData(data: any) {
               : (LeagueViva88.findOne({ nameLeague: leagueInfo.leaguenameen }) as LeagueViva88Type)
 
             const nameLeague = leagueInfo.leaguenameen.trim()
-            const targetLeagueName = isBSoft ? nameLeague : nameLeague.replace(/ - .*/, '')
+            const targetLeagueName = nameLeague
             if (!findLeague) {
               const standardLeagueName = dataLeagueViva88bet.find(
                 (leagueViva88) => leagueViva88.nameLeague == targetLeagueName
@@ -150,13 +149,8 @@ async function handleData(data: any) {
           const hName = matchInfo?.hteamnameen
           const aName = matchInfo?.ateamnameen
 
-          let invalid = typeof hName !== 'string' || typeof aName !== 'string'
-          if (!isBSoft) {
-            invalid =
-              invalid ||
-              hName.trim().toLowerCase().includes('1st') ||
-              aName.trim().toLowerCase().includes('1st')
-          }
+          const invalid = typeof hName !== 'string' || typeof aName !== 'string'
+
           if (invalid) continue
 
           const league = LeagueViva88.findOne({ idLeague: matchInfo.leagueid }) as LeagueViva88Type
@@ -168,22 +162,16 @@ async function handleData(data: any) {
           )
             continue
 
-          const formatTeamName = (name?: string) =>
-            name ? name.trim().replace(/\s+No\.of.*$/, '') : ''
-          const formatLeagueName = (name: string) => (isBSoft ? name : name.replace(/ - .*/, ''))
+          const formatLeagueName = (name: string) => name
 
           const standardHomeName = NameTeam.findOne({
-            nameTeam: isBSoft
-              ? matchInfo?.hteamnameen?.trim()
-              : formatTeamName(matchInfo?.hteamnameen),
+            nameTeam: matchInfo?.hteamnameen?.trim(),
             nameLeague: formatLeagueName(league.nameLeague),
             platform: 'Viva88Bet'
           }) as NameTeamType
 
           const standardAwayName = NameTeam.findOne({
-            nameTeam: isBSoft
-              ? matchInfo?.ateamnameen?.trim()
-              : formatTeamName(matchInfo?.ateamnameen),
+            nameTeam: matchInfo?.ateamnameen?.trim(),
             nameLeague: formatLeagueName(league.nameLeague),
             platform: 'Viva88Bet'
           }) as NameTeamType

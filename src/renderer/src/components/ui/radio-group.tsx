@@ -15,23 +15,7 @@ const RadioGroupItem = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
 >(({ className, ...props }, ref) => {
-  const buildTarget = import.meta.env.VITE_BUILD_TARGET
-
-  let theme = 'blue'
-
-  switch (buildTarget) {
-    case 'BSoft':
-      theme = 'blue'
-      break
-    case 'BSoft-switch':
-      theme = 'green'
-      break
-    case 'BSoft-corners':
-      theme = 'purple'
-      break
-    default:
-      theme = 'blue'
-  }
+  const theme = 'blue'
   const themeClasses = {
     blue: 'data-[state=checked]:border-[#155EEF] data-[state=checked]:text-[#155EEF]',
     green: 'data-[state=checked]:border-[#14B800] data-[state=checked]:text-[#14B800]',

@@ -12,24 +12,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, error, button, ...props }, ref) => {
-    const buildTarget = import.meta.env.VITE_BUILD_TARGET
-
-    let theme = 'blue'
-
-    switch (buildTarget) {
-      case 'BSoft':
-        theme = 'blue'
-        break
-      case 'BSoft-switch':
-        theme = 'green'
-        break
-      case 'BSoft-corners':
-        theme = 'purple'
-        break
-      default:
-        theme = 'blue'
-    }
-
+    const theme = 'blue'
     const themeClasses = {
       blue: 'focus:border-[#155EEF] focus:ring-[#155EEF]',
       green: 'focus:border-[#14B800] focus:ring-[#14B800]',

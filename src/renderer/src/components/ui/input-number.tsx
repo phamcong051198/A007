@@ -37,21 +37,10 @@ const InputNumber = React.forwardRef<HTMLInputElement, InputNumberProps>(
     },
     ref
   ) => {
-    const buildTarget = import.meta.env.VITE_BUILD_TARGET
     const inputRef = React.useRef<HTMLInputElement>(null)
     const mergedRef = useMergedRef(ref, inputRef)
 
-    let theme = 'blue'
-    switch (buildTarget) {
-      case 'BSoft-switch':
-        theme = 'green'
-        break
-      case 'BSoft-corners':
-        theme = 'purple'
-        break
-      default:
-        theme = 'blue'
-    }
+    const theme = 'blue'
 
     const themeClasses = {
       blue: 'focus-within:ring-[#155EEF] focus-within:border-[#155EEF]',

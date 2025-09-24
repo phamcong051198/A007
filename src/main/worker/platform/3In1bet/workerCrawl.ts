@@ -31,8 +31,6 @@ import {
 import dataCrawlByPlatformSchema from '@db/schema/dataCrawlByPlatform'
 import { createPayload, isArError } from '@/worker/platform/3In1bet/helper'
 
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
-
 let gameType: string | null = null
 
 const port = parentPort
@@ -350,23 +348,18 @@ const handleData = async ({ dataOdds, account }) => {
     const nameHome = dataOdd[38] || 'Unknown Home Team'
     const nameAway = dataOdd[39] || 'Unknown Away Team'
 
-    if (isBSoft) {
-      if (dataOdd[37]?.includes('-')) continue
-    } else {
-      if (!dataOdd[37]?.toUpperCase().includes('CORNERS') || nameHome.includes('1st Corner'))
-        continue
-    }
+    if (dataOdd[37]?.includes('-')) continue
 
     const standardHomeName = NameTeam.findOne({
       nameTeam: nameHome,
-      nameLeague: isBSoft ? nameLeague : nameLeague.replace(/ - CORNERS$/, ''),
+      nameLeague: nameLeague,
       platform: PLATFORM['3IN1BET']
     }) as NameTeamType
     if (!standardHomeName || !standardHomeName.team || !standardHomeName.league) continue
 
     const standardAwayName = NameTeam.findOne({
       nameTeam: nameAway,
-      nameLeague: isBSoft ? nameLeague : nameLeague.replace(/ - CORNERS$/, ''),
+      nameLeague: nameLeague,
       platform: PLATFORM['3IN1BET']
     }) as NameTeamType
 

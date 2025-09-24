@@ -2,11 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { DropdownMenuItem } from '@renderer/components/ui/dropdown-menu'
 import { AlertDialog, AlertDialogContent } from '@renderer/components/ui/alert-dialog'
 import CheckCircle from '@renderer/icons/check-circle'
-import { useParams } from 'react-router-dom'
 import { SportsBookType } from '@shared/common/types'
 import { Checkbox } from '@renderer/components/ui/checkbox'
-
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 function VIPAccountCheckerSetting({ sportsBook }: { sportsBook: SportsBookType }) {
   const [openModalSetting, setOpenModalSetting] = useState(false)
@@ -90,7 +87,7 @@ function VIPAccountCheckerSetting({ sportsBook }: { sportsBook: SportsBookType }
               Cancel
             </button>
             <button
-              className={`${isBSoft ? 'bg-blue-color' : 'bg-purple-color'} text-white flex-1 border-none block h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
+              className={`${'bg-blue-color'} text-white flex-1 border-none block h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
               onClick={save}
             >
               Save

@@ -17,8 +17,6 @@ import {
 import ChevronDown from '@renderer/icons/chevron-down'
 import { DataPlatformType } from '@shared/common/types'
 
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
-
 export default function QuickActionsPlatform({ sportsBook }: { sportsBook: DataPlatformType }) {
   const handleLoginAll_Platform = () => {
     window.electron.ipcRenderer.send('LoginAll_Platform', sportsBook.platform)
@@ -35,7 +33,7 @@ export default function QuickActionsPlatform({ sportsBook }: { sportsBook: DataP
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className={`${isBSoft ? 'hover:border-blue-color' : 'hover:border-purple-color'} w-[130px] h-[35px] bg-layout-color text-sm rounded-[8px] border border-border-default text-white hover:opacity-90`}
+        className={`${'hover:border-blue-color'} w-[130px] h-[35px] bg-layout-color text-sm rounded-[8px] border border-border-default text-white hover:opacity-90`}
       >
         <div className="flex items-center justify-center gap-[4px]">
           <p>Quick Actions</p>

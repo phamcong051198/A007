@@ -444,52 +444,6 @@ export function checkQueuePlatform(namePlatform: string) {
   handler.queue = []
 }
 
-export function createWorkerScheduledLoginSetting(mainWindow: BrowserWindow) {
-  const workerScheduledLogin = createWorkerScheduledLogin({ workerData: 'worker' })
-
-  workerScheduledLogin.on('message', async (listAccount: AccountType[]) => {
-    for (const account of listAccount) {
-      Account.update(
-        {
-          id: account.id
-        },
-        { status: 'In-Progress', textLog: 'Waiting for login...' }
-      )
-      sendAccountUpdate(account.id, mainWindow)
-
-      enqueueWorker(account, mainWindow)
-      await new Promise((resolve) => setTimeout(resolve, 200))
-    }
-  })
-
-  workerScheduledLogin.on('exit', (code) => {
-    console.log('Exit workerScheduledLogin...', code)
-  })
-
-  workerScheduledLogin.on('error', (error) => {
-    console.error('workerScheduledLogin error:', error)
-  })
-}
-
-export function createWorkerScheduledLogoutSetting(mainWindow: BrowserWindow) {
-  const workerScheduledLogout = createWorkerScheduledLogout({ workerData: 'worker' })
-
-  workerScheduledLogout.on('message', async (listAccount: AccountType[]) => {
-    for (const account of listAccount) {
-      handleLogoutAccount(account, mainWindow)
-      await new Promise((resolve) => setTimeout(resolve, 200))
-    }
-  })
-
-  workerScheduledLogout.on('exit', (code) => {
-    console.log('Exit workerScheduledLogout...', code)
-  })
-
-  workerScheduledLogout.on('error', (error) => {
-    console.error('workerScheduledLogout error:', error)
-  })
-}
-
 type SwitchWorkerFn = (
   platformName: string,
   mainWindow: BrowserWindow,

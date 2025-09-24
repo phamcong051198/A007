@@ -33,7 +33,6 @@ import {
 } from '@shared/common/types'
 import { SBO_CONFIG, SBO_CONFIG_TYPE_ODD } from '@/worker/platform/Sbobet/common/constants'
 import { getMatchMinute } from '@/worker/platform/Sbobet/helper'
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
 
 let gameType: string | null = null
 
@@ -751,7 +750,7 @@ const handleDataSbobetOdds = async ({
         query: {
           id: event.id,
           filter: presetFilter,
-          marketGroupIds: isBSoft ? SBO_CONFIG.MARKET_GROUP_IDS : null,
+          marketGroupIds: SBO_CONFIG.MARKET_GROUP_IDS,
           excludeMarketGroupIds: null,
           oddsCategory: 'All',
           priceStyle: 'Malay',
@@ -850,21 +849,6 @@ const handleDataSbobetOdds = async ({
         !oddsEvent.marketType.includes('Handicap') &&
         !oddsEvent.marketType.includes('OverUnder')
       ) {
-        continue
-      }
-      // await accountLogToFile('odds', 'odds', `Handle D ${JSON.stringify(oddsEvent)}`, 'Program')
-      if (
-        !isBSoft &&
-        !oddsEvent.eventResult?.marketGroup?.marketGroupName.find(
-          (n) => n.value === 'Total Corners'
-        )?.value
-      ) {
-        // await accountLogToFile(
-        //   'oddsvar',
-        //   'oddsvar',
-        //   `Handle D ${JSON.stringify(oddsEvent)}`,
-        //   'Program'
-        // )
         continue
       }
 

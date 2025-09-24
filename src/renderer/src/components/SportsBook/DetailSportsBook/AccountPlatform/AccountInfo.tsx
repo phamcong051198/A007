@@ -13,8 +13,6 @@ import { NotificationError } from '@renderer/components/NotificationPopup/Notifi
 import ExclamationTriangle from '@renderer/icons/exclamation-triangle'
 import { getThemeClass, LIMIT_METHOD, LIMIT_TYPE } from '@shared/common/constants'
 
-const isBSoft = import.meta.env.VITE_BUILD_TARGET === 'BSoft'
-
 function AccountInfo({ account }) {
   const { id: activeId } = useParams()
   const [openModalSetting, setOpenModalSetting] = useState(false)
@@ -229,26 +227,8 @@ function AccountInfo({ account }) {
                         </div>
                       </div>
                     </RadioGroup>
-                    {/* <div className="flex cursor-pointer items-center mb-1 mt-4">
-                    <input
-                      disabled={true}
-                      id="LivePreGame"
-                      type="checkbox"
-                      checked={Boolean(formData.livePreGame)}
-                      onChange={(e) => handleInputChange('livePreGame', e.target.value)}
-                      name="LivePreGame"
-                      className="bg-gray-100 border-gray-300 h-4 text-red-600 w-4 cursor-pointer mr-1"
-                    />
-                    <label htmlFor="LivePreGame" className="text-sm cursor-pointer ms-1">
-                      Live /Pre-Game
-                    </label>
-                  </div> */}
                   </div>
                 </div>
-                {/* <div className="text-[#0000FF]">
-                <p>*Name & BetType Limit: Name + (HDP / OU / 1X2)</p>
-                <p>*Name & Target Limit: Name + (FTHome / FTAway / FHOver / FHUnder...)</p>
-              </div> */}
                 <div className="flex">
                   <div className="w-[96px] mr-[20px]">Limit Type</div>
                   <div className="flex-1">
@@ -327,7 +307,7 @@ function AccountInfo({ account }) {
               Cancel
             </button>
             <button
-              className={`${isBSoft ? 'bg-blue-color' : 'bg-purple-color'} text-white flex-1 border-none block h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
+              className={`${'bg-blue-color'} text-white flex-1 border-none block h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
               onClick={save}
             >
               Save

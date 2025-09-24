@@ -2,31 +2,21 @@ import { v4 as uuidv4 } from 'uuid'
 import { CheckCircle } from 'lucide-react'
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
-import BetTo from '@renderer/components/AccountPair/BetSetting/DetailedSetting/BetTo'
-import GameRange from '@renderer/components/AccountPair/BetSetting/DetailedSetting/GameRange'
 import { AccountPairContext, AccountPairProvider } from '@renderer/context/AccountPairContext'
 import { generateAccountData } from '@renderer/lib/generateAccountData'
 import { generateAddAllAccountPair } from '@renderer/lib/generateAddAllAccountPair'
-import { getBetText } from '@renderer/lib/getBetText'
 import { sanitizeAccountsData } from '@renderer/lib/sanitizeAccountsData'
 import { AccountPairType } from '@shared/common/types'
-import { CHECK_BOX_DETAIL_SETTING } from '@shared/renderer/constants'
 import { AccountType } from '@shared/common/types'
-import { Checkbox } from '../ui/checkbox'
 import { InputNumber } from '../ui/input-number'
 import { Label } from '../ui/label'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
-import AmountRounding from './components/AmountRounding'
 import { Confirmation } from '@renderer/components/NotificationPopup/Confirmation'
 import { NotificationError } from '@renderer/components/NotificationPopup/NotificationError'
 import ExclamationTriangle from '@renderer/icons/exclamation-triangle'
 import QuestionMarkCircle from '@renderer/icons/question-mark-circle'
 import { Button } from '../ui/button'
 import LineRangeSettingsModal from './modal/LineRangeSettingsModal'
-import QuickAmountRounderSettingModal from './modal/QuickAmountRounderSettingModal'
-import QuickAmountSettingModal from './modal/QuickAmountSettingModal'
-import QuickBetTargetSettingModal from './modal/QuickBetTargetSettingModal'
-import QuickOddsRangeSettingModal from './modal/QuickOddsRangeSettingModal'
 import { getThemeClass } from '@shared/common/constants'
 
 // Create context for account selection
@@ -486,14 +476,6 @@ const PlatformSettingsSection = ({ typeAccount }: { typeAccount: 'account1' | 'a
     updateField('oddTo', value)
   }
 
-  const updateBet = (checked: boolean) => {
-    updateField('bet', Number(checked))
-  }
-
-  const updateContra = (checked: boolean) => {
-    updateField('contra', Number(checked))
-  }
-
   if (!currentAccountPair || !dataAccountPair) {
     return <div className="text-gray-500">Select a combination to configure settings</div>
   }
@@ -515,70 +497,6 @@ const PlatformSettingsSection = ({ typeAccount }: { typeAccount: 'account1' | 'a
             step={1}
             value={Number(dataAccountPair?.betAmount) ?? 100}
             onChange={(value) => updateBetAmount(value)}
-          />
-        </div>
-
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Checkbox
-              id={`checkOdd_${typeAccount}`}
-              checked={Boolean(dataAccountPair?.checkOdd)}
-              onCheckedChange={updateCheckOdd}
-            />
-            <Label htmlFor={`checkOdd_${typeAccount}`} className="text-gray-300 text-sm">
-              Check Odds
-            </Label>
-          </div>
-          <div className="flex gap-2">
-            <InputNumber
-              precision={2}
-              step={0.01}
-              min={-2}
-              disabled={!dataAccountPair?.checkOdd}
-              value={Number(dataAccountPair?.oddFrom) ?? 0.01}
-              onChange={(value) => updateOddFrom(value)}
-            />
-            <span className="text-gray-400 self-center">to</span>
-            <InputNumber
-              precision={2}
-              step={0.01}
-              max={2}
-              disabled={!dataAccountPair?.checkOdd}
-              value={Number(dataAccountPair?.oddTo) ?? 0.01}
-              onChange={(value) => updateOddTo(value)}
-            />
-          </div>
-        </div>
-
-        <div className="flex gap-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id={`bet_${typeAccount}`}
-              checked={Boolean(dataAccountPair?.bet)}
-              onCheckedChange={updateBet}
-            />
-            <Label htmlFor={`bet_${typeAccount}`} className="text-gray-300">
-              Bet
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id={`contra_${typeAccount}`}
-              checked={Boolean(dataAccountPair?.contra)}
-              onCheckedChange={updateContra}
-            />
-            <Label htmlFor={`contra_${typeAccount}`} className="text-gray-300">
-              Contra
-            </Label>
-          </div>
-        </div>
-
-        <div className="mt-6">
-          <AmountRounding
-            key={`${typeAccount}-${currentAccountPair?.id}`}
-            isOpen={isAmountRoundingOpen}
-            onToggle={() => setIsAmountRoundingOpen(!isAmountRoundingOpen)}
-            account={typeAccount}
           />
         </div>
       </div>
@@ -643,148 +561,7 @@ const GeneralSettingsSection = ({
             No Bet
           </Label>
         </div>
-        <div className="flex items-center space-x-2">
-          <RadioGroupItem value="BetSelected" id={`BetSelected_${typeAccount}`} />
-          <Label htmlFor={`BetSelected_${typeAccount}`} className="text-gray-300">
-            Bet Selected
-          </Label>
-        </div>
       </RadioGroup>
-      <DetailedSettingsSection
-        typeAccount={typeAccount}
-        handleShowPopupLineRange={handleShowPopupLineRange}
-      />
-    </div>
-  )
-}
-
-const DetailedSettingsSection = ({
-  typeAccount,
-  handleShowPopupLineRange
-}: {
-  typeAccount: 'account1' | 'account2'
-  handleShowPopupLineRange: (lineKey: string, typeAccount: 'account1' | 'account2') => void
-}) => {
-  const { Combination } = useContext(AccountPairContext)
-  const { listAccountPair, setListAccountPair, currentAccountPair } = Combination
-  const [keyCurrent, setKeyCurrent] = useState('')
-  const [showBetTo, setShowBetTo] = useState(false)
-  const [showGameRange, setShowGameRange] = useState(false)
-
-  const dataAccountPair = useMemo(
-    () => (typeAccount === 'account1' ? currentAccountPair.account1 : currentAccountPair.account2),
-    [typeAccount, currentAccountPair]
-  )
-
-  const isBetSelected = dataAccountPair?.generalSetting === 'BetSelected'
-
-  const updateField = (field: string, value: number) => {
-    const updatedList = listAccountPair.map((item) => {
-      if (item.id === currentAccountPair.id) {
-        return {
-          ...item,
-          [typeAccount]: {
-            ...item[typeAccount],
-            [field]: value
-          }
-        }
-      }
-      return item
-    })
-    setListAccountPair(updatedList)
-  }
-
-  const updateCheckBox = (key: string, value: boolean) => {
-    updateField(key, Number(value))
-  }
-
-  const handleShowPopup = ({ key, typeDetail }: { key: string; typeDetail: string }) => {
-    setKeyCurrent(key)
-    if (typeDetail === 'Range') {
-      setShowBetTo(false)
-      setShowGameRange(true)
-    }
-    if (typeDetail === 'BetTo') {
-      setShowBetTo(true)
-      setShowGameRange(false)
-    }
-  }
-
-  if (!currentAccountPair || !dataAccountPair) {
-    return null
-  }
-  const handleLineRangeClick = (key: string) => {
-    handleShowPopupLineRange(key, typeAccount)
-  }
-
-  return (
-    <div className="pt-4">
-      <div className="text-sm font-semibold text-[#85888E] mb-4">Detailed Settings</div>
-      <div className="grid grid-cols-2 gap-4">
-        {['FT', 'Half'].map((category) => (
-          <div key={category} className="flex flex-col gap-1.5 space-y-2">
-            <h6 className="text-gray-400 text-sm font-medium">{category}</h6>
-            {CHECK_BOX_DETAIL_SETTING.filter((cb) => cb.key.startsWith(category)).map(
-              ({ key, label }) => {
-                const labelTextBetTo = getBetText(dataAccountPair[`${key}_Detail`]?.betTo)
-
-                return (
-                  <div key={key} className="flex items-center gap-2">
-                    <div className="flex gap-2 col-span-4 items-center">
-                      <Checkbox
-                        disabled={!isBetSelected}
-                        id={`${key}_${typeAccount}`}
-                        checked={Boolean(dataAccountPair[key])}
-                        onCheckedChange={(checked) => updateCheckBox(key, checked as boolean)}
-                      />
-                      <Label
-                        className="cursor-pointer text-gray-300 text-sm"
-                        htmlFor={`${key}_${typeAccount}`}
-                      >
-                        {label}
-                      </Label>
-                    </div>
-                    <div className="relative col-span-2">
-                      <p
-                        className={`${dataAccountPair[key] === 1 ? 'block' : 'hidden'} cursor-pointer underline italic text-blue-400 text-sm ${isBetSelected ? '' : 'opacity-50'}`}
-                        onClick={() => isBetSelected && handleLineRangeClick(key)}
-                      >
-                        {key.includes('PK') ? '' : labelTextBetTo}
-                      </p>
-                      {showBetTo && keyCurrent === key && (
-                        <BetTo
-                          typeAccount={typeAccount}
-                          keyCurrent={keyCurrent}
-                          label={label}
-                          setShowBetTo={setShowBetTo}
-                        />
-                      )}
-                    </div>
-                    <div className="relative col-span-3">
-                      <p
-                        className={`${dataAccountPair[key] === 1 ? 'block' : 'hidden'} cursor-pointer text-end underline italic text-blue-400 text-sm ${isBetSelected ? '' : 'opacity-50'}`}
-                        onClick={() => isBetSelected && handleLineRangeClick(key)}
-                      >
-                        {dataAccountPair[`${key}_Detail`]?.range.betAll === 1
-                          ? 'Range: All'
-                          : 'Range: Custom'}
-                      </p>
-                      {showGameRange && keyCurrent === key && (
-                        <GameRange
-                          typeAccount={typeAccount}
-                          keyCurrent={keyCurrent}
-                          label={label}
-                          setShowGameRange={setShowGameRange}
-                        />
-                      )}
-                    </div>
-                  </div>
-                )
-              }
-            )}
-          </div>
-        ))}
-      </div>
     </div>
   )
 }
@@ -852,12 +629,8 @@ const BetSettingsSection = () => {
 // Main component
 const AccountPairContent = () => {
   const context = useContext(AccountPairContext)
-  const { listAccountPair, currentAccountPair, setListAccountPair } = context.Combination
+  const { listAccountPair, currentAccountPair } = context.Combination
   const { isClearInvalidAccount } = context.ClearInvalidAccount
-  const [showQuickOddsRangeSetting, setShowQuickOddsRangeSetting] = useState(false)
-  const [showQuickBetTargetSetting, setShowQuickBetTargetSetting] = useState(false)
-  const [showQuickBetAmountSetting, setShowQuickBetAmountSetting] = useState(false)
-  const [showQuickAmountRounderSetting, setShowQuickAmountRounderSetting] = useState(false)
   const [account1, setAccount1] = useState<AccountType>()
   const [account2, setAccount2] = useState<AccountType>()
   const [showSaveSuccess, setShowSaveSuccess] = useState(false)
@@ -878,9 +651,7 @@ const AccountPairContent = () => {
       window.electron.ipcRenderer.send('CloseAccountPairWindow')
     }, 1500)
   }
-  const quickOddsRangeSetting = () => {
-    setShowQuickOddsRangeSetting(true)
-  }
+
   return (
     <AccountSelectionContext.Provider value={{ account1, account2, setAccount1, setAccount2 }}>
       <div className="bg-[#0C0E12] mt-2 flex flex-col overflow-y-auto overflow-x-hidden max-h-[calc(100vh-200px)]">
@@ -909,52 +680,6 @@ const AccountPairContent = () => {
         <div
           className={`pt-6 flex  border-t border-[#22262F] mt-6 ${currentAccountPair && currentAccountPair?.id ? 'justify-between' : 'justify-end'}`}
         >
-          {currentAccountPair && currentAccountPair?.id && (
-            <div className="border rounded-xl border-[#373A41] overflow-hidden flex-shrink-0">
-              <Button
-                variant="plain-white"
-                className="border-r border-[#373A41] rounded-none"
-                onClick={quickOddsRangeSetting}
-              >
-                Odd Range Settings
-              </Button>
-              <Button
-                variant="plain-white"
-                className="border-r border-[#373A41] rounded-none"
-                onClick={() => setShowQuickBetTargetSetting(true)}
-              >
-                Bet Target Settings
-              </Button>
-              <Button
-                variant="plain-white"
-                onClick={() => setShowQuickBetAmountSetting(true)}
-                className="border-r border-[#373A41] rounded-none"
-              >
-                Amount Settings
-              </Button>
-              <Button variant="plain-white" onClick={() => setShowQuickAmountRounderSetting(true)}>
-                Amount Rounder Settings
-              </Button>
-              {showQuickOddsRangeSetting && (
-                <QuickOddsRangeSettingModal
-                  setShowQuickOddsRangeSetting={setShowQuickOddsRangeSetting}
-                />
-              )}
-              {showQuickBetTargetSetting && (
-                <QuickBetTargetSettingModal
-                  setShowQuickBetTargetSetting={setShowQuickBetTargetSetting}
-                />
-              )}
-              {showQuickBetAmountSetting && (
-                <QuickAmountSettingModal setShowQuickAmountSetting={setShowQuickBetAmountSetting} />
-              )}
-              {showQuickAmountRounderSetting && (
-                <QuickAmountRounderSettingModal
-                  setShowQuickAmountRounderSetting={setShowQuickAmountRounderSetting}
-                />
-              )}
-            </div>
-          )}
           <div>
             <Button onClick={handleSave} className="w-40">
               Save

@@ -58,7 +58,7 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
     const { league, home, away, typeOdd, hdp_point, number } = dataCrawlPlatform1
     if (!league || !home || !away) continue
 
-    if (!isValidData(dataCrawlPlatform1)) continue
+    if (isValidData(dataCrawlPlatform1) == false) continue
 
     const dataCrawlPlatform2 = Platform2_Model.findOne({
       league,
@@ -69,8 +69,11 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
       number
     }) as DataCrawlType
 
-    if (!isValidData(dataCrawlPlatform2)) continue
+    if (!dataCrawlPlatform2) continue
 
+    if (isValidData(dataCrawlPlatform2) == false) continue
+
+    //[Setting] - Check General Setting (1st Half - 2nd Half)
     if (!isCheckNumberHalf(dataCrawlPlatform1, settingInfo[0])) continue
 
     const profitCombos = [

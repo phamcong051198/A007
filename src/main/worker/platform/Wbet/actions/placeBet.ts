@@ -8,7 +8,7 @@ import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
 import { fetchJsonWithDecompress } from '@/worker/platform/Wbet/helper'
 import { BetCheckResponse, TypeGetTickets_WBet } from '@/worker/platform/Wbet/common/types'
 import { API_ENDPOINTS, BET_TYPE_MAP, ODDS_COL_MAP } from '@/worker/platform/Wbet/common/constants'
-import { OVER } from '@shared/common/constants'
+import { GAME_TYPES, OVER } from '@shared/common/constants'
 
 export const placeBet_WBet = async (
   ticket: TicketInfoDataBetType,
@@ -101,11 +101,13 @@ async function bettingProcessBet__WBet(
     const odds_change = odds_check_detail.odds_change == true
 
     const odds_display = odds_change ? odds_display_new : ticket.odd
-    const odds_mo = odds_change ? odds_new : Number(ticket.odd) / 0.1
+    const odds_mo = odds_change ? odds_new : Number((Number(ticket.odd) / 0.1).toFixed(2))
+    const market_type =
+      ticket.gameType == GAME_TYPES.EARLY ? 1 : ticket.gameType == GAME_TYPES.TODAY ? 2 : 3
 
     const payload = {
-      market_type: 2,
       odds_type: 1,
+      market_type,
       account_id: accountInfo.loginID,
       session_token: accountInfo.cookie,
       parent_id: accountInfo.parent_id,
@@ -143,6 +145,12 @@ async function bettingProcessBet__WBet(
     await accountLogToFile(
       platformName,
       loginID,
+      `Payload BET_PLACEMENT: ${JSON.stringify(payload)}`,
+      'BetList'
+    )
+    await accountLogToFile(
+      platformName,
+      loginID,
       `Response BET_PLACEMENT: ${JSON.stringify(dataBetSingle)}`,
       'BetList'
     )
@@ -150,7 +158,11 @@ async function bettingProcessBet__WBet(
     if (dataBetSingle.status == 1 && dataBetSingle.statusdesc == 'OK') {
       return await handleBetSuccess(platformName, loginID, dataBetSingle.bet_id)
     } else {
-      return await handleBetError(platformName, loginID, `Unknown Error`)
+      return await handleBetError(
+        platformName,
+        loginID,
+        dataBetSingle.statusdesc || `Unknown Error`
+      )
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)

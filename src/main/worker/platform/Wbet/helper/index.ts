@@ -85,6 +85,9 @@ export async function fetchJsonWithDecompress(url: string, account: AccountType,
     throw new Error('Response is not valid JSON or gzip/base64 JSON: ' + text.slice(0, 200))
   }
 }
+function round(value: number, decimals = 2): number {
+  return Number(value.toFixed(decimals))
+}
 
 export async function handleDataOdds_HDP(dataOdds_HDP, leagues, matchs, isBSoft, gameType, WBet) {
   for (const key in dataOdds_HDP) {
@@ -104,8 +107,11 @@ export async function handleDataOdds_HDP(dataOdds_HDP, leagues, matchs, isBSoft,
             ? -Number(REVERSE_CONVERT_ODDS[item[8]])
             : Number(REVERSE_CONVERT_ODDS[item[8]])
 
-        const price_home = index == 1 ? Number(item[10]) * 0.1 : Number(item[9]) * 0.1
-        const price_away = index == 1 ? Number(item[9]) * 0.1 : Number(item[10]) * 0.1
+        const homeIndex = index === 1 ? 10 : 9
+        const awayIndex = index === 1 ? 9 : 10
+
+        const price_home = round(Number(item[homeIndex]) * 0.1)
+        const price_away = round(Number(item[awayIndex]) * 0.1)
 
         //Tên giải đấu
         const league = leagues.find((league) => league[0] === idLeague)
@@ -185,8 +191,9 @@ export async function handleDataOdds_OU(dataOdds_OU, leagues, matchs, isBSoft, g
         const altLineId = item[3]
         const time_odd = item[4]
         const odd = Number(REVERSE_CONVERT_ODDS[item[8]])
-        const price_home = Number(item[12]) * 0.1
-        const price_away = Number(item[11]) * 0.1
+
+        const price_home = round(Number(item[12]) * 0.1)
+        const price_away = round(Number(item[11]) * 0.1)
 
         //Tên giải đấu
         const league = leagues.find((league) => league[0] === idLeague)

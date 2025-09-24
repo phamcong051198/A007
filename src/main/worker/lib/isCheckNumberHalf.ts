@@ -1,7 +1,8 @@
+import { GAME_TYPES } from '@shared/common/constants'
 import { DataCrawlType, SettingType } from '@shared/common/types'
 
 export function isCheckNumberHalf(data: DataCrawlType, setting: SettingType): boolean {
-  const isRunning = setting.gameType === 'Running'
+  const isRunning = setting.gameType === GAME_TYPES.RUNNING
 
   if (setting.enableFirstStHalf === 1) {
     if (isRunning) {
@@ -44,7 +45,12 @@ function checkTimeInRange(stat: string, targetHour: number, from: number, to: nu
   if (!match) return false
 
   const hour = parseInt(match[1], 10)
-  const minutes = match[2] ? parseInt(match[2], 10) : 0
+  let minutes = match[2] ? parseInt(match[2], 10) : 0
+
+  // Nếu là hiệp 2 thì cộng thêm 45 phút
+  if (hour === 2) {
+    minutes += 45
+  }
 
   return hour === targetHour && minutes >= from && minutes <= to
 }

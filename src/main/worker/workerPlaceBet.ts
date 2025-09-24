@@ -229,9 +229,9 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
   }
 
   const ticketIUpdate = { ...ticketI, info: MessageI, hdp_point: Hdp_pointI, HDP: HDPI }
-  const ticketIIUpdate = { ...ticketII, info: MessageI, hdp_point: Hdp_pointII, HDP: HDPII }
+  const ticketIIUpdate = { ...ticketII, info: MessageII, hdp_point: Hdp_pointII, HDP: HDPII }
 
-  if (MessageI == 'ODDS_CHANGE' && MessageII == 'OK') {
+  if (MessageI == 'ODDS_CHANGE' && (MessageII == 'OK' || ErrorCodeII == 400)) {
     const { status, profit } = calculateProfit(Number(OddsI), Number(ticketII.odd))
     if (status === 'Fail') {
       handleOutOfCommission(
@@ -250,7 +250,7 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
 
     ticketIUpdate.profit = profit
     ticketIIUpdate.profit = profit
-  } else if (MessageI == 'OK' && MessageII == 'ODDS_CHANGE') {
+  } else if ((MessageI == 'OK' || ErrorCodeI == 400) && MessageII == 'ODDS_CHANGE') {
     const { status, profit } = calculateProfit(Number(ticketI.odd), Number(OddsII))
     if (status === 'Fail') {
       handleOutOfCommission(

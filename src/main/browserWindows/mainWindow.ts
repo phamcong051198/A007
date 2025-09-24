@@ -576,10 +576,5 @@ export async function createMainWindow() {
     app.quit()
   })
 
-  ipcMain.on('window-minimize', (event) => {
-    const win = BrowserWindow.fromWebContents(event.sender)
-    if (win) win.minimize()
-  })
-
   return mainWindow
 }

@@ -1,24 +1,3 @@
-export const MAJOR_LEAGUE = [
-  { league: '%England - Premier League' },
-  { league: '%England - Championship' },
-  { league: '%France - Ligue 1' },
-  { league: '%Germany - Bundesliga' },
-  { league: '%Italy - Serie A' },
-  { league: '%Spain - La Liga' },
-  { league: '%UEFA - Champions League' },
-  { league: '%UEFA - Europa League' }
-]
-
-export const DAYS_OF_WEEK = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday'
-]
-
 export const CONVERT_HDP = {
   '22': '22',
   '21.75': '21.5-22',

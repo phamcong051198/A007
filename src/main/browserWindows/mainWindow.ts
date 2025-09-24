@@ -8,7 +8,6 @@ import {
   BlockLeague,
   clearTable,
   ContraList,
-  LoginSchedulerSetting,
   NameLeague,
   PerMatchDetail,
   Platform,
@@ -41,7 +40,6 @@ import { GetListAccountPair } from '@/browserWindows/service/getListAccountPair'
 import { getSuggestedClient } from '@/browserWindows/service/getSuggestedClient'
 import { handleAddControls } from '@/browserWindows/service/handleAddControls'
 import { handleDelayLogin } from '@/browserWindows/service/handleDelayLogin'
-import { handleDelayLoginAll } from '@/browserWindows/service/handleDelayLoginAll'
 import { handleListReportFile } from '@/browserWindows/service/handleListReportFile'
 import { handleLoginAll } from '@/browserWindows/service/handleLoginAll'
 import { handleLoginAll_Platform } from '@/browserWindows/service/handleLoginAll_Platform'
@@ -366,18 +364,6 @@ export async function createMainWindow(account: { username: string }) {
   })
 
   //************************************************************************************* */
-  //************************************** ScheduledLoginLogoutSettingWindow *********************************************** */
-
-  ipcMain.handle('GetDataLoginSchedulerSetting', () => {
-    return LoginSchedulerSetting.findAll()
-  })
-
-  ipcMain.on('DataSaveLoginSchedulerSetting', (_, data) => {
-    clearTable('LoginSchedulerSetting')
-    LoginSchedulerSetting.insertMany(data)
-  })
-
-  //************************************************************************************* */
   //************************************** AccountListWindow *********************************************** */
 
   ipcMain.handle('GetListAccountByPlatform', (_, platform) => {
@@ -576,10 +562,6 @@ export async function createMainWindow(account: { username: string }) {
 
   ipcMain.on('LogoutAll', () => {
     handleLogoutAll(mainWindow, activeSportsBook)
-  })
-
-  ipcMain.on('DelayLoginAll', () => {
-    handleDelayLoginAll(mainWindow, activeSportsBook)
   })
 
   ipcMain.on('LoginAll_Platform', async (_, platform) => {

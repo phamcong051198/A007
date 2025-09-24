@@ -40,8 +40,7 @@ const navItems: NavItem[] = [
     name: 'Success List',
     path: 'success-list',
     badgeKey: 'totalSuccessList'
-  },
-  { icon: <DataFlow />, name: 'League Filter', path: 'league-filter' }
+  }
 ]
 
 const NavItemComponent = ({

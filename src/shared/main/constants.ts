@@ -76,23 +76,6 @@ export const DEFAULT_SETTING = {
   isBetEatSelected: 0
 }
 
-export const LOGIN_SCHEDULER_SETTING = [
-  {
-    typeSetting: 'Login',
-    isSchedulerEnabled: 0,
-    selectedDays: JSON.stringify([]),
-    timeValue: '00:00',
-    dateValue: new Date().toISOString().split('T')[0]
-  },
-  {
-    typeSetting: 'Logout',
-    isSchedulerEnabled: 0,
-    selectedDays: JSON.stringify([]),
-    timeValue: '00:00',
-    dateValue: new Date().toISOString().split('T')[0]
-  }
-]
-
 export const DEFAULT_TEAM_NAME_LIMIT = {
   limitMethod: 'TeamName',
   limitType: 'TotalCount',

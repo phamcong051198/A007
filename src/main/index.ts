@@ -2,26 +2,10 @@
 import { is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { join } from 'path'
-import {
-  Account,
-  clearTable,
-  LoginSchedulerSetting,
-  Setting,
-  SettingLeagueFilter,
-  SettingTableView
-} from '@db/model'
-
+import { Account, clearTable, Setting, SettingLeagueFilter, SettingTableView } from '@db/model'
 import { SettingTableViewType } from '@shared/common/types'
-import {
-  DEFAULT_ACCOUNT_STATUS,
-  DEFAULT_SETTING,
-  LOGIN_SCHEDULER_SETTING
-} from '@shared/main/constants'
-import {
-  LoginSchedulerSettingType,
-  SettingLeagueFilterType,
-  SettingType
-} from '@shared/common/types'
+import { DEFAULT_ACCOUNT_STATUS, DEFAULT_SETTING } from '@shared/main/constants'
+import { SettingLeagueFilterType, SettingType } from '@shared/common/types'
 import { createMainWindow } from '@/browserWindows/mainWindow'
 
 let loginWindow: BrowserWindow | null = null
@@ -65,6 +49,8 @@ function createWindow() {
       const account = {
         username
       }
+      event.reply('LoginResult', { success: true })
+
       loginWindow.close()
       mainWindow = await createMainWindow(account)
       return
@@ -153,11 +139,6 @@ app.whenReady().then(async () => {
   const settingLeagueFilter = SettingLeagueFilter.findAll() as SettingLeagueFilterType[]
   if (!settingLeagueFilter.length) {
     SettingLeagueFilter.create({ filterType: 'Block', blockMajorLeague: 0, allowMajorLeague: 0 })
-  }
-
-  const loginSchedulerSetting = LoginSchedulerSetting.findAll() as LoginSchedulerSettingType[]
-  if (!loginSchedulerSetting.length) {
-    LoginSchedulerSetting.insertMany(LOGIN_SCHEDULER_SETTING)
   }
 })
 

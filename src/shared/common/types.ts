@@ -532,15 +532,6 @@ export type TableLeagueFilterType = {
   league: string
 }
 
-export type LoginSchedulerSettingType = {
-  id: number
-  typeSetting: string
-  isSchedulerEnabled: number
-  selectedDays: string
-  timeValue: string
-  dateValue: string
-}
-
 export type SportsBook = {
   id: number
   name: string

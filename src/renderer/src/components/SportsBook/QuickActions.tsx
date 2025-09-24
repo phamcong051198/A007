@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,24 +6,17 @@ import {
   DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
 import ChevronDown from '@renderer/icons/chevron-down'
-import DelayLogin from '@renderer/icons/delay-log-in'
 import LogIn from '@renderer/icons/log-in'
 import LogOut from '@renderer/icons/log-out'
 import Settings from '@renderer/icons/settings'
-import ScheduledLoginLogoutSetting from '@renderer/windows/ScheduledLoginLogoutSetting'
 
 export default function QuickActions() {
-  const [isScheduledLoginLogoutSettingOpen, setScheduledLoginLogoutSettingOpen] = useState(false)
   const handleLoginAll = () => {
     window.electron.ipcRenderer.send('LoginAll')
   }
 
   const handleLogoutAll = () => {
     window.electron.ipcRenderer.send('LogoutAll')
-  }
-
-  const handleDelayLoginAll = () => {
-    window.electron.ipcRenderer.send('DelayLoginAll')
   }
 
   return (
@@ -53,27 +45,8 @@ export default function QuickActions() {
             <LogOut />
             <span className="ml-[6px]">Log Out All</span>
           </DropdownMenuItem>
-          <DropdownMenuSeparator className="border border-border-default" />
-          <DropdownMenuItem
-            className="text-[#FDB022] text-sm font-semibold h-[38px] focus:text-[#FDB022] cursor-pointer border border-transparent focus:rounded-[4px] focus:bg-color-hover"
-            onClick={handleDelayLoginAll}
-          >
-            <DelayLogin />
-            <span className="ml-[6px]">Delayed Log In All</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator className="border border-border-default" />
-          <DropdownMenuItem
-            className="text-[#CECFD2] text-sm font-semibold h-[38px] focus:text-[#CECFD2] cursor-pointer border border-transparent focus:rounded-[4px] focus:bg-color-hover"
-            onClick={() => setScheduledLoginLogoutSettingOpen(true)}
-          >
-            <Settings className="w-[16px] h-[16px]" />
-            <span className="ml-[6px]">Scheduled Log In / Log Out</span>
-          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      {isScheduledLoginLogoutSettingOpen && (
-        <ScheduledLoginLogoutSetting onClose={() => setScheduledLoginLogoutSettingOpen(false)} />
-      )}
     </>
   )
 }

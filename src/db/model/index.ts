@@ -18,7 +18,6 @@ import sportsBookSchema from '@db/schema/sportsBook'
 import successListSchema from '@db/schema/successList'
 import waitingListSchema from '@db/schema/waitingList'
 import allowLeagueSchema from '@db/schema/allowLeague'
-import loginSchedulerSettingSchema from '@db/schema/loginSchedulerSettingWindow'
 import perMatchLimitPlatformSchema from '@db/schema/perMatchLimitPlatform'
 import platformPerMatchDetailsSchema from '@db/schema/platformPerMatchDetails'
 import accountPairSchema from '@db/schema/accountPair'
@@ -335,10 +334,6 @@ export const AccountSwitch = createModel('AccountSwitch', accountSwitchSchema)
 export const SettingPerMatchLimit = createModel(
   'SettingPerMatchLimit',
   settingPerMatchLimitSettingSchema
-)
-export const LoginSchedulerSetting = createModel(
-  'LoginSchedulerSetting',
-  loginSchedulerSettingSchema
 )
 
 export const SettingLeagueFilter = createModel('SettingLeagueFilter', settingLeagueFilterSchema)

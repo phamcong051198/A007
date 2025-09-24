@@ -8,7 +8,6 @@ export default function Login() {
   const isAttemptingLogin = useRef(false)
 
   const [loadingLogin, setLoadingLogin] = useState(false)
-  const [loadingUpdateApp, setLoadingUpdateApp] = useState(false)
 
   const [username, setUserName] = useState<string>('')
   const [password, setPassword] = useState<string>('')
@@ -62,29 +61,17 @@ export default function Login() {
     isAttemptingLogin.current = true
     window.electron.ipcRenderer.send('AttemptLogin', { username, password })
 
-    window.electron.ipcRenderer.once('LoginResult', (_event, { success, message, data }) => {
+    window.electron.ipcRenderer.once('LoginResult', (_event, { success }) => {
       setLoadingLogin(false)
       isAttemptingLogin.current = false
       if (success) {
-        const profile = {
-          username: username,
-          expiredDate: data?.account?.expiredDate || '',
-          password: password
-        }
-
-        localStorage.setItem('profile', JSON.stringify(profile))
         if (isSaveLogin) {
           localStorage.setItem('username', username)
           localStorage.setItem('password', password)
-          localStorage.setItem('expiredDate', data?.account?.expiredDate)
         } else {
           localStorage.removeItem('username')
           localStorage.removeItem('password')
-          localStorage.removeItem('expiredDate')
         }
-      } else {
-        setErrorMessage(message || 'Login failed. Please try again.')
-        localStorage.removeItem('profile')
       }
     })
 
@@ -114,14 +101,6 @@ export default function Login() {
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [handleLogin])
-
-  useEffect(() => {
-    const showLoading = () => setLoadingUpdateApp(true)
-    window.electron.ipcRenderer.on('show-loading', showLoading)
-    return () => {
-      window.electron.ipcRenderer.removeAllListeners('show-loading')
-    }
-  }, [])
 
   return (
     <div className="h-full py-[64px] px-[48px] border border-border-default">

@@ -1,21 +1,3 @@
-export const VALUE_DEFAULT_ODDS_SETTING = {
-  oddsLessThanValue: '0.10',
-  oddsMoreThanValue: '0.80',
-  gameCommissionMoreThanValue: '0.24',
-  gameCommissionLessThanValue: '0.08'
-}
-
-export const TEXT_MESSAGE_ERROR_DEFAULT = {
-  oddsLessThanValue:
-    '[Do Not Bet when Odds <] Setting Error - Value must be ranged from Malay Odds -0.99 ~ 0.99!',
-  oddsMoreThanValue:
-    '[Do Not Bet when Odds >] Setting Error - Value must be ranged from Malay Odds -0.99 ~ 0.99!',
-  gameCommissionMoreThanValue:
-    '[Do Not Bet when Game Commission >] Setting Error - Value must be ranged from Malay Odds -0.99 ~ 0.99!',
-  gameCommissionLessThanValue:
-    '[Do Not Bet when Game Commission <] Setting Error - Value must be ranged from Malay Odds -0.99 ~ 0.99!'
-}
-
 export const HDP_OPTIONS = [
   { key: 'betAll', label: 'Bet All' },
   { key: 'hdp_0', label: '0' },

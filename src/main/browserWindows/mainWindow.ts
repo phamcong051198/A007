@@ -556,28 +556,6 @@ export async function createMainWindow() {
 
   //************************************** ConfirmLogoutWindow *********************************************** */
 
-  ipcMain.on('CloseAppByToken', async () => {
-    mainWindow.hide()
-    const date = new Date()
-      .toISOString()
-      .replace(/[-T:Z]/g, '')
-      .slice(0, 14)
-
-    const betList = BetListResult.findAll() as BetListDBType[]
-    if (betList.length > 0) {
-      const flattenedDataBetList = betList.flatMap((item) => JSON.parse(item.dataPair))
-      handleListReportFile(flattenedDataBetList, 'BetListReport', date)
-    }
-
-    const successList = SuccessList.findAll() as WaitingSuccessContraDBType[]
-    if (successList.length > 0) {
-      const flattenedDataSuccessList = successList.flatMap((item) => JSON.parse(item.dataPair))
-      handleListReportFile(flattenedDataSuccessList, 'SuccessListReport', date)
-    }
-
-    app.quit()
-  })
-
   ipcMain.on('QuitApp', async () => {
     const date = new Date()
       .toISOString()

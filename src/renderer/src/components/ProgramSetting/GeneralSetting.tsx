@@ -2,10 +2,6 @@ import { useContext, useState } from 'react'
 import { CheckCircle } from 'lucide-react'
 
 import { SettingContext } from '@renderer/context/SettingContext'
-import { calculateRoundedValue } from '@renderer/lib/calculateRoundedValue'
-import { checkInputFormatScheduler } from '@renderer/lib/checkInputFormatScheduler'
-import { validateBettingFields } from '@renderer/lib/utils'
-import { TEXT_MESSAGE_ERROR_DEFAULT, VALUE_DEFAULT_ODDS_SETTING } from '@shared/renderer/constants'
 import ExclamationTriangle from '@renderer/icons/exclamation-triangle'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
@@ -17,60 +13,16 @@ import { NotificationBetAmountRandom } from '@renderer/components/Setting/Button
 export default function GeneralSetting() {
   const context = useContext(SettingContext)
 
-  const [showTestResult, setShowTestResult] = useState(false)
-  const [testResult, setTestResult] = useState('')
   const [title, setTitle] = useState('Notification')
   const [messageError, setMessageError] = useState('')
   const [showAlertMsg, setShowAlertMsg] = useState(false)
 
   if (!context) return null
 
-  const { firstHalfState, setFirstHalfState } = context.firstHalf
-  const { secondHalfState, setSecondHalfState } = context.secondHalf
-  const { bettingModeState, setBettingModeState } = context.bettingMode
-
   const [showSaveSuccess, setShowSaveSuccess] = useState(false)
   const [messageSuccess, setMessageSuccess] = useState<string | null>(null)
-  const {
-    enableRandomizer,
-    setRandomizerEnabled,
-    fromRandomizer,
-    setFromValue,
-    toRandomizer,
-    setToValue
-  } = context.betAmountRandom
-  const { checkboxStates, setCheckboxStates, inputValuesOddsSetting, setInputValuesOddsSetting } =
-    context.oddsSetting
 
   const handleSaveSetting = () => {
-    for (const key in inputValuesOddsSetting) {
-      const value = parseFloat(inputValuesOddsSetting[key])
-      if (isNaN(value) || value < -1 || value > 1) {
-        setInputValuesOddsSetting({ [key]: VALUE_DEFAULT_ODDS_SETTING[key] })
-        setTitle('Notification Odds Setting')
-        setMessageError(TEXT_MESSAGE_ERROR_DEFAULT[key])
-        setShowAlertMsg(true)
-        return
-      } else {
-        setInputValuesOddsSetting({ [key]: value.toFixed(2) })
-      }
-    }
-    const valueHalfBetting = validateBettingFields(
-      firstHalfState?.firstStHalfBettingForm,
-      firstHalfState.firstStHalfBettingUntil,
-      0,
-      45,
-      firstHalfState?.enableFirstStHalf
-    )
-
-    const valueSecondBetting = validateBettingFields(
-      secondHalfState?.secondStHalfBettingForm,
-      secondHalfState.secondStHalfBettingUntil,
-      46,
-      90,
-      secondHalfState?.enableSecondStHalf
-    )
-
     window.electron.ipcRenderer.send('SaveSettingWindow', {
       profitMin:
         isNaN(parseFloat(context.oddsTypeSetting.profitMin as string)) ||
@@ -82,37 +34,7 @@ export default function GeneralSetting() {
         parseFloat(context.oddsTypeSetting.profitMax as string) > 1
           ? '1'
           : context.oddsTypeSetting.profitMax,
-      gameType: context.gameType.gameType,
-      oddsLessThan: checkboxStates.oddsLessThan,
-      oddsMoreThan: checkboxStates.oddsMoreThan,
-      gameCommissionMoreThan: checkboxStates.gameCommissionMoreThan,
-      gameCommissionLessThan: checkboxStates.gameCommissionLessThan,
-      oddsLessThanValue: inputValuesOddsSetting.oddsLessThanValue,
-      oddsMoreThanValue: inputValuesOddsSetting.oddsMoreThanValue,
-      gameCommissionMoreThanValue: inputValuesOddsSetting.gameCommissionMoreThanValue,
-      gameCommissionLessThanValue: inputValuesOddsSetting.gameCommissionLessThanValue,
-      enableRandomizer,
-      fromRandomizer,
-      toRandomizer,
-      enableFirstStHalf: firstHalfState.enableFirstStHalf,
-      betFirstHalf: firstHalfState.betFirstHalf,
-      betFullTime: firstHalfState.betFullTime,
-      enableSecondStHalf: secondHalfState.enableSecondStHalf,
-      betHalfTime: secondHalfState.betHalfTime,
-      firstStHalfBettingForm: String(valueHalfBetting[0]),
-      firstStHalfBettingUntil: String(valueHalfBetting[1]),
-      secondStHalfBettingForm: String(valueSecondBetting[0]),
-      secondStHalfBettingUntil: String(valueSecondBetting[1]),
-      bettingMode: bettingModeState.bettingMode,
-      amountRoundingEnabled: bettingModeState.amountRoundingEnabled,
-      roundType: bettingModeState.roundType,
-      roundingNumber: bettingModeState.roundingNumber,
-      schedulerRunning: context.gameTypeScheduler.running.value,
-      schedulerInputRunning: checkInputFormatScheduler(context.gameTypeScheduler.running.input),
-      schedulerToday: context.gameTypeScheduler.today.value,
-      schedulerInputToday: checkInputFormatScheduler(context.gameTypeScheduler.today.input),
-      schedulerEarly: context.gameTypeScheduler.early.value,
-      schedulerInputEarly: checkInputFormatScheduler(context.gameTypeScheduler.early.input)
+      gameType: context.gameType.gameType
     })
 
     setShowSaveSuccess(true)
@@ -124,32 +46,6 @@ export default function GeneralSetting() {
 
   const handleCancel = () => {
     window.history.back()
-  }
-
-  const handleTestRounding = () => {
-    const testValue = bettingModeState.testRounding
-    const roundingNumber = Number(bettingModeState.roundingNumber)
-    const roundType = bettingModeState.roundType
-
-    if (!testValue || isNaN(Number(testValue))) {
-      setTestResult('0')
-      setShowTestResult(true)
-      return
-    }
-
-    const roundedValue = calculateRoundedValue(
-      Number(testValue),
-      testValue,
-      roundingNumber,
-      roundType
-    )
-
-    setTestResult(roundedValue.toString())
-    setShowTestResult(true)
-
-    setTimeout(() => {
-      setShowTestResult(false)
-    }, 3000)
   }
 
   return (

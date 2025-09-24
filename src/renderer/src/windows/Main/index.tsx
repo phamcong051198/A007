@@ -1,16 +1,11 @@
 import { useEffect, useState } from 'react'
 
 import AppLayout from '@renderer/layouts/AppLayout'
-import DialogWithCountdown from '@renderer/components/Dialog/DialogWithCountdownProps'
 import { useCount } from '@renderer/context/CountContext'
-import SessionExpirePopup from '@renderer/components/Dialog/SessionExpirePopup'
 
 export default function Main() {
   const { setTotalBetList, setTotalWaitingList, setTotalContraList, setTotalSuccessList } =
     useCount()
-
-  const [open, setOpen] = useState(false)
-  const [message, setMessage] = useState('')
 
   useEffect(() => {
     const listenerMapping = [
@@ -36,57 +31,6 @@ export default function Main() {
       })
     }
   }, [])
-  useEffect(() => {
-    window.electron.onForceLogout((_event, data) => {
-      if (data.message) {
-        setMessage(data.message)
 
-        setOpen(true)
-
-        setTimeout(() => {
-          window.electron.ipcRenderer.send('CloseAppByToken')
-        }, 5000)
-      }
-    })
-  }, [])
-
-  useEffect(() => {
-    window.electron.ipcRenderer.on('ShowForceLogoutMessage', (message) => {
-      alert(message || 'You have been logged out by server.')
-    })
-  }, [])
-
-  const [sessionPopup, setSessionPopup] = useState<{
-    expiredDate: string
-    autoCloseMs: number
-  } | null>(null)
-
-  useEffect(() => {
-    window.electron.ipcRenderer.on('show-session-expire-popup', (_event, payload) => {
-      setSessionPopup(payload)
-    })
-    return () => {
-      window.electron.ipcRenderer.removeAllListeners('show-session-expire-popup')
-    }
-  }, [])
-
-  return (
-    <>
-      <AppLayout />
-      {sessionPopup && (
-        <SessionExpirePopup
-          expiredDate={sessionPopup.expiredDate}
-          autoCloseMs={sessionPopup.autoCloseMs}
-          onClose={() => setSessionPopup(null)}
-        />
-      )}
-      {open && (
-        <DialogWithCountdown
-          open={open}
-          setOpen={() => setOpen(false)}
-          message={message || 'Your session has expired, please login again.'}
-        />
-      )}
-    </>
-  )
+  return <AppLayout />
 }

@@ -16,7 +16,6 @@ import { NotificationError } from '@renderer/components/NotificationPopup/Notifi
 import ExclamationTriangle from '@renderer/icons/exclamation-triangle'
 import QuestionMarkCircle from '@renderer/icons/question-mark-circle'
 import { Button } from '../ui/button'
-import LineRangeSettingsModal from './modal/LineRangeSettingsModal'
 import { getThemeClass } from '@shared/common/constants'
 
 // Create context for account selection
@@ -570,14 +569,13 @@ const GeneralSettingsSection = ({
 const BetSettingsSection = () => {
   const { Combination } = useContext(AccountPairContext)
   const { currentAccountPair } = Combination
-  const [showPopupLineRangeSetting, setShowPopupLineRangeSetting] = useState(false)
+
   const [currentLineKey, setCurrentLineKey] = useState('')
   const [currentTypeAccount, setCurrentTypeAccount] = useState<'account1' | 'account2'>('account1')
 
   const handleShowPopupLineRange = (lineKey: string, typeAccount: 'account1' | 'account2') => {
     setCurrentLineKey(lineKey)
     setCurrentTypeAccount(typeAccount)
-    setShowPopupLineRangeSetting(true)
   }
 
   if (!currentAccountPair || !currentAccountPair.id) {
@@ -613,14 +611,6 @@ const BetSettingsSection = () => {
             />
           </div>
         </div>
-        {/* Modals */}
-        {showPopupLineRangeSetting && (
-          <LineRangeSettingsModal
-            setShowAmountRounderSetting={setShowPopupLineRangeSetting}
-            typeAccount={currentTypeAccount}
-            lineKey={currentLineKey}
-          />
-        )}
       </div>
     </div>
   )

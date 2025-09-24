@@ -30,7 +30,6 @@ import {
 } from '@shared/common/types'
 import { GetAccount1Account2 } from '@/browserWindows/service/getAccount1Account2'
 import { GetListAccountPair } from '@/browserWindows/service/getListAccountPair'
-import { getSuggestedClient } from '@/browserWindows/service/getSuggestedClient'
 import { handleAddControls } from '@/browserWindows/service/handleAddControls'
 import { handleListReportFile } from '@/browserWindows/service/handleListReportFile'
 import { handleLoginAll } from '@/browserWindows/service/handleLoginAll'
@@ -323,7 +322,6 @@ export async function createMainWindow() {
       name: activeSportsBook,
       platform: platform.name,
       url: platform.url,
-      suggestedClient: String(getSuggestedClient()),
       ...DEFAULT_SPORTS_BOOK_CONFIG
     })
 

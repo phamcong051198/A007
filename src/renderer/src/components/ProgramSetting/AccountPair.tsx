@@ -1,3 +1,7 @@
+import { v4 as uuidv4 } from 'uuid'
+import { CheckCircle } from 'lucide-react'
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+
 import BetTo from '@renderer/components/AccountPair/BetSetting/DetailedSetting/BetTo'
 import GameRange from '@renderer/components/AccountPair/BetSetting/DetailedSetting/GameRange'
 import { AccountPairContext, AccountPairProvider } from '@renderer/context/AccountPairContext'
@@ -8,15 +12,11 @@ import { sanitizeAccountsData } from '@renderer/lib/sanitizeAccountsData'
 import { AccountPairType } from '@shared/common/types'
 import { CHECK_BOX_DETAIL_SETTING } from '@shared/renderer/constants'
 import { AccountType } from '@shared/common/types'
-import { CheckCircle } from 'lucide-react'
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
 import { Checkbox } from '../ui/checkbox'
 import { InputNumber } from '../ui/input-number'
 import { Label } from '../ui/label'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import AmountRounding from './components/AmountRounding'
-// import LineRangeSettingsModal from './modal/LineRangeSettingsModal'
 import { Confirmation } from '@renderer/components/NotificationPopup/Confirmation'
 import { NotificationError } from '@renderer/components/NotificationPopup/NotificationError'
 import ExclamationTriangle from '@renderer/icons/exclamation-triangle'
@@ -28,7 +28,6 @@ import QuickAmountSettingModal from './modal/QuickAmountSettingModal'
 import QuickBetTargetSettingModal from './modal/QuickBetTargetSettingModal'
 import QuickOddsRangeSettingModal from './modal/QuickOddsRangeSettingModal'
 import { getThemeClass } from '@shared/common/constants'
-import AddSelectedAccountPairModal from '@renderer/windows/AddSelectedAccountPair'
 
 // Create context for account selection
 const AccountSelectionContext = React.createContext<{
@@ -228,7 +227,7 @@ const CombinationsList = () => {
   )
 }
 
-const ActionButtons = ({ setShowSaveSuccess, setMessageSuccess, openAddSelectionModal }) => {
+const ActionButtons = ({ setShowSaveSuccess, setMessageSuccess }) => {
   const context = useContext(AccountPairContext)
   const selectionContext = useContext(AccountSelectionContext)
   const { listAccountPair, setListAccountPair, setCurrentAccountPair, currentAccountPair } =
@@ -318,11 +317,6 @@ const ActionButtons = ({ setShowSaveSuccess, setMessageSuccess, openAddSelection
     })
   }, [listAccount, showConfirmation, setListAccountPair, setCurrentAccountPair])
 
-  const addSelection = () => {
-    console.log('test')
-    openAddSelectionModal()
-  }
-
   const clearInvalidAccounts = useCallback(() => {
     showConfirmation('Confirmation', 'Confirm to clear invalid account(s)?', () => {
       setIsClearInvalidAccount()
@@ -396,42 +390,35 @@ const ActionButtons = ({ setShowSaveSuccess, setMessageSuccess, openAddSelection
   }
   return (
     <>
-      <div className="flex gap-2 bg-[#13161B] py-4 mb-4 items-center justify-between rounded-lg">
+      <div className="flex gap-2 bg-[#13161B] p-4 mb-4 items-center justify-between rounded-lg border border-border-default">
         <div className="flex gap-4 items-center">
           <Button className="whitespace-nowrap" onClick={addAccountPair}>
-            Add combination
+            Add Combination
           </Button>
           <Button
             className="whitespace-nowrap"
             onClick={addAllCombinations}
             variant="bordered-white"
           >
-            Add all combinations
+            Add All Combinations
           </Button>
-
-          <div
-            onClick={addSelection}
-            className="text-[##ECFD2] whitespace-nowrap font-semibold cursor-pointer"
-          >
-            Add selection
-          </div>
         </div>
         <div className="flex items-center gap-4">
           <div
             onClick={clearInvalidAccounts}
-            className="text-[#F97066] font-semibold cursor-pointer whitespace-nowrap"
+            className="text-orange-500 font-medium text-[14px] cursor-pointer whitespace-nowrap border border-orange-500 py-[5px] px-3 rounded-md"
           >
-            Clear invalid account(s)
+            Clear Invalid Account
           </div>
           <Button
             onClick={removeAllCombinations}
             variant="bordered-white"
             className="text-[#F97066] border-[#F97066] whitespace-nowrap"
           >
-            Remove all combinations
+            Remove All Combinations
           </Button>
           <Button className="whitespace-nowrap" onClick={removeCombination} variant="destructive">
-            Remove combination
+            Remove Combination
           </Button>
         </div>
       </div>
@@ -875,18 +862,7 @@ const AccountPairContent = () => {
   const [account2, setAccount2] = useState<AccountType>()
   const [showSaveSuccess, setShowSaveSuccess] = useState(false)
   const [messageSuccess, setMessageSuccess] = useState<string | null>(null)
-  const [showAddSelectionModal, setShowAddSelectionModal] = useState(false)
-  const handleAddSelectedPairs = (pairs: AccountPairType[]) => {
-    const merged: AccountPairType[] = (() => {
-      const map = new Map<string, AccountPairType>(listAccountPair.map((p) => [p.id, p]))
-      for (const p of pairs) {
-        if (!map.has(p.id)) map.set(p.id, p)
-      }
-      return Array.from(map.values())
-    })()
 
-    setListAccountPair(merged)
-  }
   const handleSave = () => {
     const dataAccountPair = sanitizeAccountsData(listAccountPair)
     window.electron.ipcRenderer.send('AccountPairWindow', {
@@ -912,7 +888,6 @@ const AccountPairContent = () => {
         <ActionButtons
           setShowSaveSuccess={setShowSaveSuccess}
           setMessageSuccess={setMessageSuccess}
-          openAddSelectionModal={() => setShowAddSelectionModal(true)}
         />
 
         {/* Main Content - 3 columns */}
@@ -980,16 +955,10 @@ const AccountPairContent = () => {
               )}
             </div>
           )}
-          {showAddSelectionModal && (
-            <AddSelectedAccountPairModal
-              onClose={() => setShowAddSelectionModal(false)}
-              onSave={(pairs) => {
-                handleAddSelectedPairs(pairs)
-              }}
-            />
-          )}
           <div>
-            <Button onClick={handleSave}>Save</Button>
+            <Button onClick={handleSave} className="w-40">
+              Save
+            </Button>
           </div>
         </div>
 

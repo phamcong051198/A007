@@ -132,9 +132,6 @@ export const SPORTS_BOOK_LIST = [
 
 export const PROGRAM_SETTING_LIST = [
   { id: 'general-setting', label: 'General Settings' },
-  { id: 'bet-setting', label: 'Bet Settings' },
   { id: 'account-pair', label: 'Account Pair' },
-  { id: 'sportsbook-per-match-limit', label: 'SportsBook Per-match Limit Setting' },
-  { id: 'proxy-setting', label: 'Proxy Server Setting' },
   { id: 'language', label: 'Language' }
 ]

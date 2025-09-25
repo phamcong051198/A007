@@ -315,6 +315,7 @@ const handleData = async ({ dataP88, account }) => {
         nameLeague: formatLeague(name),
         platform: 'P88Bet'
       }) as NameTeamType
+      if (!standardHomeName || !standardHomeName.team || !standardHomeName.league) continue
 
       const standardAwayName = NameTeam.findOne({
         nameTeam: formatName(away),
@@ -322,9 +323,7 @@ const handleData = async ({ dataP88, account }) => {
         platform: 'P88Bet'
       }) as NameTeamType
 
-      if (!standardHomeName || !standardAwayName) {
-        continue
-      }
+      if (!standardAwayName || !standardAwayName.team || !standardAwayName.league) continue
 
       const hasValidData = event[9] && event[10] && event[16]
 

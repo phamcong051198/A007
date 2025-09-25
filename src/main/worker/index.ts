@@ -276,7 +276,7 @@ async function startWorker(account: AccountType, mainWindow: BrowserWindow) {
         })
 
         workerCrawl3in1bet.on('exit', async () => {
-          console.log('Worker Crawl 3IN2BET Exit')
+          console.log('Worker Crawl 3IN1BET Exit')
           workerCrawl3in1bet = null
         })
       }

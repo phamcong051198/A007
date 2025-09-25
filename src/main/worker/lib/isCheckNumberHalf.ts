@@ -40,7 +40,7 @@ export function isCheckNumberHalf(data: DataCrawlType, setting: SettingType): bo
 }
 
 function checkTimeInRange(stat: string, targetHour: number, from: number, to: number): boolean {
-  const regex = /^(\d+)H(?:\s*(\d+)')?$/
+  const regex = /^(\d+)H(?:\s*(\d+)'?)?$/
   const match = stat.trim().match(regex)
   if (!match) return false
 

@@ -159,7 +159,7 @@ async function bettingProcessBet__3in1Bet(
     const message = betNow.d.Message || 'Unknown Error'
     const refNo = betNow.d.BetData[0].RefNo
 
-    if (statusCode == 0 && refNo) {
+    if (refNo) {
       return await handleBetSuccess(platformName, loginID, refNo)
     }
 

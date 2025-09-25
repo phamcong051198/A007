@@ -5,6 +5,7 @@ export function calculateProfit(odd1: number, odd2: number) {
   const settingInfo = Setting.findAll() as SettingType[]
 
   let profit = 0
+  if (odd1 == 0 || odd2 == 0) return { status: 'Fail', profit }
 
   if ((odd1 > 0 && odd2 < 0) || (odd1 < 0 && odd2 > 0)) {
     profit = Math.round((odd1 + odd2) * 1000) / 1000

@@ -159,7 +159,7 @@ export const getTicket_3in1Bet = async (
     const max = setData.d.Max
 
     if (statusCode !== 0 && statusCode !== 3) {
-      throw new Error('Unknown Error')
+      throw new Error(setData.d.Message || 'Unknown Error')
     }
 
     if (+ticket.betAmount_Standard < min) {

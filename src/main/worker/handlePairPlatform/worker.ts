@@ -92,7 +92,7 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
     ]
 
     for (const { odd1, odd2, bet1, bet2 } of profitCombos) {
-      const profitResult = calculateProfit(odd1, odd2)
+      const profitResult = calculateProfit(Number(odd1), Number(odd2))
       if (profitResult.status !== 'OK') continue
 
       const checkOdds = checkOddsSetting(odd1, odd2, profitResult.profit)

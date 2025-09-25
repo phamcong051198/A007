@@ -120,6 +120,7 @@ async function bettingProcessBet__P88Bet(
       ...(proxyAgent && { agent: proxyAgent }),
       body
     })
+    await accountLogToFile(platformName, loginID, `Payload BET_PLACEMENT: ${body}`, 'BetList')
 
     const dataBetPlacement: BetResponse_P88 = await resBetPlacement.json()
     await accountLogToFile(

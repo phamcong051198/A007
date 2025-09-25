@@ -339,6 +339,9 @@ export type SportsBookType = {
 
 export type SettingType = {
   id: number
+
+  enable: number
+
   profitMin: string
   profitMax: string
   gameType: string

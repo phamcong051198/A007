@@ -2,15 +2,45 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { SPORTS_BOOK_LIST } from '@shared/renderer/constants'
 import AddSportsBook from '@renderer/components/SportsBook/AddSportsBook'
 import QuickActions from '@renderer/components/SportsBook/QuickActions'
+import { SwitchCustom } from '@renderer/components/ui/switch'
+import { useEffect, useState } from 'react'
+import { SettingType } from '@shared/common/types'
 
 export default function SportsBook() {
+  const [enable, setEnable] = useState(0)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = (await window.electron.ipcRenderer.invoke('GetDataSetting')) as SettingType[]
+      setEnable(data[0].enable)
+    }
+
+    fetchData()
+
+    return () => {
+      window.electron.ipcRenderer.removeAllListeners('GetDataSetting')
+    }
+  }, [])
+
+  const handleActionEnable = () => {
+    setEnable((prev) => {
+      const newValue = prev ? 0 : 1
+      window.electron.ipcRenderer.send('UpdateEnable', newValue)
+      return newValue
+    })
+  }
+
   return (
     <div className="w-full bg-layout-color h-[calc(100vh-95px)]">
       <div className="mt-[24px] mx-[24px] h-full flex flex-col">
         <div className="mb-[24px]">
           <div className="flex justify-between ">
             <p className="text-2xl font-semibold">SportsBook</p>
+
             <div className="flex items-center">
+              <div className="mr-5">
+                <SwitchCustom checked={Boolean(enable)} onCheckedChange={handleActionEnable} />
+              </div>
               <QuickActions />
               <AddSportsBook />
             </div>

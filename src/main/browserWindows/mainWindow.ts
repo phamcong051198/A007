@@ -115,6 +115,10 @@ export async function createMainWindow() {
     return Setting.findAll()
   })
 
+  ipcMain.on('UpdateEnable', (_, data) => {
+    Setting.update({ id: 1 }, { enable: data })
+  })
+
   let intervalId: NodeJS.Timeout | null = null
 
   ipcMain.on('SaveSettingWindow', (_, data: SettingType) => {

@@ -50,6 +50,11 @@ port.on('message', async (action) => {
 async function handleData(port: MessagePort) {
   // eslint-disable-next-line no-constant-condition
   while (true) {
+    const setting = Setting.findAll()[0] as SettingType
+    if (setting.enable === 1) {
+      await setTimeout(1000)
+      continue
+    }
     const allDataBet = DataBet.findAll() as DataBetType[]
     if (!allDataBet.length) {
       await setTimeout(1000)

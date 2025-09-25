@@ -1,5 +1,7 @@
 const settingSchema = `
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        enable INTEGER,
+
         profitMin TEXT,
         profitMax TEXT,
         gameType TEXT,

@@ -21,6 +21,8 @@ export const DEFAULT_ACCOUNT_STATUS = {
 }
 
 export const DEFAULT_SETTING = {
+  enable: 0,
+
   profitMin: '0.03',
   profitMax: '0.70',
   gameType: 'Running',
@@ -36,12 +38,12 @@ export const DEFAULT_SETTING = {
   betFirstHalf: 1,
   betFullTime: 1,
   firstStHalfBettingForm: '0',
-  firstStHalfBettingUntil: '42',
+  firstStHalfBettingUntil: '45',
 
   enableSecondStHalf: 1,
   betHalfTime: 1,
   secondStHalfBettingForm: '46',
-  secondStHalfBettingUntil: '87',
+  secondStHalfBettingUntil: '90',
 
   bettingMode: 'Normal',
   amountRoundingEnabled: 0,

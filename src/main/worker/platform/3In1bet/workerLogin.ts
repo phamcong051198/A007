@@ -7,7 +7,8 @@ import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
 import { OPTIONS_PROXY, STATUS_ACCOUNT, STATUS_LOGIN } from '@shared/main/constants'
 import { UserInfoResponse } from '@/worker/platform/3In1bet/common/types'
 import { API_BASE_URL, API_ENDPOINTS } from '@/worker/platform/3In1bet/common/constants'
-import { exitWithLog, mergeCookies, terminateWorker } from '@/worker/platform/3In1bet/helper'
+import { exitWithLog } from '@/worker/lib/exitWithLog'
+import { mergeCookies } from '@/worker/lib/mergeCookies'
 
 const LOGIN_TIMEOUT = 80_000 // 80s
 
@@ -200,7 +201,7 @@ export async function loginToPlatform(
     )
 
     onLoginComplete()
-    terminateWorker()
+    process.exit(0)
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     console.error('❌ Lỗi login:', errorMessage)

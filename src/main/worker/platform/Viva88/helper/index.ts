@@ -20,3 +20,121 @@ export const configHeaders = (accountInfo: AccountType) => ({
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
   ...(accountInfo.customIP ? { 'X-Forwarded-For': accountInfo.customIP } : {})
 })
+
+export const toJsonPayload = (
+  itemList: Record<string, unknown>[],
+  additionalParams: Record<string, unknown>
+) => {
+  const payload = { ItemList: [] as Record<string, unknown>[] }
+
+  itemList.forEach((item) => {
+    payload.ItemList.push({ ...item })
+  })
+
+  Object.assign(payload, additionalParams)
+
+  return JSON.stringify(payload)
+}
+
+export function CFS(password: string, IsSecond = null) {
+  function CfsCode(nWord) {
+    let result = ''
+    for (let cc = 1; cc <= nWord.length; cc++) {
+      result += nWord.charAt(cc - 1).charCodeAt(0)
+    }
+    const DecimalValue = Number(result)
+    return DecimalValue.toString(16)
+  }
+
+  const CodeLen = 30
+  let s = String(password)
+  const CodeSpace = CodeLen - s.length
+  if (CodeSpace > 1) {
+    for (let cecr = 1; cecr <= CodeSpace; cecr++) {
+      s += String.fromCharCode(21)
+    }
+  }
+
+  let NewCode = 1
+  for (let cecb = 1; cecb <= CodeLen; cecb++) {
+    const Been = CodeLen + s.charCodeAt(cecb - 1) * cecb
+    NewCode *= Been
+  }
+
+  const tmpNewCode = Number(NewCode).toPrecision(15)
+  let codeStr2 = String(tmpNewCode).toUpperCase()
+
+  if (IsSecond != null && codeStr2.indexOf('E') !== -1) {
+    const idx = codeStr2.indexOf('E')
+    const atemp = Number(codeStr2.substring(0, idx))
+    const adj = atemp - 0.00000000000001
+    const btemp = codeStr2.substring(idx)
+    codeStr2 = adj + btemp
+  }
+
+  let NewCode2 = ''
+  for (let cec = 1; cec <= codeStr2.length; cec++) {
+    const sub = codeStr2.substring(cec - 1, cec + 2)
+    NewCode2 += CfsCode(sub)
+  }
+
+  let CfsEncodeStr = ''
+  for (let cec = 20; cec <= NewCode2.length - 18; cec += 2) {
+    CfsEncodeStr += NewCode2.charAt(cec - 1)
+  }
+
+  return CfsEncodeStr.toUpperCase()
+}
+
+export async function extractTkAndId(html) {
+  try {
+    // Regular expression to find the MS2.account object in the HTML
+    const accountRegex = /MS2\.account\s*=\s*({[\s\S]*?});/
+    const match = html.match(accountRegex)
+
+    if (!match || !match[1]) {
+      throw new Error('MS2.account object not found in HTML')
+    }
+
+    // Parse the matched JSON string into a JavaScript object
+    const accountObj = JSON.parse(match[1])
+
+    // Extract tk and ID
+    const tk = accountObj.pnv?.tk
+    const id = accountObj.ID
+
+    if (!tk || !id) {
+      throw new Error('tk or ID not found in MS2.account')
+    }
+
+    return { tk, ID: id }
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error extracting tk and ID:', error.message)
+    } else {
+      console.error('Error extracting tk and ID:', error)
+    }
+    return null
+  }
+}
+
+export function buildSocketIoWsUrl(token: string, id: string) {
+  const crypto = require('crypto')
+  // Tạo gid random 16 hex
+  function createGid() {
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      const arr = new Uint8Array(8)
+      crypto.getRandomValues(arr)
+      return Array.from(arr, (b) => b.toString(16).padStart(2, '0')).join('')
+    } else {
+      const nodeCrypto = require('crypto')
+      return nodeCrypto.randomBytes(8).toString('hex')
+    }
+  }
+
+  const gid = createGid()
+  const rid = 0
+  const host = 'agnj3.viva88.net'
+
+  return `wss://${host}/socket.io/?gid=${gid}&token=${encodeURIComponent(token)}&id=${id}&rid=${rid}&EIO=3&transport=websocket`
+}

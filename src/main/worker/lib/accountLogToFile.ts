@@ -1,14 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { logTime } from '@/worker/lib/logTime'
-import fs from 'fs'
 import fsPromises from 'fs/promises'
 import path from 'path'
 
-const MAX_FILE_SIZE = 1 * 1024 * 1024 // 1MB in bytes
-//const MAX_FILE_SIZE = 500 * 1024 // 500KB in bytes
-
+const MAX_FILE_SIZE = 1 * 1024 * 1024 // 1MB
 const MAX_BACKUP_FILES = 5
 
-export async function accountLogToFile(
+// Map lưu queue riêng cho từng file log
+const logQueues = new Map<string, Promise<void>>()
+
+export function accountLogToFile(
   platformName: string,
   loginID: string,
   message: string,
@@ -19,25 +20,52 @@ export async function accountLogToFile(
   const baseFileName = `${platformName}_${loginID}_${typeFile}`
   const filePath = path.join(directoryPath, `${baseFileName}.txt`)
 
-  try {
-    if (!fs.existsSync(directoryPath)) {
-      fs.mkdirSync(directoryPath, { recursive: true })
-    }
+  const key = filePath
+  const prevQueue = logQueues.get(key) || Promise.resolve()
 
-    let fileSize = 0
-    if (fs.existsSync(filePath)) {
-      const stats = await fsPromises.stat(filePath)
-      fileSize = stats.size
-    }
+  // Xếp công việc mới vào queue của file này
+  const newQueue = prevQueue.then(async () => {
+    try {
+      await fsPromises.mkdir(directoryPath, { recursive: true })
 
-    if (fileSize >= MAX_FILE_SIZE) {
-      await rotateLogFiles(directoryPath, baseFileName)
-    }
+      let fileSize = 0
+      try {
+        const stats = await fsPromises.stat(filePath)
+        fileSize = stats.size
+      } catch (err: any) {
+        if (err.code !== 'ENOENT') throw err
+      }
 
-    await fsPromises.appendFile(filePath, logMessage, 'utf-8')
-  } catch (err) {
-    console.error('Error khi ghi log:', err)
+      if (fileSize >= MAX_FILE_SIZE) {
+        await rotateLogFiles(directoryPath, baseFileName)
+      }
+
+      await fsPromises.appendFile(filePath, logMessage, 'utf-8')
+    } catch (err) {
+      console.error(`Error khi ghi log [${platformName}:${loginID}:${typeFile}]:`, err)
+    }
+  })
+
+  logQueues.set(key, newQueue)
+}
+
+// Retry rename an toàn
+async function safeRename(oldPath: string, newPath: string) {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      await fsPromises.rename(oldPath, newPath)
+      return
+    } catch (err: any) {
+      if (err.code === 'EPERM' || err.code === 'EBUSY') {
+        await new Promise((r) => setTimeout(r, 100 * 2 ** attempt)) // exponential backoff
+      } else if (err.code === 'ENOENT') {
+        return
+      } else {
+        throw err
+      }
+    }
   }
+  throw new Error(`Không thể rename ${oldPath} -> ${newPath}`)
 }
 
 async function rotateLogFiles(directoryPath: string, baseFileName: string) {
@@ -45,55 +73,37 @@ async function rotateLogFiles(directoryPath: string, baseFileName: string) {
 
   try {
     const oldestBackup = path.join(directoryPath, `${baseFileName}_backup.${MAX_BACKUP_FILES}.txt`)
-    if (fs.existsSync(oldestBackup)) {
+    try {
       await fsPromises.unlink(oldestBackup)
+    } catch (err: any) {
+      if (err.code !== 'ENOENT') throw err
     }
 
     for (let i = MAX_BACKUP_FILES - 1; i >= 1; i--) {
       const oldBackup = path.join(directoryPath, `${baseFileName}_backup.${i}.txt`)
       const newBackup = path.join(directoryPath, `${baseFileName}_backup.${i + 1}.txt`)
-      if (fs.existsSync(oldBackup)) {
-        await fsPromises.rename(oldBackup, newBackup)
+      try {
+        await safeRename(oldBackup, newBackup)
+      } catch (err: any) {
+        if (err.code !== 'ENOENT') throw err
       }
     }
 
-    if (fs.existsSync(currentFile)) {
-      const firstBackup = path.join(directoryPath, `${baseFileName}_backup.1.txt`)
-      await fsPromises.rename(currentFile, firstBackup)
+    try {
+      await safeRename(currentFile, path.join(directoryPath, `${baseFileName}_backup.1.txt`))
+    } catch (err: any) {
+      if (err.code !== 'ENOENT') throw err
     }
   } catch (err) {
     console.error('Error khi rotate file log:', err)
   }
 }
 
-export function generateCurl({
-  url,
-  method,
-  headers,
-  body,
-  proxy
-}: {
-  url: string
-  method: string
-  headers: Record<string, string>
-  body?: string
-  proxy?: string
-}) {
-  let curl = `curl -X ${method.toUpperCase()} "${url}" \\\n`
-
-  for (const [key, value] of Object.entries(headers)) {
-    curl += `  -H "${key}: ${value}" \\\n`
-  }
-
-  if (proxy) {
-    curl += `  --proxy '${proxy}' \\\n`
-  }
-
-  if (body) {
-    curl += `  --data-raw '${body}'`
-  } else {
-    curl = curl.trim().replace(/\\$/g, '') // remove trailing \
-  }
-
-  return curl
+export async function flushLogQueue(platformName: string, loginID: string, typeFile: string) {
+  const filePath = path.join(
+    `BetLog/AccountLog/${platformName}_${loginID}`,
+    `${platformName}_${loginID}_${typeFile}.txt`
+  )
+  const queue = logQueues.get(filePath)
+  if (queue) await queue
 }

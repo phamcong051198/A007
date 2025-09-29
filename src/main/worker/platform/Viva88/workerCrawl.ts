@@ -1,13 +1,15 @@
 import WebSocket from 'ws'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 import crypto from 'crypto'
 import { parentPort } from 'worker_threads'
+import { setTimeout as delay } from 'timers/promises'
+
 import { Account, clearTable, Setting } from '@db/model'
 import { AccountType, SettingType } from '@shared/common/types'
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { getBalanceViva88bet } from '@/worker/platform/Viva88/actions/getBalance'
 import { isAccountActive } from '@/worker/lib/checkAccount'
 import { setTimeout } from 'timers/promises'
-import { HttpsProxyAgent } from 'https-proxy-agent'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
 import { gameTypeMapViva88 } from '@/worker/platform/Viva88/common/constants'
 
@@ -20,6 +22,7 @@ const port = parentPort
 if (!port) throw new Error('IllegalState')
 
 port.on('message', (accountInfo: AccountType) => {
+  startTimer(accountInfo)
   handleCrawlData(accountInfo)
 })
 
@@ -415,4 +418,32 @@ async function sendPing(account: AccountType) {
     ws.send('2')
     //console.log(`${logTime()} Ping`)
   }
+}
+
+async function startTimer(account: AccountType) {
+  const min = 2 * 60 // 120 phút
+  const max = 3 * 60 // 180 phút
+
+  // random integer từ 120 đến 180 (bao gồm cả 180)
+  const randomMinutes = Math.floor(Math.random() * (max - min + 1)) + min
+  const ms = randomMinutes * 60 * 1000
+
+  console.log(`Timer started, se log sau ${randomMinutes} minute`)
+  await delay(ms)
+
+  port?.postMessage({
+    type: 'LoggedAgain',
+    data: Account.update(
+      { id: account.id },
+      {
+        statusLogin: 'Fail',
+        textLog: 'Logged Again ...',
+        credit: '0',
+        cookie: null,
+        host: null,
+        socketUrl: null
+      }
+    )
+  })
+  process.exit(0)
 }

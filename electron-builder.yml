@@ -49,6 +49,3 @@ npmRebuild: false
 publish:
   provider: generic
   url:
-extraResources:
-  - from: 'resources/.cache/puppeteer/chrome'
-    to: '.cache/puppeteer/chrome'

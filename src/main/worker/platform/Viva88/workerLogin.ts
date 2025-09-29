@@ -1,16 +1,18 @@
-import { parentPort } from 'worker_threads'
-import puppeteer from 'puppeteer'
-import { setTimeout as delay } from 'timers/promises'
+import fetch from 'node-fetch'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+
+import { MessagePort, parentPort } from 'worker_threads'
 import { AccountType, SettingType } from '@shared/common/types'
 import { Account, Setting } from '@db/model'
-import { accountLogToFile } from '@/worker/lib/accountLogToFile'
-import { getLaunchArgs } from '@/worker/lib/getLaunchArgs'
-import { getChromeExecutablePath } from '@/worker/lib/getChromeExecutablePath'
+import { LoginResponse } from '@/worker/platform/Viva88/common/types'
+import { OPTIONS_PROXY, STATUS_ACCOUNT, STATUS_LOGIN } from '@shared/main/constants'
+import { API_BASE_URL, API_ENDPOINTS } from '@/worker/platform/Viva88/common/constants'
+import { buildSocketIoWsUrl, CFS, extractTkAndId } from '@/worker/platform/Viva88/helper'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
-import { MessagePort } from 'worker_threads'
-import { ResLoginViva88 } from '@/worker/platform/Viva88/common/types'
+import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { getBalanceViva88bet } from '@/worker/platform/Viva88/actions/getBalance'
-import { STATUS_ACCOUNT } from '@shared/main/constants'
+import { mergeCookies } from '@/worker/lib/mergeCookies'
+import { exitWithLog } from '@/worker/lib/exitWithLog'
 
 const port = parentPort
 
@@ -26,512 +28,218 @@ port.on('message', async ({ account }: { account: AccountType }) => {
     process.exit(0)
   }
 
-  let loginCompleted = false
-
-  port.postMessage({
-    type: 'DataUpdateAccount',
-    data: Account.update(
-      { id: account.id },
-      {
-        status: STATUS_ACCOUNT.LOGOUT
-      }
-    )
-  })
-
-  // Start timeout check
-  setTimeout(async () => {
-    if (!loginCompleted) {
-      const textLog = 'Error: Login timeout after 10 seconds...'
-      port.postMessage({
-        type: 'DataUpdateAccount',
-        data: Account.update(
-          { id: account.id },
-          {
-            status: 'Exit',
-            statusLogin: 'Fail',
-            textLog
-          }
-        )
-      })
-      await accountLogToFile(
-        account.platformName,
-        account.loginID,
-        `Error: Access failed ${account.loginID}: ${textLog}`,
-        'Program'
-      )
-      process.exit(0)
-    }
-  }, 80000)
-
-  await loginToViva88Bet(port, account, () => {
-    loginCompleted = true
-  })
+  await loginToViva88Bet(port, account)
 })
 
-async function loginToViva88Bet(
-  port: MessagePort,
-  account: AccountType,
-  onLoginComplete: () => void
-) {
-  let socketUrl: string = ''
-  try {
-    const accountData = (await Account.findOne({
-      id: account.id,
-      statusDelete: 0
-    })) as AccountType
-
-    if (!accountData || accountData.status === STATUS_ACCOUNT.LOGIN) {
-      process.exit(0)
-    }
-
+async function loginToViva88Bet(port: MessagePort, account: AccountType) {
+  const updateLog = (textLog: string, statusLogin?, status?) => {
     port.postMessage({
       type: 'DataUpdateAccount',
       data: Account.update(
         { id: account.id },
-        {
-          textLog: 'Checking Login Info...'
-        }
+        { textLog, ...(statusLogin && { statusLogin }), ...(status && { status }) }
       )
     })
+  }
 
-    await accountLogToFile(
-      account.platformName,
-      account.loginID,
-      `Login Status: Checking Login Info...`,
-      'Program'
-    )
+  let cookieHeader = `LOGIN_PLATFORM=desktop;rememberMe=false;_culture=en-US`
+  try {
+    updateLog('Checking Login Info...')
+
+    // Proxy check
     const { status, data } = isProxyConfigValid(account)
-
     if (!status) {
-      await accountLogToFile(
-        account.platformName,
-        account.loginID,
-        `Proxy Error: Invalid proxy address format – unable to determine valid URI.`,
-        'Program'
-      )
-
-      port.postMessage({
-        type: 'DataUpdateAccount',
-        data: Account.update(
-          { id: account.id },
-          {
-            status: 'Exit',
-            statusLogin: 'Fail',
-            textLog: `Proxy Error: Invalid proxy address format – unable to determine valid URI.`
-          }
-        )
-      })
-      process.exit(0)
+      return exitWithLog(port, account, 'Proxy Error: Invalid proxy address format.')
     }
 
     const { proxyScope, newIpAddress, newPort, newUsername, newPassword } = data
+    const proxyUrl =
+      proxyScope !== OPTIONS_PROXY.NONE
+        ? `http://${newUsername}:${newPassword}@${newIpAddress}:${newPort}`
+        : undefined
+    const proxyAgent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : undefined
 
-    const browser = await puppeteer.launch({
-      headless: true,
-      ignoreHTTPSErrors: true,
-      executablePath: await getChromeExecutablePath(),
-      args: getLaunchArgs(proxyScope, newIpAddress, newPort)
-    })
-
-    const pages = await browser.pages()
-    const page = pages[0]
-
-    page.on('response', async (response) => {
-      const request = response.request()
-      if (request.method() === 'OPTIONS' || request.method() === 'GET') return
-      const url = response.url()
-
-      if (url.includes('/api/Login') && response.request().method() == 'POST') {
-        const data = (await response.json()) as ResLoginViva88
-        await accountLogToFile(
-          account.platformName,
-          account.loginID,
-          `Response Login: ${JSON.stringify(data)}`,
-          'Program'
-        )
-
-        if ([0, 408].includes(data.errorCode)) {
-          Account.update(
-            { id: account.id },
-            {
-              textLog: `Verifying account information...!`
-            }
-          )
-        } else if ([2, 40, 398].includes(data.errorCode)) {
-          const accountData = (await Account.findOne({
-            id: account.id,
-            statusDelete: 0
-          })) as AccountType
-
-          if (!accountData || accountData.status === STATUS_ACCOUNT.LOGIN) {
-            process.exit(0)
-          }
-          port.postMessage({
-            type: 'DataUpdateAccount',
-            data: Account.update(
-              { id: account.id },
-              {
-                status: 'Exit',
-                statusLogin: 'Fail',
-                textLog: `Login Error: Incorrect account or password`
-              }
-            )
-          })
-
-          await accountLogToFile(
-            account.platformName,
-            account.loginID,
-            `Error Login ${account.loginID}: Incorrect account or password`,
-            'Program'
-          )
-          process.exit(0)
-        } else {
-          const accountData = (await Account.findOne({
-            id: account.id,
-            statusDelete: 0
-          })) as AccountType
-
-          if (!accountData || accountData.status === STATUS_ACCOUNT.LOGIN) {
-            process.exit(0)
-          }
-
-          port.postMessage({
-            type: 'DataUpdateAccount',
-            data: Account.update(
-              { id: account.id },
-              {
-                status: 'Exit',
-                statusLogin: 'Fail',
-                textLog: `Login Error: ${data.errorMessage}`
-              }
-            )
-          })
-
-          await accountLogToFile(
-            account.platformName,
-            account.loginID,
-            `Error: Login ${account.loginID}: ${data.errorMessage} Fail`,
-            'Program'
-          )
-          process.exit(0)
-        }
-      }
-    })
-
-    if (proxyScope !== 'None') {
-      await page.authenticate({
-        username: newUsername,
-        password: newPassword
-      })
-    }
-
-    await page.setViewport({ width: 1920, height: 1080 })
-
-    const cdpSession = await page.target().createCDPSession()
-    await cdpSession.send('Network.enable')
-    await cdpSession.send('Network.setCacheDisabled', { cacheDisabled: false })
-    cdpSession.removeAllListeners()
-    cdpSession.on('Network.webSocketCreated', async (payload) => {
-      if (payload.url.startsWith('wss://agnj3.viva88.net/')) {
-        socketUrl = payload.url as string
-      }
-    })
-
-    const accountDataInfo = (await Account.findOne({
-      id: account.id,
-      statusDelete: 0
-    })) as AccountType
-
-    if (!accountDataInfo || accountDataInfo.status === STATUS_ACCOUNT.LOGIN) {
-      process.exit(0)
-    }
-
-    port.postMessage({
-      type: 'DataUpdateAccount',
-      data: Account.update(
-        { id: account.id },
-        {
-          textLog: 'Accessing website...'
-        }
-      )
-    })
-    await accountLogToFile(
-      account.platformName,
-      account.loginID,
-      `Login Status: Accessing website...`,
-      'Program'
-    )
-
-    await page.goto('https://www.viva88.net/b/en', { waitUntil: 'load', timeout: 90000 })
-    await delay(1000)
-    port.postMessage({
-      type: 'DataUpdateAccount',
-      data: Account.update(
-        { id: account.id },
-        {
-          textLog: 'Accessing website success'
-        }
-      )
-    })
-    await accountLogToFile(
-      account.platformName,
-      account.loginID,
-      `Login Status: Accessing website success`,
-      'Program'
-    )
-
-    const bodyHTML = await page.content()
-    const errorChecks = [
-      {
-        keyword: 'Access Denied',
-        logMessage: 'Login Failed: Access Denied',
-        textLog: 'Access Denied...'
+    // Step 0: homepage
+    updateLog('Step 0: Requesting homepage...')
+    const preRes = await fetch(API_BASE_URL, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0',
+        ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
       },
-      {
-        keyword: "<h2>We'll Be Right Back！</h2>",
-        logMessage: 'Login Failed: Website access error is under maintenance...',
-        textLog: 'Website access error is under maintenance...'
-      }
-    ]
-
-    for (const check of errorChecks) {
-      if (bodyHTML.includes(check.keyword)) {
-        const accountData = (await Account.findOne({
-          id: account.id,
-          statusDelete: 0
-        })) as AccountType
-
-        if (!accountData || accountData.status === STATUS_ACCOUNT.LOGIN) {
-          process.exit(0)
-        }
-
-        port.postMessage({
-          type: 'DataUpdateAccount',
-          data: Account.update(
-            { id: account.id },
-            {
-              status: 'Exit',
-              statusLogin: 'Fail',
-              textLog: check.textLog
-            }
-          )
-        })
-
-        await accountLogToFile(account.platformName, account.loginID, check.logMessage, 'Program')
-
-        process.exit(0)
-      }
-    }
-    // Load lại trang
-    await page.reload({ waitUntil: 'networkidle0' })
-    await delay(1000)
-
-    const closeButtonSelector = 'i.icon.icon--close'
-    const isCloseButtonVisible = await page.$(closeButtonSelector)
-
-    if (isCloseButtonVisible) {
-      await page.click(closeButtonSelector)
-      await delay(1000)
-    }
-
-    await delay(1000)
-    port.postMessage({
-      type: 'DataUpdateAccount',
-      data: Account.update(
-        { id: account.id },
-        {
-          textLog: 'Filling in account information'
-        }
-      )
+      redirect: 'manual',
+      ...(proxyAgent && { agent: proxyAgent })
     })
-    await accountLogToFile(
+    cookieHeader = mergeCookies(cookieHeader, preRes.headers.get('set-cookie'))
+    accountLogToFile(
       account.platformName,
       account.loginID,
-      `Login Status: Filling in account information`,
-      'Program'
-    )
-    const accountDataCheck1 = (await Account.findOne({
-      id: account.id,
-      statusDelete: 0
-    })) as AccountType
-
-    if (!accountDataCheck1 || accountDataCheck1.status === STATUS_ACCOUNT.LOGIN) {
-      process.exit(0)
-    }
-    // Chờ nút login rồi click
-    await page.waitForSelector('a.btn.btn--secondary', { visible: true, timeout: 30000 })
-    await page.click('a.btn.btn--secondary')
-
-    // Đợi form login hiện ra
-    await page.waitForSelector('.login-form[data-open="true"] input#username', {
-      visible: true,
-      timeout: 30000
-    })
-
-    // Nhập username & password
-    await page.type('#username', account.loginID, { delay: 50 })
-    await page.type('#password', account.password, { delay: 50 })
-    await page.click('.login-form__item > a')
-
-    // Chờ web load và kiểm tra có popup đồng ý/ từ chối không
-    try {
-      await page.waitForSelector('.btn-group .btn.btn--agree', { visible: true, timeout: 5000 })
-      await page.click('.btn-group .btn.btn--agree')
-      port.postMessage({
-        type: 'DataUpdateAccount',
-        data: Account.update(
-          { id: account.id },
-          {
-            textLog: `Processing approval of terms of use for new account`
-          }
-        )
-      })
-
-      await accountLogToFile(
-        account.platformName,
-        account.loginID,
-        `Login Status: New account. Clicked Agree to terms of use`,
-        'Program'
-      )
-    } catch (e) {
-      await accountLogToFile(
-        account.platformName,
-        account.loginID,
-        `Login Status: Valid account. Already used.`,
-        'Program'
-      )
-    }
-
-    const accountDataInfoNew = (await Account.findOne({
-      id: account.id,
-      statusDelete: 0
-    })) as AccountType
-
-    if (!accountDataInfoNew || accountDataInfoNew.status === STATUS_ACCOUNT.LOGIN) {
-      process.exit(0)
-    }
-
-    port.postMessage({
-      type: 'DataUpdateAccount',
-      data: Account.update(
-        { id: account.id },
-        {
-          textLog: `Wait for the website to load all requests`
-        }
-      )
-    })
-    await accountLogToFile(
-      account.platformName,
-      account.loginID,
-      `Login Status: Wait for the website to load all requests`,
+      `Step 0: Requesting homepage (OK)`,
       'Program'
     )
 
-    const pageTitle = await page.title()
+    // Step 1: login
+    updateLog('Step 1: Sending login request...')
+    const loginRes = await fetch(API_ENDPOINTS.LOGIN, {
+      method: 'POST',
+      headers: {
+        Host: 'api.viva88.net',
+        'Content-Type': 'application/json',
+        Accept: '*/*',
+        Origin: API_BASE_URL,
+        Referer: API_BASE_URL,
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'max-age=0',
+        ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
+      },
+      body: JSON.stringify({
+        username: account.loginID,
+        password: CFS(account.password),
+        platform: 'desktop',
+        language: 'en',
+        loginCode: ''
+      }),
+      ...(proxyAgent && { agent: proxyAgent })
+    })
+    cookieHeader = mergeCookies(cookieHeader, loginRes.headers.get('set-cookie'))
 
-    if (pageTitle.includes('Recaptcha')) {
-      port.postMessage({
-        type: 'DataUpdateAccount',
-        data: Account.update(
-          { id: account.id },
-          {
-            status: 'Exit',
-            statusLogin: 'Fail',
-            textLog: 'Login Status: (ERROR)-System Account ID not found!'
-          }
-        )
-      })
-      await accountLogToFile(
-        account.platformName,
-        account.loginID,
-        `Error: Access failed ${account.loginID}: System Account ID not found!`,
-        'Program'
-      )
-      console.log('***************Login Viva88 Fail Recaptcha ****************\n')
-      process.exit(0)
+    const resData = (await loginRes.json()) as LoginResponse
+    const errorCode = resData.errorCode
+    const errorMessage = resData.errorMessage
+    const redirectUrl = resData.redirectUrl
+
+    accountLogToFile(
+      account.platformName,
+      account.loginID,
+      `Response Step 1: ${JSON.stringify(resData)}`,
+      'Program'
+    )
+
+    if (errorCode !== 408 && errorCode !== 0) {
+      throw new Error(`Login failed: ${errorMessage}`)
     }
 
-    const cookies = await page.cookies()
-    const cookieString = cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join('; ')
-    const host = new URL(page.url()).origin
-
-    if (cookieString && socketUrl) {
-      Account.update({ id: account.id }, { cookie: cookieString, host, socketUrl }) as AccountType
-
-      await accountLogToFile(
-        account.platformName,
-        account.loginID,
-        `Login Status: Login ${account.loginID} successfully!`,
-        'Program'
-      )
-
-      const accountData = (await Account.findOne({
-        id: account.id,
-        statusDelete: 0
-      })) as AccountType
-
-      if (!accountData || accountData.status === STATUS_ACCOUNT.LOGIN) {
-        process.exit(0)
-      }
-
-      const setting = Setting.findAll()[0] as SettingType
-      const balance = await getBalanceViva88bet(accountData)
-
-      port.postMessage({
-        type: 'LoginSuccess',
-        data: Account.update(
-          { id: account.id },
-          {
-            checkBoxBet: 1,
-            checkBoxRefresh: 1,
-            checkBoxAutoLogin: 1,
-            credit: balance.Data,
-            typeCrawl: setting.gameType,
-            status: 'Logout',
-            statusLogin: 'Success',
-            textLog: `Login ${account.loginID} successfully!`
-          }
-        )
-      })
-
-      onLoginComplete()
-      process.exit(0)
+    if (!redirectUrl) {
+      throw new Error('Login failed: No data redirectUrl')
     }
+    accountLogToFile(
+      account.platformName,
+      account.loginID,
+      `Step 1: Sending login request (OK)`,
+      'Program'
+    )
+
+    // Step 2: Goto RedirectUrl
+    updateLog('Step 2: Following redirect URL...')
+    const resRedirectUrl = await fetch(redirectUrl, {
+      method: 'GET',
+      headers: {
+        Host: 'd.viva88.net',
+        Cookie: 'LOGIN_PLATFORM=desktop; rememberMe=false',
+        'Sec-Ch-Ua': `"Not=A?Brand";v="24", "Chromium";v="140"`,
+        'Sec-Ch-Ua-Mobile': '?0',
+        'Sec-Ch-Ua-Platform': `"Windows"`,
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Upgrade-Insecure-Requests': '1',
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+        Accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+        'Sec-Fetch-Site': 'same-site',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-User': '?1',
+        'Sec-Fetch-Dest': 'document',
+        Referer: 'https://www.viva88.net/',
+        'Accept-Encoding': 'gzip, deflate, br',
+        Priority: 'u=0, i'
+      },
+      redirect: 'manual',
+      ...(proxyAgent && { agent: proxyAgent })
+    })
+
+    const location = resRedirectUrl.headers.get('location')
+    cookieHeader = mergeCookies(cookieHeader, resRedirectUrl.headers.get('set-cookie'))
+
+    if (!location) {
+      throw new Error('Login failed: No data location')
+    }
+    accountLogToFile(
+      account.platformName,
+      account.loginID,
+      `Step 2: Following redirect URL (OK)`,
+      'Program'
+    )
+
+    // Step 3: Goto Home/Index by location
+    updateLog('Step 3: Accessing Home/Index page...')
+    const resHomeIndex = await fetch(location, {
+      method: 'GET',
+      headers: {
+        Host: 'd.viva88.net',
+        Cookie: cookieHeader,
+        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        Referer: 'https://www.viva88.net/',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br'
+      },
+      redirect: 'manual',
+      ...(proxyAgent && { agent: proxyAgent })
+    })
+    const dataHomeIndex = await resHomeIndex.text()
+    const result = await extractTkAndId(dataHomeIndex)
+    if (!result) {
+      throw new Error('Login failed: Failed to extract tk and ID socket')
+    }
+
+    const socketUrl = buildSocketIoWsUrl(result.tk, result.ID)
+
+    const accountUpdate = Account.update(
+      { id: account.id },
+      { host: 'https://d.viva88.net', socketUrl, cookie: cookieHeader }
+    ) as AccountType
+
+    accountLogToFile(
+      account.platformName,
+      account.loginID,
+      `Step 3: Accessing Home/Index page (OK)`,
+      'Program'
+    )
+
+    // Step 4: Get data balance
+    updateLog('Step 4: Fetching balance...')
+    const dataBalance = await getBalanceViva88bet(accountUpdate)
+
+    const setting = Setting.findAll()[0] as SettingType
+    port.postMessage({
+      type: 'LoginSuccess',
+      data: Account.update(
+        { id: account.id },
+        {
+          checkBoxBet: 1,
+          checkBoxRefresh: 1,
+          checkBoxAutoLogin: 1,
+          typeCrawl: setting.gameType,
+          credit: dataBalance.Data,
+          status: STATUS_ACCOUNT.LOGOUT,
+          statusLogin: STATUS_LOGIN.SUCCESS,
+          textLog: `Login ${account.loginID} successfully!`
+        }
+      )
+    })
+    updateLog(`Login ${account.loginID} successfully!`)
+
+    accountLogToFile(
+      account.platformName,
+      account.loginID,
+      `Login Status: Login ${account.loginID} successfully!`,
+      'Program'
+    )
+    process.exit(0)
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    console.log('Error: Login Viva88:', errorMessage)
-    let textLog = 'Error: Access failed, please try again later...'
-    if (errorMessage.includes('_CONNECTION_FAILED')) {
-      textLog = 'Login Status: (ERROR) - Proxy connection failed.'
-    }
 
-    const accountData = (await Account.findOne({
-      id: account.id,
-      statusDelete: 0
-    })) as AccountType
-
-    if (!accountData || accountData.status === STATUS_ACCOUNT.LOGIN) {
-      process.exit(0)
-    }
-
-    port.postMessage({
-      type: 'DataUpdateAccount',
-      data: Account.update(
-        { id: account.id },
-        {
-          status: 'Exit',
-          statusLogin: 'Fail',
-          textLog
-        }
-      )
-    })
-    await accountLogToFile(
-      account.platformName,
-      account.loginID,
-      `Error: Access failed ${account.loginID}:${errorMessage}`,
-      'Program'
-    )
-    console.log('***************Login Viva88 Fail***************\n', error)
-    process.exit(0)
+    console.error(errorMessage)
+    await exitWithLog(port, account, errorMessage)
   }
 }

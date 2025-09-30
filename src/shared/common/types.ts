@@ -581,7 +581,7 @@ export type Announcement = {
 
 export type LeagueType = {
   id: number
-  idLeague: string
+  idLeague: number
   nameLeague: string
   league: string
 }

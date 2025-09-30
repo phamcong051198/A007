@@ -23,6 +23,7 @@ import {
   handleLogoutAccount
 } from '@/browserWindows/service/handleLoginLogoutAccount'
 import {
+  LeagueType,
   PlatformType,
   SettingPerMatchLimitType,
   SettingType,
@@ -50,6 +51,7 @@ import {
 } from '@shared/common/types'
 import { DEFAULT_SPORTS_BOOK_CONFIG, DEFAULT_TEAM_NAME_LIMIT } from '@shared/main/constants'
 import { DataBetSettingPayload, SchedulerType } from '@shared/main/types'
+import { getLeagueModelByPlatform } from '@/browserWindows/service/getLeagueModelByPlatform'
 
 export async function createMainWindow() {
   const mainWindow = new BrowserWindow({
@@ -178,6 +180,19 @@ export async function createMainWindow() {
 
   ipcMain.handle('GetListPlatform', () => {
     return Platform.findAll()
+  })
+
+  ipcMain.handle('GetLeagueRoot', (_, selectedPlatform) => {
+    if (!selectedPlatform) return []
+
+    const LeagueModel = getLeagueModelByPlatform(selectedPlatform.name)
+    return LeagueModel.findAll() as LeagueType[]
+  })
+
+  ipcMain.on('EditLeagueRoot', (_, data) => {
+    const { selectedPlatform, row } = data
+    const LeagueModel = getLeagueModelByPlatform(selectedPlatform.name)
+    LeagueModel.update({ id: row.id }, { league: row.league.trim() })
   })
 
   ipcMain.handle('AddPlatForm', (_, platform: PlatformType) => {

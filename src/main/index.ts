@@ -2,14 +2,7 @@
 import { is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { join } from 'path'
-import {
-  Account,
-  clearTable,
-  Platform,
-  Setting,
-  SettingLeagueFilter,
-  SettingTableView
-} from '@db/model'
+import { Account, clearTable, Platform, Setting, SettingTableView } from '@db/model'
 import { SettingTableViewType } from '@shared/common/types'
 import { DEFAULT_ACCOUNT_STATUS, DEFAULT_SETTING, PLATFORM_DATA } from '@shared/main/constants'
 import { SettingLeagueFilterType, SettingType } from '@shared/common/types'
@@ -108,10 +101,6 @@ app.whenReady().then(async () => {
     'Sbobet',
     'WBet',
     'IIIin1Bet',
-    'League_P88Bet',
-    'League_Viva88Bet',
-    'League_3in1Bet',
-    'League_WBet',
     'EventViva88',
     'LeagueViva88',
     'EventSbobet',
@@ -145,11 +134,6 @@ app.whenReady().then(async () => {
       { tab: 'ContraList', contraStrategy: 'auto', clear: 1, scroll: 1 },
       { tab: 'SuccessList', contraStrategy: '', clear: 0, scroll: 0 }
     ])
-  }
-
-  const settingLeagueFilter = SettingLeagueFilter.findAll() as SettingLeagueFilterType[]
-  if (!settingLeagueFilter.length) {
-    SettingLeagueFilter.create({ filterType: 'Block', blockMajorLeague: 0, allowMajorLeague: 0 })
   }
 })
 

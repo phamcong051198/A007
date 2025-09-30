@@ -91,6 +91,18 @@
     outline: none !important;
   }
 
+  /* Cho phép chọn text trong toàn table */
+  table td,
+  table th,
+  table span {
+    user-select: text;
+  }
+
+  /* Nhưng vẫn giữ cho button không bị chọn text */
+  button {
+    user-select: none;
+  }
+
   input[type='time']::-webkit-calendar-picker-indicator {
     filter: invert(1);
   }

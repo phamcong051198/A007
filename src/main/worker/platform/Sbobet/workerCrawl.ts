@@ -13,8 +13,6 @@ import Model, {
   createModel,
   EventSbobet,
   LeagueSbobet,
-  NameLeague,
-  NameTeam,
   Setting
 } from '@db/model'
 import dataCrawlByPlatformSchema from '@db/schema/dataCrawlByPlatform'
@@ -498,118 +496,8 @@ const handleDataLeague = async ({ dataSbobet, account }) => {
     if (!isAccountActive(account.id) || !checkGameType()) return
 
     const tournament = event.tournament
-    const tournamentId = tournament.id
     const tournamentName = tournament.tournamentName[0].value
     if (tournamentName.toLowerCase().includes('e-')) continue
-    let leagueSbobetData = LeagueSbobet.findOne({ idLeague: tournamentId }) as LeagueType
-
-    if (!leagueSbobetData) {
-      const dataLeagueSbobet = NameLeague.findAll({ platform: 'Sbobet' }) as NameLeagueType[]
-      const standardLeagueName = dataLeagueSbobet.find(
-        (leagueSbobet) => leagueSbobet.nameLeague === tournamentName
-      )
-
-      const newLeague = {
-        idLeague: tournamentId,
-        nameLeague: tournamentName,
-        league: standardLeagueName?.league ?? ''
-      }
-
-      LeagueSbobet.create(newLeague)
-      leagueSbobetData = newLeague as LeagueType
-    }
-    const existingEvent = EventSbobet.findOne({ idEvent: event.id }) as EventSbobetType
-
-    if (existingEvent) {
-      const updatedFields: Partial<EventSbobetType> = {}
-      const newHomeScore = event.mainMarketEventResult?.extraInfo?.homeScore ?? 0
-      const newAwayScore = event.mainMarketEventResult?.extraInfo?.awayScore ?? 0
-      const newPeriod = event.mainMarketEventResult?.extraInfo?.period ?? 1
-      updatedFields.livetimer = getMatchMinute(
-        event.mainMarketEventResult?.extraInfo?.periodStartTime,
-        event.mainMarketEventResult?.extraInfo?.period
-      )
-      if (existingEvent.livehomescore !== newHomeScore) {
-        updatedFields.livehomescore = newHomeScore
-      }
-
-      if (existingEvent.liveawayscore !== newAwayScore) {
-        updatedFields.liveawayscore = newAwayScore
-      }
-
-      if (existingEvent.liveperiod !== newPeriod) {
-        updatedFields.liveperiod = newPeriod
-      }
-
-      const ishtValue = newPeriod === 1 && event.isLive === false ? 'HT' : ''
-      if (existingEvent.isht !== ishtValue) {
-        updatedFields.isht = ishtValue
-      }
-
-      const nameHome = event.homeTeam.teamName.find((n) => n.language === 'EN')?.value ?? ''
-      const nameAway = event.awayTeam.teamName.find((n) => n.language === 'EN')?.value ?? ''
-
-      if (existingEvent.nameHome !== nameHome) {
-        updatedFields.nameHome = nameHome
-      }
-
-      if (existingEvent.nameAway !== nameAway) {
-        updatedFields.nameAway = nameAway
-      }
-
-      if (existingEvent.nameLeague !== leagueSbobetData?.nameLeague) {
-        updatedFields.nameLeague = leagueSbobetData?.nameLeague ?? ''
-      }
-
-      if (existingEvent.league !== leagueSbobetData?.league) {
-        updatedFields.league = leagueSbobetData?.league ?? ''
-      }
-
-      if (Object.keys(updatedFields).length > 0) {
-        EventSbobet.update({ idEvent: event.id }, updatedFields)
-      }
-    } else {
-      const leagueSbobet = leagueSbobetData as LeagueType
-      const [standardHomeName, standardAwayName] = [
-        NameTeam.findOne({
-          nameTeam: event?.homeTeam?.teamName.find((n) => n.language === 'EN')?.value.trim(),
-          nameLeague: leagueSbobet.nameLeague,
-          platform: 'Sbobet'
-        }) as NameTeamType,
-        NameTeam.findOne({
-          nameTeam: event?.awayTeam?.teamName.find((n) => n.language === 'EN')?.value.trim(),
-          nameLeague: leagueSbobet.nameLeague,
-          platform: 'Sbobet'
-        }) as NameTeamType
-      ]
-
-      const newEvent = {
-        idEvent: event.id,
-        nameHome: event.homeTeam.teamName.find((n) => n.language === 'EN')?.value ?? '',
-        nameAway: event.awayTeam.teamName.find((n) => n.language === 'EN')?.value ?? '',
-        home: standardHomeName?.team ?? '',
-        away: standardAwayName?.team ?? '',
-        idLeague: leagueSbobet.idLeague ?? tournamentId,
-        liveawayscore: event.mainMarketEventResult?.extraInfo?.awayScore ?? 0,
-        livehomescore: event.mainMarketEventResult?.extraInfo?.homeScore ?? 0,
-        livetimer: getMatchMinute(
-          event.mainMarketEventResult?.extraInfo?.periodStartTime,
-          event.mainMarketEventResult?.extraInfo?.period
-        ),
-        liveHandicapType: event.mainMarketEventResult?.liveHandicapType,
-        nonLiveHandicapType: event.mainMarketEventResult?.nonLiveHandicapType,
-        awayred: null,
-        homered: null,
-        nameLeague: leagueSbobet.nameLeague ?? '',
-        league: leagueSbobet.league ?? '',
-        liveperiod: event.mainMarketEventResult?.extraInfo?.period ?? 1,
-        isht:
-          event.mainMarketEventResult?.extraInfo?.period === 1 && event.isLive === false ? 'HT' : ''
-      }
-      Sbobet.delete({ idEvent: event.id })
-
-      EventSbobet.create(newEvent)
-    }
   }
 
   if (!isAccountActive(account.id) || !checkGameType()) return

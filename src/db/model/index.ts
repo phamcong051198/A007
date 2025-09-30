@@ -4,12 +4,9 @@ import betListResultSchema from '@db/schema/betListResult'
 import contraListSchema from '@db/schema/contraList'
 import dataBetSchema from '@db/schema/dataBet'
 import eventViva88Schema from '@db/schema/eventViva88'
-import nameLeagueSchema from '@db/schema/nameLeague'
-import nameTeamSchema from '@db/schema/nameTeam'
 import perMatchLimitSchema from '@db/schema/perMatchLimit'
 import platformSchema from '@db/schema/platform'
 import settingSchema from '@db/schema/setting'
-import settingLeagueFilterSchema from '@db/schema/settingLeagueFilter'
 import settingPerMatchLimitSettingSchema from '@db/schema/settingPerMatchLimitSetting'
 import sportsBookSchema from '@db/schema/sportsBook'
 import successListSchema from '@db/schema/successList'
@@ -300,8 +297,6 @@ export const Account = createModel('Account', accountSchema)
 export const Platform = createModel('Platform', platformSchema)
 export const SportsBook = createModel('SportsBook', sportsBookSchema)
 export const Setting = createModel('Setting', settingSchema)
-export const NameTeam = createModel('NameTeam', nameTeamSchema)
-export const NameLeague = createModel('NameLeague', nameLeagueSchema)
 export const EventViva88 = createModel('EventViva88', eventViva88Schema)
 export const IndexViva88 = createModel('IndexViva88', dataCrawlByPlatformViva88Schema)
 
@@ -322,8 +317,6 @@ export const SettingPerMatchLimit = createModel(
   'SettingPerMatchLimit',
   settingPerMatchLimitSettingSchema
 )
-
-export const SettingLeagueFilter = createModel('SettingLeagueFilter', settingLeagueFilterSchema)
 
 export const AccountPair = createModel('AccountPair', accountPairSchema)
 export const PlatformPair = createModel('PlatformPair', platformPairSchema)

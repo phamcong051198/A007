@@ -55,7 +55,7 @@ export default function AddSportsBookModal({ openAddSportsBook, setOpenAddSports
               <BookOpenBorder />
               <div className="ml-[16px] flex flex-col">
                 <div className="flex justify-between">
-                  <p className="text-lg font-semibold text-[#F7F7F7]">Add sportsbook</p>
+                  <p className="text-lg font-semibold text-[#F7F7F7]">Add SportsBook</p>
                   <button
                     className="absolute top-[6px] right-[6px] font-normal block w-9 h-9 leading-none text-[#85888E] hover:bg-gray-900 hover:rounded-full"
                     onClick={() => setOpenAddSportsBook(false)}

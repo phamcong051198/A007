@@ -4,9 +4,9 @@ const { parentPort, workerData } = require('worker_threads')
 import { calculateProfit } from '@/worker/lib/calculateProfit'
 import { checkOddsSetting } from '@/worker/lib/checkOddsSetting'
 import { clearTablesForGameType } from '@/worker/lib/clearTablesForGameType'
+import { findMatchingData } from '@/worker/lib/findMatchingData'
 import { generateTicketUpdate } from '@/worker/lib/generateTicketUpdate'
 import { handleCombinationWithDataTicket } from '@/worker/lib/handleCombinationWithDataTicket'
-import { isCheckNumberHalf } from '@/worker/lib/isCheckNumberHalf'
 import { isValidData } from '@/worker/lib/isValidData'
 import { AccountPair, BetListResult, createModel, DataBet, PlatformPair, Setting } from '@db/model'
 import { AccountPairDBType } from '@db/schema/accountPair'
@@ -55,26 +55,29 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
       clearTablesForGameType()
       return
     }
+
+    if (settingInfo[0].enable == 1) return
+
     const { league, home, away, typeOdd, hdp_point, number } = dataCrawlPlatform1
     if (!league || !home || !away) continue
 
     if (isValidData(dataCrawlPlatform1) == false) continue
 
-    const dataCrawlPlatform2 = Platform2_Model.findOne({
+    const listDataCrawlPlatform2 = Platform2_Model.findAll({
       league,
-      home,
-      away,
       typeOdd,
       hdp_point,
       number
-    }) as DataCrawlType
+    }) as DataCrawlType[]
 
+    if (listDataCrawlPlatform2.length == 0) continue
+
+    const dataCrawlPlatform2 = findMatchingData(listDataCrawlPlatform2, home, away)
     if (!dataCrawlPlatform2) continue
 
     if (isValidData(dataCrawlPlatform2) == false) continue
 
-    //[Setting] - Check General Setting (1st Half - 2nd Half)
-    if (!isCheckNumberHalf(dataCrawlPlatform1, settingInfo[0])) continue
+    console.log({ dataCrawlPlatform1, dataCrawlPlatform2 })
 
     const profitCombos = [
       {
@@ -95,7 +98,7 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
       const profitResult = calculateProfit(Number(odd1), Number(odd2))
       if (profitResult.status !== 'OK') continue
 
-      const checkOdds = checkOddsSetting(odd1, odd2, profitResult.profit)
+      const checkOdds = checkOddsSetting()
 
       const score =
         gameType === GAME_TYPES.RUNNING

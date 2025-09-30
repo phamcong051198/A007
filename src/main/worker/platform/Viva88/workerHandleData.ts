@@ -1,20 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { toPositiveNumber } from '@/worker/lib/toPositiveNumber'
-import Model, {
-  createModel,
-  EventViva88,
-  IndexViva88,
-  LeagueViva88,
-  NameLeague,
-  NameTeam,
-  Setting
-} from '@db/model'
+import Model, { createModel, EventViva88, IndexViva88, Setting } from '@db/model'
 import dataCrawlByPlatformSchema from '@db/schema/dataCrawlByPlatform'
 import { EventViva88Type } from '@db/schema/eventViva88'
-import { LeagueViva88Type } from '@db/schema/leagueViva88'
+import rootLeagueSchema from '@db/schema/rootLeague'
 import { CONVERT_HDP } from '@shared/common/constants'
 import { SPREAD, TOTAL } from '@shared/common/constants'
-import { DataCrawlType, NameLeagueType, NameTeamType, SettingType } from '@shared/common/types'
+import { DataCrawlType, LeagueType, SettingType } from '@shared/common/types'
 import { parentPort } from 'worker_threads'
 
 const port = parentPort
@@ -28,10 +20,10 @@ port.on('message', async ({ data }) => {
 
 async function handleData(data: any) {
   const Viva88Bet = createModel('Viva88Bet', dataCrawlByPlatformSchema)
+  const League_Viva88Bet = createModel('League_Viva88Bet', rootLeagueSchema)
 
   const records: any[] = []
   const BATCH_SIZE: number = 50
-  const dataLeagueViva88bet = NameLeague.findAll({ platform: 'Viva88Bet' }) as NameLeagueType[]
 
   const [type, message, content] = JSON.parse(data.substring(2))
   const targetKeys = [
@@ -95,27 +87,29 @@ async function handleData(data: any) {
             }
           }
 
-          const hasCorners = leagueInfo.leaguenameen.toLowerCase().includes(' - corners')
-          if (hasCorners) continue
+          const name = leagueInfo.leaguenameen.toLowerCase()
 
-          let findLeague: LeagueViva88Type | undefined
+          if (name.includes('soccer') || name.includes('saba')) continue
+          if (name.includes(' - ')) continue
+
+          let findLeague: LeagueType | undefined
           if (leagueInfo.leagueid || leagueInfo.leaguenameen) {
-            findLeague = leagueInfo.leagueid
-              ? (LeagueViva88.findOne({ idLeague: leagueInfo.leagueid }) as LeagueViva88Type)
-              : (LeagueViva88.findOne({ nameLeague: leagueInfo.leaguenameen }) as LeagueViva88Type)
+            let nameLeague = leagueInfo.leaguenameen.trim()
+            if (nameLeague.startsWith('*')) {
+              nameLeague = nameLeague.slice(1).trim()
+            }
 
-            const nameLeague = leagueInfo.leaguenameen.trim()
-            const targetLeagueName = nameLeague
+            findLeague = leagueInfo.leagueid
+              ? (League_Viva88Bet.findOne({ idLeague: leagueInfo.leagueid }) as LeagueType)
+              : (League_Viva88Bet.findOne({ nameLeague }) as LeagueType)
+
             if (!findLeague) {
-              const standardLeagueName = dataLeagueViva88bet.find(
-                (leagueViva88) => leagueViva88.nameLeague == targetLeagueName
-              )
-              const league = {
+              const data = {
                 idLeague: leagueInfo.leagueid,
                 nameLeague,
-                league: standardLeagueName?.league ?? ''
+                league: nameLeague.toUpperCase()
               }
-              LeagueViva88.create(league)
+              League_Viva88Bet.create(data)
             }
           }
         }
@@ -153,8 +147,15 @@ async function handleData(data: any) {
 
           if (invalid) continue
 
-          const league = LeagueViva88.findOne({ idLeague: matchInfo.leagueid }) as LeagueViva88Type
-          if (!league) continue
+          const home = hName.trim()
+          const away = aName.trim()
+
+          const league_Viva88Bet = League_Viva88Bet.findOne({
+            idLeague: matchInfo.leagueid
+          }) as LeagueType
+          if (!league_Viva88Bet) continue
+
+          if (league_Viva88Bet && !league_Viva88Bet.league) continue
 
           if (
             typeof matchInfo?.hteamnameen !== 'string' ||
@@ -162,37 +163,21 @@ async function handleData(data: any) {
           )
             continue
 
-          const formatLeagueName = (name: string) => name
-
-          const standardHomeName = NameTeam.findOne({
-            nameTeam: matchInfo?.hteamnameen?.trim(),
-            nameLeague: formatLeagueName(league.nameLeague),
-            platform: 'Viva88Bet'
-          }) as NameTeamType
-
-          const standardAwayName = NameTeam.findOne({
-            nameTeam: matchInfo?.ateamnameen?.trim(),
-            nameLeague: formatLeagueName(league.nameLeague),
-            platform: 'Viva88Bet'
-          }) as NameTeamType
-
-          if (!standardHomeName || !standardAwayName) continue
-
           if (!existingEvent) {
             const newEvent = {
               idEvent: matchInfo.matchid,
-              nameHome: matchInfo.hteamnameen.trim(),
-              nameAway: matchInfo.ateamnameen.trim(),
-              home: standardHomeName.team,
-              away: standardAwayName.team,
+              nameHome: home,
+              nameAway: away,
+              home: home.toUpperCase(),
+              away: away.toUpperCase(),
               idLeague: matchInfo.leagueid,
               liveawayscore: matchInfo.liveawayscore ?? 0,
               livehomescore: matchInfo.livehomescore ?? 0,
               livetimer: Number(matchInfo.livetimer) ?? null,
               awayred: matchInfo.awayred ?? null,
               homered: matchInfo.homered ?? null,
-              nameLeague: league.nameLeague,
-              league: league.league,
+              nameLeague: league_Viva88Bet.nameLeague,
+              league: league_Viva88Bet.league,
               liveperiod: matchInfo.liveperiod ?? 1,
               isht: matchInfo.isht ? 'HT' : ''
             }
@@ -267,10 +252,12 @@ async function handleData(data: any) {
             }
           }
 
-          let findLeague: LeagueViva88Type | undefined = undefined
+          let findLeague: LeagueType | undefined = undefined
 
           if (leagueid) {
-            findLeague = (await LeagueViva88.findOne({ idLeague: leagueid })) as LeagueViva88Type
+            findLeague = (await League_Viva88Bet.findOne({
+              idLeague: leagueid
+            })) as LeagueType
           }
 
           const findTicket = Viva88Bet.findOne({

@@ -1,7 +1,8 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { HttpsProxyAgent } from 'https-proxy-agent'
 import fetch from 'node-fetch'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { isAccountActive } from '@/worker/lib/checkAccount'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'

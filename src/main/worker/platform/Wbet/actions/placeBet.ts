@@ -2,7 +2,6 @@ import { HttpsProxyAgent } from 'https-proxy-agent'
 
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { handleBetError, handleBetSuccess } from '@/worker/lib/handleLogBet'
-import { isOddInRange } from '@/worker/lib/isOddInRange'
 import { AccountType, TicketInfoDataBetType } from '@shared/common/types'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
 import { fetchJsonWithDecompress } from '@/worker/platform/Wbet/helper'
@@ -28,25 +27,6 @@ export const placeBet_WBet = async (
         info: ticket.betRejectionReason,
         receiptID: '',
         receiptStatus: ''
-      }
-    }
-  }
-
-  if (ticket.checkOdd == 1) {
-    if (!isOddInRange(ticket.oddFrom, ticket.oddTo, String(ticket.odd))) {
-      await accountLogToFile(
-        accountInfo.platformName,
-        accountInfo.loginID,
-        `Error: CheckOdd setting do not match.`,
-        'BetList'
-      )
-      return {
-        ErrorCode: 400,
-        Data: {
-          info: `Error: CheckOdd setting do not match.`,
-          receiptID: '',
-          receiptStatus: ''
-        }
       }
     }
   }

@@ -5,7 +5,6 @@ import { HttpsProxyAgent } from 'https-proxy-agent'
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { AccountType } from '@shared/common/types'
 import { handleBetError, handleBetSuccess } from '@/worker/lib/handleLogBet'
-import { isOddInRange } from '@/worker/lib/isOddInRange'
 import { BetResponse_P88, TypeGetTickets_P88 } from '@/worker/platform/P88/common/types'
 import { TicketInfoDataBetType } from '@shared/common/types'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
@@ -29,25 +28,6 @@ export const placeBet_P88Bet = async (
         info: ticket.betRejectionReason,
         receiptID: '',
         receiptStatus: ''
-      }
-    }
-  }
-
-  if (ticket.checkOdd == 1) {
-    if (!isOddInRange(ticket.oddFrom, ticket.oddTo, String(ticket.odd))) {
-      await accountLogToFile(
-        accountInfo.platformName,
-        accountInfo.loginID,
-        `Error: CheckOdd setting do not match.`,
-        'BetList'
-      )
-      return {
-        ErrorCode: 400,
-        Data: {
-          info: `Error: CheckOdd setting do not match.`,
-          receiptID: '',
-          receiptStatus: ''
-        }
       }
     }
   }

@@ -24,6 +24,7 @@ import {
   KEY_UX_MATCH_ODDS,
   PARAM_UX_MATCH
 } from '@/worker/platform/Wbet/common/constants'
+import rootLeagueSchema from '@db/schema/rootLeague'
 
 let gameType: string | null = null
 
@@ -172,6 +173,7 @@ const handleData = async ({ dataMarket, account, proxyAgent }) => {
   clearTable(PLATFORM.WBET)
   if (!gameType || gameType === GAME_TYPES.NONE) return
   const WBet = createModel(PLATFORM.WBET, dataCrawlByPlatformSchema)
+  const League_WBet = createModel('League_WBet', rootLeagueSchema)
 
   await accountLogToFile(
     account.platformName,
@@ -245,8 +247,8 @@ const handleData = async ({ dataMarket, account, proxyAgent }) => {
     const dataOdds_OU = dataOdds[KEY_UX_MATCH_ODDS.OU]
 
     await Promise.all([
-      handleDataOdds_HDP(dataOdds_HDP, leagues, matchs, gameType, WBet),
-      handleDataOdds_OU(dataOdds_OU, leagues, matchs, gameType, WBet)
+      handleDataOdds_HDP(League_WBet, dataOdds_HDP, leagues, matchs, gameType, WBet),
+      handleDataOdds_OU(League_WBet, dataOdds_OU, leagues, matchs, gameType, WBet)
     ])
 
     const timeEnd = new Date().getTime()

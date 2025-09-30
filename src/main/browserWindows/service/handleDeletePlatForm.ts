@@ -1,5 +1,5 @@
 import { checkQueuePlatform } from '@/worker'
-import { Account, PerMatchLimitPlatform, SettingPerMatchLimit, SportsBook } from '@db/model'
+import { Account, SettingPerMatchLimit, SportsBook } from '@db/model'
 import { AccountType, SportsBookType } from '@shared/common/types'
 import { BrowserWindow } from 'electron'
 
@@ -25,7 +25,6 @@ export function handleDeletePlatForm(
   })
 
   SettingPerMatchLimit.delete({ namePlatform })
-  PerMatchLimitPlatform.deleteMany({ platform: namePlatform })
 
   checkQueuePlatform(namePlatform)
   mainWindow.webContents.send('DataSportsBook', dataSportsBook)

@@ -3,7 +3,6 @@ import { HttpsProxyAgent } from 'https-proxy-agent'
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { AccountType, TicketInfoDataBetType } from '@shared/common/types'
 import { handleBetError, handleBetSuccess } from '@/worker/lib/handleLogBet'
-import { isOddInRange } from '@/worker/lib/isOddInRange'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
 
 import { BetNowResponse, SetDataResponse } from '@/worker/platform/3In1bet/common/types'
@@ -27,25 +26,6 @@ export const placeBet_3in1Bet = async (
         info: ticket.betRejectionReason,
         receiptID: '',
         receiptStatus: ''
-      }
-    }
-  }
-
-  if (ticket.checkOdd == 1) {
-    if (!isOddInRange(ticket.oddFrom, ticket.oddTo, String(ticket.odd))) {
-      await accountLogToFile(
-        accountInfo.platformName,
-        accountInfo.loginID,
-        `Error: CheckOdd setting do not match.`,
-        'BetList'
-      )
-      return {
-        ErrorCode: 400,
-        Data: {
-          info: `Error: CheckOdd setting do not match.`,
-          receiptID: '',
-          receiptStatus: ''
-        }
       }
     }
   }

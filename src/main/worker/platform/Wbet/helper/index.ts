@@ -1,7 +1,7 @@
 import fetch from 'node-fetch'
 import zlib from 'zlib'
 
-import { AccountType, NameTeamType } from '@shared/common/types'
+import { AccountType, LeagueType } from '@shared/common/types'
 import {
   ARGUMENTS_UX_MARKET,
   ARGUMENTS_UX_MATCH,
@@ -9,7 +9,6 @@ import {
   TYPE_ODD_HDP,
   TYPE_ODD_OU
 } from '@/worker/platform/Wbet/common/constants'
-import { NameTeam } from '@db/model'
 import { GAME_TYPES } from '@shared/common/constants'
 import { PLATFORM, TYPE_ODD, TYPE_ODD_DETAIL } from '@shared/main/constants'
 
@@ -82,7 +81,14 @@ function round(value: number, decimals = 2): number {
   return Number(value.toFixed(decimals))
 }
 
-export async function handleDataOdds_HDP(dataOdds_HDP, leagues, matchs, gameType, WBet) {
+export async function handleDataOdds_HDP(
+  League_WBet,
+  dataOdds_HDP,
+  leagues,
+  matchs,
+  gameType,
+  WBet
+) {
   for (const key in dataOdds_HDP) {
     const arr = dataOdds_HDP[key]
 
@@ -108,28 +114,21 @@ export async function handleDataOdds_HDP(dataOdds_HDP, leagues, matchs, gameType
 
         //Tên giải đấu
         const league = leagues.find((league) => league[0] === idLeague)
-        const nameLeague = league ? league[4] : 'Unknown League'
+        const nameLeague = league ? league[4].trim() : 'Unknown League'
 
         // Tên trận đấu
         const match = matchs.find((match) => match[0] === idEvent)
-        const nameHome = match ? match[5] : 'Unknown Home Team'
-        const nameAway = match ? match[6] : 'Unknown Away Team'
+        const nameHome = match ? match[5].trim() : 'Unknown Home Team'
+        const nameAway = match ? match[6].trim() : 'Unknown Away Team'
 
-        if (nameLeague?.includes('-')) return
+        if (nameLeague?.includes(' - ')) return
 
-        const standardHomeName = NameTeam.findOne({
-          nameTeam: nameHome,
-          nameLeague: nameLeague,
-          platform: PLATFORM.WBET
-        }) as NameTeamType
-        if (!standardHomeName || !standardHomeName.team || !standardHomeName.league) return
-
-        const standardAwayName = NameTeam.findOne({
-          nameTeam: nameAway,
-          nameLeague: nameLeague,
-          platform: PLATFORM.WBET
-        }) as NameTeamType
-        if (!standardAwayName || !standardAwayName.team || !standardAwayName.league) return
+        const league_WBet = League_WBet.findOne({ nameLeague }) as LeagueType
+        if (!league_WBet) {
+          League_WBet.create({ idLeague, nameLeague, league: nameLeague.toUpperCase() })
+          return
+        }
+        if (league_WBet && !league_WBet.league) return
 
         const score = GAME_TYPES.RUNNING == gameType ? match[11] : null
         const stat = GAME_TYPES.RUNNING == gameType ? match[12] : null
@@ -144,9 +143,9 @@ export async function handleDataOdds_HDP(dataOdds_HDP, leagues, matchs, gameType
           idEvent,
           nameHome,
           nameAway,
-          league: standardHomeName?.league || '',
-          home: standardHomeName?.team || '',
-          away: standardAwayName?.team || '',
+          league: league_WBet?.league || '',
+          home: nameHome.toUpperCase(),
+          away: nameAway.toUpperCase(),
           number: TYPE_ODD_HDP[time_odd],
           score,
           stat,
@@ -167,7 +166,7 @@ export async function handleDataOdds_HDP(dataOdds_HDP, leagues, matchs, gameType
   }
 }
 
-export async function handleDataOdds_OU(dataOdds_OU, leagues, matchs, gameType, WBet) {
+export async function handleDataOdds_OU(League_WBet, dataOdds_OU, leagues, matchs, gameType, WBet) {
   for (const key in dataOdds_OU) {
     const arr = dataOdds_OU[key]
 
@@ -185,27 +184,21 @@ export async function handleDataOdds_OU(dataOdds_OU, leagues, matchs, gameType, 
 
         //Tên giải đấu
         const league = leagues.find((league) => league[0] === idLeague)
-        const nameLeague = league ? league[4] : 'Unknown League'
+        const nameLeague = league ? league[4].trim() : 'Unknown League'
+
         // Tên trận đấu
         const match = matchs.find((match) => match[0] === idEvent)
-        const nameHome = match ? match[5] : 'Unknown Home Team'
-        const nameAway = match ? match[6] : 'Unknown Away Team'
+        const nameHome = match ? match[5].trim() : 'Unknown Home Team'
+        const nameAway = match ? match[6].trim() : 'Unknown Away Team'
 
-        if (nameLeague?.includes('-')) return
+        if (nameLeague?.includes(' - ')) return
 
-        const standardHomeName = NameTeam.findOne({
-          nameTeam: nameHome,
-          nameLeague: nameLeague,
-          platform: PLATFORM.WBET
-        }) as NameTeamType
-        if (!standardHomeName || !standardHomeName.team || !standardHomeName.league) return
-
-        const standardAwayName = NameTeam.findOne({
-          nameTeam: nameAway,
-          nameLeague: nameLeague,
-          platform: PLATFORM.WBET
-        }) as NameTeamType
-        if (!standardAwayName || !standardAwayName.team || !standardAwayName.league) return
+        const league_WBet = League_WBet.findOne({ nameLeague }) as LeagueType
+        if (!league_WBet) {
+          League_WBet.create({ idLeague, nameLeague, league: nameLeague.toUpperCase() })
+          return
+        }
+        if (league_WBet && !league_WBet.league) return
 
         const score = GAME_TYPES.RUNNING == gameType ? match[11] : null
         const stat = GAME_TYPES.RUNNING == gameType ? match[12] : null
@@ -220,9 +213,9 @@ export async function handleDataOdds_OU(dataOdds_OU, leagues, matchs, gameType, 
           idEvent,
           nameHome,
           nameAway,
-          league: standardHomeName?.league || '',
-          home: standardHomeName?.team || '',
-          away: standardAwayName?.team || '',
+          league: league_WBet?.league || '',
+          home: nameHome.toUpperCase(),
+          away: nameAway.toUpperCase(),
           number: TYPE_ODD_OU[time_odd],
           score,
           stat,

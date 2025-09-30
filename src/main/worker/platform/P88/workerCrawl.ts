@@ -4,8 +4,8 @@ import { parentPort } from 'worker_threads'
 import { setTimeout } from 'timers/promises'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import { FH, FT, HDP_FH, HDP_FT, OU_FH, OU_FT, SPREAD, TOTAL } from '@shared/common/constants'
-import { AccountType, NameTeamType, SettingType } from '@shared/common/types'
-import { Account, clearTable, createModel, NameTeam, Setting } from '@db/model'
+import { AccountType, LeagueType, SettingType } from '@shared/common/types'
+import { Account, clearTable, createModel, Setting } from '@db/model'
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { toPositiveNumber } from '@/worker/lib/toPositiveNumber'
 import dataCrawlByPlatformSchema from '@db/schema/dataCrawlByPlatform'
@@ -19,6 +19,7 @@ import { insertRecords } from '@/worker/lib/insertRecords'
 import { systemLogToFile } from '@/worker/lib/systemLogToFile'
 import { buildHeadersP88Bet, gameTypeMapP88 } from '@/worker/platform/P88/common/contants'
 import { PLATFORM, STATUS_ACCOUNT, STATUS_LOGIN } from '@shared/main/constants'
+import rootLeagueSchema from '@db/schema/rootLeague'
 
 let gameType: string | null = null
 
@@ -286,6 +287,7 @@ const handleData = async ({ dataP88, account }) => {
 
   if (!gameType || gameType === 'None') return
   const P88Bet = createModel('P88Bet', dataCrawlByPlatformSchema)
+  const League_P88Bet = createModel('League_P88Bet', rootLeagueSchema)
 
   const timeStart = new Date().getTime()
   const records: any[] = []
@@ -296,34 +298,27 @@ const handleData = async ({ dataP88, account }) => {
 
     const [id, name, events] = league
 
-    const hasCorners = name.toLowerCase().includes('corners')
-    if (hasCorners) continue
+    if (name.toLowerCase().includes('corners')) continue
+    if (name.toLowerCase().includes('bookings')) continue
 
     for (const event of events) {
       if (!isAccountActive(account.id) || !checkGameType(account.platformName, gameType)) return
 
       const idEvent = event[0]
-      const home = event[1]
-      const away = event[2]
+      const home = event[1].trim()
+      const away = event[2].trim()
 
-      const formatName = (str: string) => str.trim()
+      const league_P88Bet = League_P88Bet.findOne({ nameLeague: name.trim() }) as LeagueType
+      if (!league_P88Bet) {
+        League_P88Bet.create({
+          idLeague: id,
+          nameLeague: name.trim(),
+          league: name.toUpperCase()
+        })
+        continue
+      }
 
-      const formatLeague = (str: string) => str.trim()
-
-      const standardHomeName = NameTeam.findOne({
-        nameTeam: formatName(home),
-        nameLeague: formatLeague(name),
-        platform: 'P88Bet'
-      }) as NameTeamType
-      if (!standardHomeName || !standardHomeName.team || !standardHomeName.league) continue
-
-      const standardAwayName = NameTeam.findOne({
-        nameTeam: formatName(away),
-        nameLeague: formatLeague(name),
-        platform: 'P88Bet'
-      }) as NameTeamType
-
-      if (!standardAwayName || !standardAwayName.team || !standardAwayName.league) continue
+      if (league_P88Bet && !league_P88Bet.league) continue
 
       const hasValidData = event[9] && event[10] && event[16]
 
@@ -342,8 +337,8 @@ const handleData = async ({ dataP88, account }) => {
               idLeague: id,
               nameLeague: name,
               idEvent,
-              nameHome: home.trim(),
-              nameAway: away.trim(),
+              nameHome: home,
+              nameAway: away,
               number: FT,
               score: hasValidData ? `${event[9][0]}-${event[9][1]}` : '',
               redCard: hasValidData ? `${event[10][0]}-${event[10][1]}` : '',
@@ -354,9 +349,9 @@ const handleData = async ({ dataP88, account }) => {
               home_over: +periodFull[3],
               away_under: +periodFull[4],
               typeOdd: SPREAD,
-              league: standardHomeName.league,
-              home: standardHomeName.team,
-              away: standardAwayName.team,
+              league: league_P88Bet.league,
+              home: home.toUpperCase(),
+              away: away.toUpperCase(),
               specialOdd: periodFull[8],
               betType: HDP_FT,
               HDP: CONVERT_HDP[toPositiveNumber(periodFull[1])]
@@ -381,8 +376,8 @@ const handleData = async ({ dataP88, account }) => {
               idLeague: id,
               nameLeague: name,
               idEvent,
-              nameHome: home.trim(),
-              nameAway: away.trim(),
+              nameHome: home,
+              nameAway: away,
               number: FT,
               score: hasValidData ? `${event[9][0]}-${event[9][1]}` : '',
               redCard: hasValidData ? `${event[10][0]}-${event[10][1]}` : '',
@@ -393,9 +388,9 @@ const handleData = async ({ dataP88, account }) => {
               home_over: +totalFull[2],
               away_under: +totalFull[3],
               typeOdd: TOTAL,
-              league: standardHomeName.league,
-              home: standardHomeName.team,
-              away: standardAwayName.team,
+              league: league_P88Bet.league,
+              home: home.toUpperCase(),
+              away: away.toUpperCase(),
               specialOdd: totalFull[5],
               betType: OU_FT,
               HDP: CONVERT_HDP[toPositiveNumber(totalFull[1])]
@@ -419,8 +414,8 @@ const handleData = async ({ dataP88, account }) => {
               idLeague: id,
               nameLeague: name,
               idEvent,
-              nameHome: home.trim(),
-              nameAway: away.trim(),
+              nameHome: home,
+              nameAway: away,
               number: FH,
               score: hasValidData ? `${event[9][0]}-${event[9][1]}` : '',
               redCard: hasValidData ? `${event[10][0]}-${event[10][1]}` : '',
@@ -431,9 +426,9 @@ const handleData = async ({ dataP88, account }) => {
               home_over: +periodHalf[3],
               away_under: +periodHalf[4],
               typeOdd: SPREAD,
-              league: standardHomeName.league,
-              home: standardHomeName.team,
-              away: standardAwayName.team,
+              league: league_P88Bet.league,
+              home: home.toUpperCase(),
+              away: away.toUpperCase(),
               specialOdd: periodHalf[8],
               betType: HDP_FH,
               HDP: CONVERT_HDP[toPositiveNumber(periodHalf[1])]
@@ -457,8 +452,8 @@ const handleData = async ({ dataP88, account }) => {
               idLeague: id,
               nameLeague: name,
               idEvent,
-              nameHome: home.trim(),
-              nameAway: away.trim(),
+              nameHome: home,
+              nameAway: away,
               number: FH,
               score: hasValidData ? `${event[9][0]}-${event[9][1]}` : '',
               redCard: hasValidData ? `${event[10][0]}-${event[10][1]}` : '',
@@ -469,9 +464,9 @@ const handleData = async ({ dataP88, account }) => {
               home_over: +totalHalf[2],
               away_under: +totalHalf[3],
               typeOdd: TOTAL,
-              league: standardHomeName.league,
-              home: standardHomeName.team,
-              away: standardAwayName.team,
+              league: league_P88Bet.league,
+              home: home.toUpperCase(),
+              away: away.toUpperCase(),
               specialOdd: totalHalf[5],
               betType: OU_FH,
               HDP: CONVERT_HDP[toPositiveNumber(totalHalf[1])]

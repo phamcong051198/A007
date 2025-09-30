@@ -1,13 +1,8 @@
-import { calculateBetAmountStd } from '@/worker/lib/calculateBetAmountStd'
 import { checkBetLimit } from '@/worker/lib/checkBetLimit'
 import { formatTime } from '@/worker/lib/formatTime'
-import { getRandomBetAmountValue } from '@/worker/lib/getRandomBetAmountValue'
-import { getRandomValue } from '@/worker/lib/getRandomValue'
-import { isOddInRange } from '@/worker/lib/isOddInRange'
-import { isTicketBet } from '@/worker/lib/isTicketBet'
-import { Account, BetListResult, Setting } from '@db/model'
+import { Account, BetListResult } from '@db/model'
 import { AccountSettingType, TicketInfoDataBetType } from '@shared/common/types'
-import { AccountType, DataPairPlatformType, SettingType } from '@shared/common/types'
+import { AccountType, DataPairPlatformType } from '@shared/common/types'
 import type { MessagePort } from 'worker_threads'
 
 type AccountInfo = {
@@ -107,24 +102,6 @@ export async function validateSettingAccountPairBeforeBet(
     return { valid: false, fieldError: 'Insufficient credit' }
   }
 
-  const isCheckOddAccountPair = accounts.some((acc) => acc.setting.checkOdd)
-  if (isCheckOddAccountPair) {
-    const invalidAccounts = accounts.filter(
-      ({ setting, ticket }) => !isOddInRange(setting.oddFrom, setting.oddTo, String(ticket.odd))
-    )
-
-    if (invalidAccounts.length > 0) {
-      sendFail((acc) => {
-        const odd = String(acc.ticket.odd)
-        const isValid = isOddInRange(acc.setting.oddFrom, acc.setting.oddTo, odd)
-        return isValid
-          ? 'Get Ticket Failed: Do not have any available for betting!'
-          : `Get Ticket Failed: Account ${acc.info.platformName}-${acc.info.loginID} odds ${odd} is out of range!`
-      })
-      return { valid: false, fieldError: 'Odd out of range' }
-    }
-  }
-
   const isNoBetAccountPair = accounts.every((acc) => acc.setting.generalSetting == 'NoBet')
   if (isNoBetAccountPair) {
     sendFail(
@@ -135,49 +112,9 @@ export async function validateSettingAccountPairBeforeBet(
   }
 
   const isTicketBetFlags: [number, number] = [1, 1]
-  const isCheckBetSelected = accounts.some(
-    ({ setting }) => setting.generalSetting === 'BetSelected'
-  )
-  if (isCheckBetSelected) {
-    const statusBets = accounts.map((acc) => isTicketBet(acc, gameType))
-    if (!statusBets[0] && !statusBets[1])
-      return { valid: false, fieldError: ' Setting select is not bet range' }
-    if (!statusBets[0]) isTicketBetFlags[0] = 0
-    if (!statusBets[1]) isTicketBetFlags[1] = 0
-  }
 
-  const settingApp = Setting.findAll() as SettingType[]
   const betAmountStandardValid = accounts.map(({ setting }) => {
-    let betAmount = setting.betAmount
-    const { rounder, roundValue, roundType } = setting.amountRounderSetting
-
-    if (rounder) {
-      betAmount = String(calculateBetAmountStd(betAmount, Number(roundValue), roundType))
-    }
-
-    if (settingApp[0].amountRoundingEnabled) {
-      betAmount = String(
-        calculateBetAmountStd(
-          betAmount,
-          Number(settingApp[0].roundingNumber),
-          settingApp[0].roundType
-        )
-      )
-    }
-
-    if (settingApp[0].enableRandomizer) {
-      const randomValue = getRandomValue(
-        Number(betAmount),
-        getRandomBetAmountValue(
-          Number(settingApp[0].fromRandomizer),
-          Number(settingApp[0].toRandomizer)
-        )
-      )
-      if (randomValue !== 0) {
-        betAmount = String(randomValue)
-      }
-    }
-
+    const betAmount = setting.betAmount
     return betAmount
   })
 

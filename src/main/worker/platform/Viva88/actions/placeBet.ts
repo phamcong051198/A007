@@ -4,7 +4,6 @@ import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { toQueryString } from '@/worker/lib/toQueryString'
 import { AccountType } from '@shared/common/types'
 import { handleBetError, handleBetSuccess } from '@/worker/lib/handleLogBet'
-import { isOddInRange } from '@/worker/lib/isOddInRange'
 import { DataTypeGetTickets_Viva88, TypeGetBetListApi } from '@/worker/platform/Viva88/common/types'
 import { TicketInfoDataBetType } from '@shared/common/types'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
@@ -31,26 +30,6 @@ export const placeBet_Viva88Bet = async (
         info: ticket.betRejectionReason,
         receiptID: '',
         receiptStatus: ''
-      }
-    }
-  }
-
-  if (ticket.checkOdd == 1) {
-    if (!isOddInRange(ticket.oddFrom, ticket.oddTo, String(ticket.odd))) {
-      await accountLogToFile(
-        accountInfo.platformName,
-        accountInfo.loginID,
-        `Error: CheckOdd setting do not match.`,
-        'BetList'
-      )
-
-      return {
-        ErrorCode: 400,
-        Data: {
-          info: `Error: CheckOdd setting do not match.`,
-          receiptID: '',
-          receiptStatus: ''
-        }
       }
     }
   }

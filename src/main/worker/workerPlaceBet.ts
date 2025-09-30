@@ -90,10 +90,7 @@ async function handleData(port: MessagePort) {
 
       if (settingInfo.enableFirstStHalf == 0 && settingInfo.enableSecondStHalf == 0) break
 
-      const odd1 = ticketI.odd
-      const odd2 = ticketII.odd
-      const profit = ticketI.profit
-      const checkOdds = checkOddsSetting(odd1, odd2, profit)
+      const checkOdds = checkOddsSetting()
       if (checkOdds.ErrorCode == 1) {
         const record = BetListResult.create({
           dataPair: JSON.stringify([

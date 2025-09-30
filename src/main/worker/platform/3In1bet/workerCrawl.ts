@@ -3,8 +3,8 @@
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import { setTimeout } from 'timers/promises'
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
-import { Account, clearTable, createModel, NameTeam, Setting } from '@db/model'
-import { AccountType, NameTeamType, SettingType } from '@shared/common/types'
+import { Account, clearTable, createModel, Setting } from '@db/model'
+import { AccountType, LeagueType, SettingType } from '@shared/common/types'
 import { parentPort } from 'worker_threads'
 import { isAccountActive } from '@/worker/lib/checkAccount'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
@@ -30,6 +30,7 @@ import {
 } from '@/worker/platform/3In1bet/common/types'
 import dataCrawlByPlatformSchema from '@db/schema/dataCrawlByPlatform'
 import { createPayload, isArError } from '@/worker/platform/3In1bet/helper'
+import rootLeagueSchema from '@db/schema/rootLeague'
 
 let gameType: string | null = null
 
@@ -282,6 +283,7 @@ const handleData = async ({ dataOdds, account }) => {
   clearTable('IIIin1Bet')
   if (!gameType || gameType === GAME_TYPES.NONE) return
   const IIIin1Bet = createModel('IIIin1Bet', dataCrawlByPlatformSchema)
+  const League_3in1Bet = createModel('League_3in1Bet', rootLeagueSchema)
 
   await accountLogToFile(
     account.platformName,
@@ -341,29 +343,23 @@ const handleData = async ({ dataOdds, account }) => {
     // Giải đấu
     const idLeague = dataOdd[3]
     const uuidLeague = dataOdd[34]
-    const nameLeague = dataOdd[37] || 'Unknown League'
+    const nameLeague = dataOdd[37].trim()
+
+    if (nameLeague.includes(' - ')) continue
 
     // Trận đấu
     const idEvent = dataOdd[0]
-    const nameHome = dataOdd[38] || 'Unknown Home Team'
-    const nameAway = dataOdd[39] || 'Unknown Away Team'
+    const nameHome = dataOdd[38].trim() || 'Unknown Home Team'
+    const nameAway = dataOdd[39].trim() || 'Unknown Away Team'
 
-    if (dataOdd[37]?.includes('-')) continue
+    if (dataOdd[37]?.includes(' - ')) continue
 
-    const standardHomeName = NameTeam.findOne({
-      nameTeam: nameHome,
-      nameLeague: nameLeague,
-      platform: PLATFORM['3IN1BET']
-    }) as NameTeamType
-    if (!standardHomeName || !standardHomeName.team || !standardHomeName.league) continue
-
-    const standardAwayName = NameTeam.findOne({
-      nameTeam: nameAway,
-      nameLeague: nameLeague,
-      platform: PLATFORM['3IN1BET']
-    }) as NameTeamType
-
-    if (!standardAwayName || !standardAwayName.team || !standardAwayName.league) continue
+    const league_3in1Bet = League_3in1Bet.findOne({ nameLeague }) as LeagueType
+    if (!league_3in1Bet) {
+      League_3in1Bet.create({ idLeague, nameLeague, league: nameLeague.toUpperCase() })
+      continue
+    }
+    if (league_3in1Bet && !league_3in1Bet.league) continue
 
     // index check đội nào mạnh
     const indexCheck = dataOdd[24]
@@ -431,9 +427,9 @@ const handleData = async ({ dataOdds, account }) => {
       isHomeStrong: indexCheck,
       nameHome,
       nameAway,
-      league: standardHomeName.league,
-      home: standardHomeName.team,
-      away: standardAwayName.team,
+      league: league_3in1Bet.league,
+      home: nameHome.toUpperCase(),
+      away: nameAway.toUpperCase(),
       score: cfg?.score || null,
       stat: cfg?.stat || null,
       number: cfg.number,

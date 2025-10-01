@@ -310,11 +310,16 @@ const handleData = async ({ dataP88, account }) => {
 
       const league_P88Bet = League_P88Bet.findOne({ nameLeague: name.trim() }) as LeagueType
       if (!league_P88Bet) {
-        League_P88Bet.create({
+        const newLeague: Partial<LeagueType> = {
           idLeague: id,
-          nameLeague: name.trim(),
-          league: name.toUpperCase()
-        })
+          nameLeague: name.trim()
+        }
+
+        if (import.meta.env.VITE_KEY_ENABLE == '1') {
+          newLeague.league = name.trim().toUpperCase()
+        }
+
+        League_P88Bet.create(newLeague)
         continue
       }
 

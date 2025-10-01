@@ -356,7 +356,16 @@ const handleData = async ({ dataOdds, account }) => {
 
     const league_3in1Bet = League_3in1Bet.findOne({ nameLeague }) as LeagueType
     if (!league_3in1Bet) {
-      League_3in1Bet.create({ idLeague, nameLeague, league: nameLeague.toUpperCase() })
+      const newLeague: Partial<LeagueType> = {
+        idLeague,
+        nameLeague
+      }
+
+      if (import.meta.env.VITE_KEY_ENABLE == '1') {
+        newLeague.league = nameLeague.toUpperCase()
+      }
+
+      League_3in1Bet.create(newLeague)
       continue
     }
     if (league_3in1Bet && !league_3in1Bet.league) continue

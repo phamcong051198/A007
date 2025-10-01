@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import {
   ColumnDef,
   flexRender,
@@ -87,6 +87,12 @@ export default function LeagueData() {
   const [sorting, setSorting] = useState<SortingState>([])
   const [editingRowId, setEditingRowId] = useState<number | null>(null)
   const [selectedPlatform, setSelectedPlatform] = useState<PlatformType | null>(null)
+  const [filters, setFilters] = useState<{ [key: string]: string }>({
+    id: '',
+    idLeague: '',
+    nameLeague: '',
+    league: ''
+  })
 
   useEffect(() => {
     const fetchData = async () => {
@@ -111,6 +117,18 @@ export default function LeagueData() {
       window.electron.ipcRenderer.removeAllListeners('GetLeagueRoot')
     }
   }, [selectedPlatform])
+
+  // Lọc dữ liệu dựa trên giá trị filter
+  const filteredData = useMemo(() => {
+    return data.filter((item) =>
+      Object.entries(filters).every(([key, value]) => {
+        if (!value) return true
+        return String(item[key as keyof LeagueType])
+          .toLowerCase()
+          .includes(value.toLowerCase())
+      })
+    )
+  }, [data, filters])
 
   const columns = React.useMemo<ColumnDef<LeagueType>[]>(
     () => [
@@ -150,7 +168,7 @@ export default function LeagueData() {
 
   const table = useReactTable({
     columns,
-    data,
+    data: filteredData, // Sử dụng dữ liệu đã lọc
     debugTable: true,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -159,6 +177,11 @@ export default function LeagueData() {
       sorting
     }
   })
+
+  // Xử lý thay đổi giá trị filter
+  const handleFilterChange = (columnId: string, value: string) => {
+    setFilters((prev) => ({ ...prev, [columnId]: value }))
+  }
 
   return (
     <div className="h-full">
@@ -186,22 +209,43 @@ export default function LeagueData() {
               <table className="w-full table-fixed bg-bg-gray">
                 <thead className="sticky top-0 bg-gray-800 z-10">
                   {table.getHeaderGroups().map((headerGroup) => (
-                    <tr key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => (
-                        <th
-                          key={header.id}
-                          style={{ width: header.getSize() }}
-                          className="border-r-[1px] border-border-default px-2 py-1"
-                          onClick={header.column.getToggleSortingHandler()}
-                        >
-                          {flexRender(header.column.columnDef.header, header.getContext())}
-                          {{
-                            asc: ' 🔼',
-                            desc: ' 🔽'
-                          }[header.column.getIsSorted() as string] ?? null}
-                        </th>
-                      ))}
-                    </tr>
+                    <React.Fragment key={headerGroup.id}>
+                      {/* Hàng header chính */}
+                      <tr>
+                        {headerGroup.headers.map((header) => (
+                          <th
+                            key={header.id}
+                            style={{ width: header.getSize() }}
+                            className="border-r-[1px] border-border-default px-2 py-1"
+                            onClick={header.column.getToggleSortingHandler()}
+                          >
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            {{
+                              asc: ' 🔼',
+                              desc: ' 🔽'
+                            }[header.column.getIsSorted() as string] ?? null}
+                          </th>
+                        ))}
+                      </tr>
+                      {/* Hàng filter */}
+                      <tr>
+                        {headerGroup.headers.map((header) => (
+                          <th
+                            key={`${header.id}-filter`}
+                            style={{ width: header.getSize() }}
+                            className="border-r-[1px] border-border-default px-2 py-1"
+                          >
+                            <input
+                              type="text"
+                              value={filters[header.column.id] || ''}
+                              onChange={(e) => handleFilterChange(header.column.id, e.target.value)}
+                              placeholder={`Filter ${header.column.columnDef.header}`}
+                              className="w-full border px-2 py-1 rounded text-black "
+                            />
+                          </th>
+                        ))}
+                      </tr>
+                    </React.Fragment>
                   ))}
                 </thead>
                 <tbody>

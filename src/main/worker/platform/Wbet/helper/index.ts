@@ -125,7 +125,16 @@ export async function handleDataOdds_HDP(
 
         const league_WBet = League_WBet.findOne({ nameLeague }) as LeagueType
         if (!league_WBet) {
-          League_WBet.create({ idLeague, nameLeague, league: nameLeague.toUpperCase() })
+          const newLeague: Partial<LeagueType> = {
+            idLeague,
+            nameLeague
+          }
+
+          if (import.meta.env.VITE_KEY_ENABLE == '1') {
+            newLeague.league = nameLeague.toUpperCase()
+          }
+
+          League_WBet.create(newLeague)
           return
         }
         if (league_WBet && !league_WBet.league) return
@@ -195,7 +204,16 @@ export async function handleDataOdds_OU(League_WBet, dataOdds_OU, leagues, match
 
         const league_WBet = League_WBet.findOne({ nameLeague }) as LeagueType
         if (!league_WBet) {
-          League_WBet.create({ idLeague, nameLeague, league: nameLeague.toUpperCase() })
+          const newLeague: Partial<LeagueType> = {
+            idLeague,
+            nameLeague
+          }
+
+          if (import.meta.env.VITE_KEY_ENABLE == '1') {
+            newLeague.league = nameLeague.toUpperCase()
+          }
+
+          League_WBet.create(newLeague)
           return
         }
         if (league_WBet && !league_WBet.league) return

@@ -18,7 +18,7 @@ export async function exitWithLog(
     type: 'DataUpdateAccount',
     data: Account.update({ id: account.id }, { textLog, statusLogin, status })
   })
-  accountLogToFile(account.platformName, account.loginID, textLog, 'Program')
+  await accountLogToFile(account.platformName, account.loginID, textLog, 'Program')
   await flushLogQueue(account.platformName, account.loginID, 'Program') // <- chờ ghi xong
 
   terminateWorker()

@@ -35,7 +35,7 @@ const EditableCell = ({
       selectedPlatform,
       row: {
         ...row.original,
-        league: value
+        league: value.trim()
       }
     })
     setData((prev) =>

@@ -1,9 +1,9 @@
+import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { SPORTS_BOOK_LIST } from '@shared/renderer/constants'
 import AddSportsBook from '@renderer/components/SportsBook/AddSportsBook'
 import QuickActions from '@renderer/components/SportsBook/QuickActions'
 import { SwitchCustom } from '@renderer/components/ui/switch'
-import { useEffect, useState } from 'react'
 import { SettingType } from '@shared/common/types'
 
 export default function SportsBook() {

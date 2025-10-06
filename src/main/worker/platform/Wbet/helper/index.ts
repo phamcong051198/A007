@@ -127,11 +127,8 @@ export async function handleDataOdds_HDP(
         if (!league_WBet) {
           const newLeague: Partial<LeagueType> = {
             idLeague,
-            nameLeague
-          }
-
-          if (import.meta.env.VITE_KEY_ENABLE == '1') {
-            newLeague.league = nameLeague.toUpperCase()
+            nameLeague,
+            league: nameLeague.toUpperCase()
           }
 
           League_WBet.create(newLeague)
@@ -206,11 +203,8 @@ export async function handleDataOdds_OU(League_WBet, dataOdds_OU, leagues, match
         if (!league_WBet) {
           const newLeague: Partial<LeagueType> = {
             idLeague,
-            nameLeague
-          }
-
-          if (import.meta.env.VITE_KEY_ENABLE == '1') {
-            newLeague.league = nameLeague.toUpperCase()
+            nameLeague,
+            league: nameLeague.toUpperCase()
           }
 
           League_WBet.create(newLeague)

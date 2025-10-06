@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { logTime } from '@/worker/lib/logTime'
+import { setTimeout as delay } from 'timers/promises'
 import fsPromises from 'fs/promises'
 import path from 'path'
 
@@ -9,7 +10,7 @@ const MAX_BACKUP_FILES = 5
 // Map lưu queue riêng cho từng file log
 const logQueues = new Map<string, Promise<void>>()
 
-export function accountLogToFile(
+export async function accountLogToFile(
   platformName: string,
   loginID: string,
   message: string,
@@ -47,6 +48,7 @@ export function accountLogToFile(
   })
 
   logQueues.set(key, newQueue)
+  await delay(100)
 }
 
 // Retry rename an toàn

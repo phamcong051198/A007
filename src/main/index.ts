@@ -5,7 +5,7 @@ import { join } from 'path'
 import { Account, clearTable, Platform, Setting, SettingTableView } from '@db/model'
 import { SettingTableViewType } from '@shared/common/types'
 import { DEFAULT_ACCOUNT_STATUS, DEFAULT_SETTING, PLATFORM_DATA } from '@shared/main/constants'
-import { SettingLeagueFilterType, SettingType } from '@shared/common/types'
+import { SettingType } from '@shared/common/types'
 import { createMainWindow } from '@/browserWindows/mainWindow'
 
 let loginWindow: BrowserWindow | null = null

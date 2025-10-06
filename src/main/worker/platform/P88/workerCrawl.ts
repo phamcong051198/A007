@@ -315,10 +315,6 @@ const handleData = async ({ dataP88, account }) => {
           nameLeague: name.trim()
         }
 
-        if (import.meta.env.VITE_KEY_ENABLE == '1') {
-          newLeague.league = name.trim().toUpperCase()
-        }
-
         League_P88Bet.create(newLeague)
         continue
       }

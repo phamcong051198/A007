@@ -9,9 +9,7 @@ const SwitchCustom = React.forwardRef<
 >(({ className, ...props }, ref) => {
   const theme = 'blue'
   const themeClasses = {
-    blue: 'data-[state=checked]:bg-[#155EEF]',
-    green: 'data-[state=checked]:bg-[#14B800]',
-    purple: 'data-[state=checked]:bg-[#7F56D9]'
+    blue: 'data-[state=checked]:bg-[#FF0000]'
   }
 
   return (

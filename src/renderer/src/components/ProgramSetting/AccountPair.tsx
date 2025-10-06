@@ -58,7 +58,7 @@ const Account1List = () => {
             }`}
             onClick={() => handleSelectAccount(account)}
           >
-            {account.platformName}-{account.loginID}
+            {account.platformName}__ {account.loginID}
           </div>
         ))}
         {listAccount.length === 0 && (
@@ -96,7 +96,7 @@ const Account2List = () => {
             }`}
             onClick={() => handleSelectAccount(account)}
           >
-            {account.platformName}-{account.loginID}
+            {account.platformName}__ {account.loginID}
           </div>
         ))}
         {listAccount.length === 0 && (
@@ -194,15 +194,17 @@ const CombinationsList = () => {
             }`}
             onClick={() => handleSelectAccountPair(accountPair)}
           >
-            <div className="flex w-[90%] items-center ">
-              <div className="flex items-center gap-2 w-1/3">
-                <span className="text-white ">{accountPair.account1.platform}</span>
-                <div className="text-xs text-white">{accountPair.account1.loginID}</div>
+            <div className="flex  items-center ">
+              <div className="flex items-center gap-2 w-[170px]">
+                <span className="text-white text-sm">
+                  {accountPair.account1.platform}__{accountPair.account1.loginID}
+                </span>
               </div>
-              <div className="mx-2 text-gray-500 w-1/3 text-center">vs.</div>
-              <div className="flex items-center gap-2 w-1/3">
-                <span className="text-white">{accountPair.account2.platform}</span>
-                <div className="text-xs text-white">{accountPair.account2.loginID}</div>
+              <div className="text-gray-500 text-center mr-3">vs</div>
+              <div className="flex items-center gap-2 ">
+                <span className="text-white text-sm">
+                  {accountPair.account2.platform}__{accountPair.account2.loginID}
+                </span>
               </div>
             </div>
           </div>

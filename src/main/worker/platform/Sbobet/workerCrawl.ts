@@ -7,14 +7,7 @@ import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { isAccountActive } from '@/worker/lib/checkAccount'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
 import { toPositiveNumber } from '@/worker/lib/toPositiveNumber'
-import Model, {
-  Account,
-  clearTable,
-  createModel,
-  EventSbobet,
-  LeagueSbobet,
-  Setting
-} from '@db/model'
+import Model, { Account, clearTable, createModel, EventSbobet, Setting } from '@db/model'
 import dataCrawlByPlatformSchema from '@db/schema/dataCrawlByPlatform'
 import { EventSbobetType } from '@db/schema/eventSbobet'
 import { CONVERT_HDP, SPREAD, TOTAL } from '@shared/common/constants'
@@ -22,16 +15,8 @@ import { setTimeout } from 'timers/promises'
 import { parentPort } from 'worker_threads'
 import { getBalanceSbobet } from './actions/getBalance'
 import { systemLogToFile } from '@/worker/lib/systemLogToFile'
-import {
-  AccountType,
-  DataCrawlType,
-  LeagueType,
-  NameLeagueType,
-  NameTeamType,
-  SettingType
-} from '@shared/common/types'
+import { AccountType, DataCrawlType, SettingType } from '@shared/common/types'
 import { SBO_CONFIG, SBO_CONFIG_TYPE_ODD } from '@/worker/platform/Sbobet/common/constants'
-import { getMatchMinute } from '@/worker/platform/Sbobet/helper'
 
 let gameType: string | null = null
 
@@ -485,7 +470,6 @@ const handleDataLeague = async ({ dataSbobet, account }) => {
 
   if (dataSbobet.data.events.length === 0) return
 
-  const Sbobet = createModel('Sbobet', dataCrawlByPlatformSchema)
   const timeStart = new Date().getTime()
   const eventsLength = dataSbobet.data.events.length
 

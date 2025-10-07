@@ -50,7 +50,7 @@ import {
   WaitingSuccessContraDBType
 } from '@shared/common/types'
 import { DEFAULT_SPORTS_BOOK_CONFIG, DEFAULT_TEAM_NAME_LIMIT } from '@shared/main/constants'
-import { DataBetSettingPayload, SchedulerType } from '@shared/main/types'
+import { DataBetSettingPayload } from '@shared/main/types'
 import { getLeagueModelByPlatform } from '@/browserWindows/service/getLeagueModelByPlatform'
 
 export async function createMainWindow() {

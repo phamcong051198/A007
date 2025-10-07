@@ -77,8 +77,6 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
 
     if (isValidData(dataCrawlPlatform2) == false) continue
 
-    console.log({ dataCrawlPlatform1, dataCrawlPlatform2 })
-
     const profitCombos = [
       {
         odd1: dataCrawlPlatform1.home_over,

@@ -60,15 +60,26 @@ class Model {
     return db.prepare(sql).get(...values) as T | undefined
   }
 
-  findAll(query: RecordData = {}): RecordData[] {
+  findAll(
+    query: RecordData = {},
+    options: { orderBy?: string; limit?: number; desc?: boolean } = {}
+  ): RecordData[] {
     const keys = Object.keys(query)
-    if (keys.length === 0) {
-      return db.prepare(`SELECT * FROM ${this.tableName}`).all()
-    }
-
-    const conditions = keys.map((key) => `${key} = ?`).join(' AND ')
     const values = Object.values(query)
-    return db.prepare(`SELECT * FROM ${this.tableName} WHERE ${conditions}`).all(...values)
+
+    // Xây dựng WHERE clause nếu có điều kiện
+    const whereClause = keys.length ? `WHERE ${keys.map((key) => `${key} = ?`).join(' AND ')}` : ''
+
+    // Xử lý order và limit
+    const orderClause = options.orderBy
+      ? `ORDER BY ${options.orderBy} ${options.desc ? 'DESC' : 'ASC'}`
+      : ''
+    const limitClause = options.limit ? `LIMIT ${options.limit}` : ''
+
+    // Kết hợp query hoàn chỉnh
+    const sql = `SELECT * FROM ${this.tableName} ${whereClause} ${orderClause} ${limitClause}`
+
+    return db.prepare(sql.trim()).all(...values)
   }
 
   findById(id: number) {

@@ -55,12 +55,16 @@ async function handleData(port: MessagePort) {
       await setTimeout(1000)
       continue
     }
-    const allDataBet = DataBet.findAll() as DataBetType[]
-    if (!allDataBet.length) {
+    const listDataBet = DataBet.findAll(
+      {},
+      { orderBy: 'id', desc: true, limit: 50 }
+    ) as DataBetType[]
+
+    if (!listDataBet.length) {
       await setTimeout(1000)
       continue
     }
-    const listDataBet = allDataBet.slice(0, 50)
+
     for (const dataBet of listDataBet) {
       if (!dataBet.id) continue
 

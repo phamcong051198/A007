@@ -358,8 +358,7 @@ const handleData = async ({ dataOdds, account }) => {
     if (!league_3in1Bet) {
       const newLeague: Partial<LeagueType> = {
         idLeague,
-        nameLeague,
-        league: nameLeague.toUpperCase()
+        nameLeague
       }
 
       League_3in1Bet.create(newLeague)

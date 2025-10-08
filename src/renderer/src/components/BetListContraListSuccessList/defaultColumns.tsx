@@ -73,31 +73,6 @@ export const defaultColumns = [
     }
   },
   {
-    accessorKey: 'redCard',
-    header: () => <span>RedCard</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
-    size: 65,
-    cell: ({ getValue }) => {
-      const text = getValue()
-      return (
-        <span className={`px-2 `} style={{ whiteSpace: 'nowrap' }}>
-          {text}
-        </span>
-      )
-    }
-  },
-  {
-    accessorKey: 'score',
-    header: () => <span>Score</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
-    size: 44,
-    cell: ({ row }) => {
-      const company = row.original.company
-      const score = row.original.score
-      return <span className="px-2">{company === '' ? '' : score == null ? '-' : score}</span>
-    }
-  },
-  {
     accessorKey: 'nameLeague',
     header: () => <span>League</span>,
     footer: (props: { column: { id: string } }) => props.column.id,
@@ -207,14 +182,14 @@ export const defaultColumns = [
     accessorKey: 'time',
     header: () => <span>Time</span>,
     footer: (props: { column: { id: string } }) => props.column.id,
-    size: 100,
+    size: 150,
     cell: ({ row }) => {
       const company = row.original.company
       const fullDateTime = row.original.time
-      const timeOnly = fullDateTime.split(' ')[1] + ' ' + fullDateTime.split(' ')[2]
+
       return (
         <span className="px-2" style={{ whiteSpace: 'nowrap' }}>
-          {company === '' ? '' : timeOnly}
+          {company === '' ? '' : fullDateTime}
         </span>
       )
     }
@@ -273,18 +248,6 @@ export const defaultColumns = [
       const company = row.original.company
       const receiptID = row.original.receiptID || '-'
       return <span className="px-2"> {company === '' ? '' : receiptID}</span>
-    }
-  },
-  {
-    accessorKey: 'receiptStatus',
-    header: () => <span>ReceiptStatus</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
-    size: 100,
-    cell: ({ row }) => {
-      const receiptID = row.getValue('receiptID')
-      return receiptID && receiptID !== '' ? (
-        <span className="text-blue-color px-2"> Confirm</span>
-      ) : null
     }
   }
 ]

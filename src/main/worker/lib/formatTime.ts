@@ -5,14 +5,9 @@ export const formatTime = () => {
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
 
-  const options: Intl.DateTimeFormatOptions = {
-    hour: 'numeric',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true
-  }
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const seconds = String(date.getSeconds()).padStart(2, '0')
 
-  const time = new Intl.DateTimeFormat('en-US', options).format(date)
-
-  return `${year}/${month}/${day} ${time}`
+  return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`
 }

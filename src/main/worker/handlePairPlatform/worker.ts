@@ -101,9 +101,10 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
       const minProfitPercent = 0 // 1% min profit
 
       const arbitrage = checkArbitrage(odd1, odd2, totalStake, minProfitPercent)
-      console.log('arbitrage', arbitrage)
 
       if (!arbitrage) continue
+
+      console.log('arbitrage', arbitrage)
 
       const checkOdds = checkOddsSetting()
 

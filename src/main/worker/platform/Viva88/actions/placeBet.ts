@@ -122,12 +122,19 @@ async function bettingProcessBet__Viva88Bet(
       LicUserName: ''
     }
 
+    const body = toQueryString(itemListProcessBet, paramsProcessBet)
+    await accountLogToFile(
+      accountInfo.platformName,
+      accountInfo.loginID,
+      `Body: ${body}`,
+      'BetList'
+    )
     const fetchProcessBet = async () => {
       const resProcessBet = await fetch(urlProcessBet, {
         method: 'POST',
         headers: { ...configHeaders(accountInfo), Authorization: `bearer ${authorization}` },
         ...(proxyAgent && { agent: proxyAgent }),
-        body: toQueryString(itemListProcessBet, paramsProcessBet)
+        body
       })
       return resProcessBet.json() as Promise<TypeGetBetListApi>
     }

@@ -12,61 +12,12 @@ export const DEFAULT_ACCOUNT_STATUS = {
 }
 
 export const DEFAULT_SETTING = {
+  credit: 20,
   enable: 0,
 
   profitMin: '0.03',
   profitMax: '0.70',
-  gameType: 'Running',
-
-  schedulerRunning: 0,
-  schedulerInputRunning: '',
-  schedulerToday: 0,
-  schedulerInputToday: '',
-  schedulerEarly: 0,
-  schedulerInputEarly: '',
-
-  enableFirstStHalf: 1,
-  betFirstHalf: 1,
-  betFullTime: 1,
-  firstStHalfBettingForm: '0',
-  firstStHalfBettingUntil: '45',
-
-  enableSecondStHalf: 1,
-  betHalfTime: 1,
-  secondStHalfBettingForm: '46',
-  secondStHalfBettingUntil: '90',
-
-  bettingMode: 'Normal',
-  amountRoundingEnabled: 0,
-  roundType: 'Auto',
-  roundingNumber: 2,
-
-  enablePerMatchLimitSetting: 0,
-
-  ipAddress: '',
-  port: '0',
-  username: '',
-  password: '',
-
-  oddsLessThan: 1,
-  oddsMoreThan: 0,
-  gameCommissionMoreThan: 0,
-  gameCommissionLessThan: 0,
-
-  oddsLessThanValue: '0.10',
-  oddsMoreThanValue: '0.80',
-  gameCommissionMoreThanValue: '0.24',
-  gameCommissionLessThanValue: '0.08',
-
-  enableRandomizer: 0,
-  fromRandomizer: '100',
-  toRandomizer: '100',
-
-  isOther: 0,
-  isBetUnderSelected: 0,
-  isBetOverSelected: 0,
-  isBetPutSelected: 0,
-  isBetEatSelected: 0
+  gameType: 'Running'
 }
 
 export const DEFAULT_TEAM_NAME_LIMIT = {

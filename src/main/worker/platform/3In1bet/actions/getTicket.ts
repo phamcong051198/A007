@@ -86,13 +86,20 @@ export const getTicket_3in1Bet = async (
       code
     ].join(',')
 
-    const body = {
+    const body = JSON.stringify({
       data: dataPayload,
       isAuto: true,
       s: '0',
       cb: 0,
       bo: '0'
-    }
+    })
+
+    await accountLogToFile(
+      accountInfo.platformName,
+      accountInfo.loginID,
+      `Body: ${body}`,
+      'BetList'
+    )
 
     const [userInfoRes, setDataRes] = await Promise.all([
       fetch(API_ENDPOINTS.USER_INFO_PANEL_HOST, {
@@ -116,7 +123,7 @@ export const getTicket_3in1Bet = async (
           ...(accountInfo.customIP ? { 'X-Forwarded-For': accountInfo.customIP } : {})
         },
         ...(proxyAgent && { agent: proxyAgent }),
-        body: JSON.stringify(body)
+        body
       })
     ])
     const userInfo = (await userInfoRes.json()) as UserInfoResponse

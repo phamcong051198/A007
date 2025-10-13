@@ -8,11 +8,16 @@ import { SettingType } from '@shared/common/types'
 
 export default function SportsBook() {
   const [enable, setEnable] = useState(0)
+  const [credit, setCredit] = useState(0)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editValue, setEditValue] = useState(0)
 
   useEffect(() => {
     const fetchData = async () => {
       const data = (await window.electron.ipcRenderer.invoke('GetDataSetting')) as SettingType[]
       setEnable(data[0].enable)
+      setCredit(data[0].credit)
+      setEditValue(data[0].credit)
     }
 
     fetchData()
@@ -30,6 +35,21 @@ export default function SportsBook() {
     })
   }
 
+  const handleEditClick = () => {
+    setIsEditing(true)
+  }
+
+  const handleSave = () => {
+    setCredit(editValue)
+    window.electron.ipcRenderer.send('UpdateCredit', editValue)
+    setIsEditing(false)
+  }
+
+  const handleCancel = () => {
+    setEditValue(credit)
+    setIsEditing(false)
+  }
+
   return (
     <div className="w-full bg-layout-color h-[calc(100vh-95px)]">
       <div className="mt-[24px] mx-[24px] h-full flex flex-col">
@@ -37,6 +57,44 @@ export default function SportsBook() {
           <div className="flex justify-between ">
             <p className="text-2xl font-semibold">SportsBook</p>
 
+            {/* Credit block */}
+            {!isEditing ? (
+              <div className="flex gap-2 items-center justify-between border border-border-default rounded-[8px] bg-[#13161B] px-2 w-48">
+                <span className="font-bold text-white">{credit}</span>
+                <button
+                  className="px-2 py-1 bg-blue-color text-white rounded"
+                  onClick={handleEditClick}
+                >
+                  Edit
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-2 items-center justify-between w-48">
+                <input
+                  type="number"
+                  className="flex-1 border border-border-default px-2 py-[3px] rounded text-black"
+                  value={editValue}
+                  onChange={(e) => setEditValue(Number(e.target.value))}
+                  autoFocus
+                />
+                <div className="flex gap-1">
+                  <button
+                    className="px-3 py-1 bg-green-600 text-white rounded"
+                    onClick={handleSave}
+                  >
+                    Save
+                  </button>
+                  <button
+                    className="px-3 py-1 bg-gray-500 text-white rounded"
+                    onClick={handleCancel}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Switch + actions */}
             <div className="flex items-center">
               <div className="mr-5">
                 <SwitchCustom checked={Boolean(enable)} onCheckedChange={handleActionEnable} />
@@ -45,6 +103,8 @@ export default function SportsBook() {
               <AddSportsBook />
             </div>
           </div>
+
+          {/* Tabs */}
           <div className="min-w-[600px] border border-border-default rounded-[8px] bg-[#13161B] mt-[20px] px-[4px] flex gap-[3px] h-[44px] items-center">
             {SPORTS_BOOK_LIST.map(({ id, label }) => (
               <NavLink
@@ -59,10 +119,9 @@ export default function SportsBook() {
             ))}
           </div>
         </div>
+
         <div className="flex-1 h-full overflow-auto">
-          <div className="">
-            <Outlet />
-          </div>
+          <Outlet />
         </div>
       </div>
     </div>

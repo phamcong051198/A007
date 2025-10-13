@@ -91,6 +91,14 @@ async function bettingProcessBet__P88Bet(
       `Betting Info: ${ticket.bet}, ${ticket.number == 0 ? 'FullTime' : '1StHalf'} ${ticket.type}@${ticket.bet.trim() == ticket.nameAway.trim() ? -Number(ticket.hdp_point) : ticket.hdp_point}, Odd: ${ticket.odd}`,
       'BetList'
     )
+
+    await accountLogToFile(
+      accountInfo.platformName,
+      accountInfo.loginID,
+      `Body: ${body}`,
+      'BetList'
+    )
+
     const resBetPlacement = await fetch(urlBetPlacement, {
       method: 'POST',
       headers: {

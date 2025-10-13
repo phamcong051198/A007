@@ -62,7 +62,7 @@ export const getTicket_WBet = async (accountInfo: AccountType, ticket: TicketInf
 
     const oddValue = Number(ticket.odd)
 
-    const payload = {
+    const body = JSON.stringify({
       sports_type: 1,
       odds_type: 1,
       account_id: accountInfo.loginID,
@@ -77,8 +77,14 @@ export const getTicket_WBet = async (accountInfo: AccountType, ticket: TicketInf
       odds_mo: oddValue / 0.1,
       ball_display: ticket.HDP,
       odds_col
-    }
+    })
 
+    await accountLogToFile(
+      accountInfo.platformName,
+      accountInfo.loginID,
+      `Body: ${body}`,
+      'BetList'
+    )
     const [dataBalance, dataGetTicket] = await Promise.all([
       await fetchJsonWithDecompress(API_ENDPOINTS.BALANCE, accountInfo, {
         method: 'POST',
@@ -87,7 +93,7 @@ export const getTicket_WBet = async (accountInfo: AccountType, ticket: TicketInf
       }),
       await fetchJsonWithDecompress(API_ENDPOINTS.BET_CHECK, accountInfo, {
         method: 'POST',
-        body: JSON.stringify(payload),
+        body,
         ...(proxyAgent && { agent: proxyAgent })
       })
     ])

@@ -197,6 +197,8 @@ export type SettingTableViewType = {
 export type TicketInfoDataBetType = {
   id: number
 
+  stake: number
+
   isBetAllowed: boolean
   betRejectionReason: string
 
@@ -340,61 +342,12 @@ export type SportsBookType = {
 export type SettingType = {
   id: number
 
+  credit: number
   enable: number
 
   profitMin: string
   profitMax: string
   gameType: string
-
-  schedulerRunning: number
-  schedulerInputRunning: string
-  schedulerToday: number
-  schedulerInputToday: string
-  schedulerEarly: number
-  schedulerInputEarly: string
-
-  enableFirstStHalf: number
-  betFirstHalf: number
-  betFullTime: number
-  firstStHalfBettingForm: string
-  firstStHalfBettingUntil: string
-
-  enableSecondStHalf: number
-  betHalfTime: number
-  secondStHalfBettingForm: string
-  secondStHalfBettingUntil: string
-
-  bettingMode: string
-  amountRoundingEnabled: number
-  roundType: string
-  roundingNumber: string
-
-  enablePerMatchLimitSetting: number
-
-  ipAddress: string
-  port: string
-  username: string
-  password: string
-
-  oddsLessThan: number
-  oddsMoreThan: number
-  gameCommissionMoreThan: number
-  gameCommissionLessThan: number
-
-  oddsLessThanValue: string
-  oddsMoreThanValue: string
-  gameCommissionMoreThanValue: string
-  gameCommissionLessThanValue: string
-
-  enableRandomizer: number
-  fromRandomizer: string
-  toRandomizer: string
-
-  isOther: number
-  isBetUnderSelected: number
-  isBetOverSelected: number
-  isBetPutSelected: number
-  isBetEatSelected: number
 }
 
 export type SettingPerMatchLimitType = {
@@ -453,6 +406,8 @@ export type DataCrawlType = {
 
 export type DataPairPlatformType = {
   id: number
+
+  stake: number
 
   platform: string
 

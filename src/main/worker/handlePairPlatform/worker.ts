@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-constant-condition */
 const { parentPort, workerData } = require('worker_threads')
+
+import { checkArbitrage, isHalfHandicap } from '@/worker/handlePairPlatform/helper/scanArbitrage'
 import { calculateProfit } from '@/worker/lib/calculateProfit'
 import { checkOddsSetting } from '@/worker/lib/checkOddsSetting'
 import { clearTablesForGameType } from '@/worker/lib/clearTablesForGameType'
@@ -47,7 +49,11 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
   if (!listDataCrawlPlatform1.length) return
 
   const listDataPlatformPair: any[][] = []
+  const arrDataBet: { idAccountPair: string; dataPair: string }[][] = []
+
   for (const dataCrawlPlatform1 of listDataCrawlPlatform1) {
+    if (!isHalfHandicap(dataCrawlPlatform1.hdp_point)) continue
+
     const settingInfo = Setting.findAll() as SettingType[]
 
     if (gameType !== settingInfo[0].gameType) {
@@ -60,8 +66,6 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
 
     const { league, home, away, typeOdd, hdp_point, number } = dataCrawlPlatform1
     if (!league || !home || !away) continue
-
-    if (isValidData(dataCrawlPlatform1) == false) continue
 
     const listDataCrawlPlatform2 = Platform2_Model.findAll({
       league,
@@ -93,8 +97,13 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
     ]
 
     for (const { odd1, odd2, bet1, bet2 } of profitCombos) {
-      const profitResult = calculateProfit(Number(odd1), Number(odd2))
-      if (profitResult.status !== 'OK') continue
+      const totalStake = settingInfo[0].credit || 20
+      const minProfitPercent = 0 // 1% min profit
+
+      const arbitrage = checkArbitrage(odd1, odd2, totalStake, minProfitPercent)
+      console.log('arbitrage', arbitrage)
+
+      if (!arbitrage) continue
 
       const checkOdds = checkOddsSetting()
 
@@ -112,8 +121,8 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
 
       const commonData = { score, redCard, stat, type }
 
-      const dataTicketI = { ...dataCrawlPlatform1, ...commonData }
-      const dataTicketII = { ...dataCrawlPlatform2, ...commonData }
+      const dataTicketI = { ...dataCrawlPlatform1, ...commonData, stake: arbitrage.stakeA }
+      const dataTicketII = { ...dataCrawlPlatform2, ...commonData, stake: arbitrage.stakeB }
 
       const ticketUpdate = generateTicketUpdate(
         dataTicketI,
@@ -124,10 +133,10 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
         bet2,
         odd2,
         checkOdds.Data.infoOdd2,
-        profitResult.profit,
+        minProfitPercent,
         settingInfo[0].gameType
       )
-      if (checkOdds.ErrorCode !== 0) continue
+
       const record = BetListResult.create({ dataPair: JSON.stringify(ticketUpdate) })
       parentPort.postMessage({ type: 'BetList', recordDB: record })
       listDataPlatformPair.push(ticketUpdate)
@@ -136,7 +145,6 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
 
   if (listDataPlatformPair.length === 0) return
 
-  const arrDataBet: { idAccountPair: string; dataPair: string }[][] = []
   for (const dataPairPlatform of listDataPlatformPair) {
     const key = `${dataPairPlatform[0].platform}_${dataPairPlatform[1].platform}`
     const listAccountPair = AccountPair.findAll({ isValid: 1, key }) as AccountPairDBType[]

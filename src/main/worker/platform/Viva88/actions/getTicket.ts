@@ -138,7 +138,12 @@ export async function getTicket_Viva88Bet(accountInfo: AccountType, ticket: Tick
     }
 
     const bodyGetTickets = toQueryString(itemList, additionalParams)
-
+    await accountLogToFile(
+      accountInfo.platformName,
+      accountInfo.loginID,
+      `Body: ${bodyGetTickets}`,
+      'BetList'
+    )
     const urlBalance = `https://api.viva88.net/api/Customer/Balance`
 
     const [resBalance, resGetTickets] = await Promise.all([

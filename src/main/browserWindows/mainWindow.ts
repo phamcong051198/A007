@@ -120,6 +120,9 @@ export async function createMainWindow() {
   ipcMain.on('UpdateEnable', (_, data) => {
     Setting.update({ id: 1 }, { enable: data })
   })
+  ipcMain.on('UpdateCredit', (_, data) => {
+    Setting.update({ id: 1 }, { credit: data })
+  })
 
   ipcMain.on('SaveSettingWindow', (_, data: SettingType) => {
     const settings = Setting.findAll() as SettingType[]
@@ -130,31 +133,6 @@ export async function createMainWindow() {
   //******************************************************************************************************* */
 
   //************************************** BetSettingWindow *********************************************** */
-
-  ipcMain.handle('GetRangePlatform', () => {
-    const sportBooks = SportsBook.findAll() as SportsBookType[]
-    const rangePlatforms = sportBooks.map(({ id, platform, valueRange }) => ({
-      id,
-      platform,
-      valueRange
-    }))
-
-    const setting = Setting.findAll()[0] as SettingType
-
-    const otherSetting = {
-      id: setting.id,
-      isOther: setting.isOther,
-      isBetUnderSelected: setting.isBetUnderSelected,
-      isBetOverSelected: setting.isBetOverSelected,
-      isBetPutSelected: setting.isBetPutSelected,
-      isBetEatSelected: setting.isBetEatSelected
-    }
-
-    return {
-      rangePlatforms,
-      otherSetting
-    }
-  })
 
   ipcMain.on('DataBetSetting', (_event, payload: DataBetSettingPayload) => {
     const { rangePlatforms, otherSetting } = payload
@@ -352,15 +330,6 @@ export async function createMainWindow() {
   ipcMain.on('AddControls', (_, data) => {
     const { activeId: activeSportsBook, platformName, platformURL, numberAccount } = data
     handleAddControls(mainWindow, activeSportsBook, platformName, platformURL, numberAccount)
-  })
-
-  ipcMain.handle('PerMatchLimitSetting', () => {
-    const settings = Setting.findAll() as SettingType[]
-    const perMatchLimitSetting = SettingPerMatchLimit.findAll() as SettingPerMatchLimitType[]
-    return {
-      enable: settings[0].enablePerMatchLimitSetting,
-      data: perMatchLimitSetting
-    }
   })
 
   ipcMain.handle('PerMatchLimitDetailPlatform', (_, platform) => {

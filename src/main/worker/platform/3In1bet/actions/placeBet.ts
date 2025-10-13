@@ -98,13 +98,13 @@ async function bettingProcessBet__3in1Bet(
       0
     ].join(',')
 
-    const body = {
+    const body = JSON.stringify({
       data: dataPayload,
       isAuto: true,
       s: '0',
       cb: 0,
       bo: '0'
-    }
+    })
 
     await accountLogToFile(
       platformName,
@@ -113,7 +113,7 @@ async function bettingProcessBet__3in1Bet(
       'BetList'
     )
 
-    await accountLogToFile(platformName, loginID, `Payload Bet: ${JSON.stringify(body)}`, 'BetList')
+    await accountLogToFile(platformName, loginID, `Payload Bet: ${body}`, 'BetList')
 
     const betNowRes = await fetch(API_ENDPOINTS.BET_NOW, {
       method: 'POST',
@@ -125,7 +125,7 @@ async function bettingProcessBet__3in1Bet(
         ...(accountInfo.customIP ? { 'X-Forwarded-For': accountInfo.customIP } : {})
       },
       ...(proxyAgent && { agent: proxyAgent }),
-      body: JSON.stringify(body)
+      body
     })
 
     const betNow = (await betNowRes.json()) as BetNowResponse

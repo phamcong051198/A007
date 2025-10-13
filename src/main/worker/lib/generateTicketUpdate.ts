@@ -1,11 +1,11 @@
 import { formatTime } from '@/worker/lib/formatTime'
 
 export const generateTicketUpdate = (
-  dataTicketI: { platform: string; number: number },
+  dataTicketI: { platform: string; number: number; stake: number },
   bet1: string,
   odd1: number,
   infoOdd1: string,
-  dataTicketII: { platform: string; number: number },
+  dataTicketII: { platform: string; number: number; stake: number },
   bet2: string,
   odd2: number,
   infoOdd2: string,
@@ -13,7 +13,7 @@ export const generateTicketUpdate = (
   gameType: string
 ) => {
   const createTicket = (
-    data: { platform: string; number: number },
+    data: { platform: string; number: number; stake: number },
     bet: string,
     odd: number,
     info: string
@@ -23,7 +23,7 @@ export const generateTicketUpdate = (
     odd,
     profit,
     info,
-    betAmount_Standard: '0',
+    betAmount_Standard: data.stake,
     company: data.platform,
     coverage: data.number === 0 ? 'FT' : 'FirstHalf',
     gameType,

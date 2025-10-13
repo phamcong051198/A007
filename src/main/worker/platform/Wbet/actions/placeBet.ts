@@ -85,7 +85,7 @@ async function bettingProcessBet__WBet(
     const market_type =
       ticket.gameType == GAME_TYPES.EARLY ? 1 : ticket.gameType == GAME_TYPES.TODAY ? 2 : 3
 
-    const payload = {
+    const body = JSON.stringify({
       odds_type: 1,
       market_type,
       account_id: accountInfo.loginID,
@@ -104,7 +104,7 @@ async function bettingProcessBet__WBet(
       operator_type: null,
       odds_mo,
       odds_display
-    }
+    })
 
     await accountLogToFile(
       platformName,
@@ -118,16 +118,11 @@ async function bettingProcessBet__WBet(
       accountInfo,
       {
         method: 'POST',
-        body: JSON.stringify(payload),
+        body,
         ...(proxyAgent && { agent: proxyAgent })
       }
     )
-    await accountLogToFile(
-      platformName,
-      loginID,
-      `Payload BET_PLACEMENT: ${JSON.stringify(payload)}`,
-      'BetList'
-    )
+    await accountLogToFile(platformName, loginID, `Payload BET_PLACEMENT: ${body}`, 'BetList')
     await accountLogToFile(
       platformName,
       loginID,

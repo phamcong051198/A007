@@ -85,6 +85,13 @@ export const getTicket_P88Bet = async (accountInfo: AccountType, ticket: TicketI
     const urlBalance = `https://www.p88.bet/member-service/v2/account-balance?locale=en_US&_=${Date.now()}&withCredentials=true`
     const urlMultiTicket = `https://www.p88.bet/member-betslip/v2/all-odds-selections?locale=en_US&_=${Date.now()}&withCredentials=true`
 
+    await accountLogToFile(
+      accountInfo.platformName,
+      accountInfo.loginID,
+      `Body: ${body}`,
+      'BetList'
+    )
+
     const [resBalance, resGetTickets] = await Promise.all([
       fetch(urlBalance, {
         method: 'GET',

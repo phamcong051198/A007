@@ -8,7 +8,6 @@ import { calculateProfit } from '@/worker/lib/calculateProfit'
 import { checkAccountContinues } from '@/worker/lib/checkAccountContinues'
 import { checkBetLimit } from '@/worker/lib/checkBetLimit'
 import { checkClearData } from '@/worker/lib/checkClearData'
-import { checkOddsSetting } from '@/worker/lib/checkOddsSetting'
 import { clearTablesForGameType } from '@/worker/lib/clearTablesForGameType'
 import { findValidAccount } from '@/worker/lib/findValidAccount'
 import { formatTime } from '@/worker/lib/formatTime'
@@ -92,20 +91,6 @@ async function handleData(port: MessagePort) {
         break
       }
 
-      if (settingInfo.enableFirstStHalf == 0 && settingInfo.enableSecondStHalf == 0) break
-
-      const checkOdds = checkOddsSetting()
-      if (checkOdds.ErrorCode == 1) {
-        const record = BetListResult.create({
-          dataPair: JSON.stringify([
-            { ...ticketI, info: checkOdds.Data.infoOdd1 },
-            { ...ticketII, info: checkOdds.Data.infoOdd1 }
-          ])
-        })
-        port.postMessage({ type: 'BetList', recordDB: record })
-        continue
-      }
-
       //2.Check Settings Account Pair
       const checkAccountPair = AccountPair.findOne({
         id: dataBet.idAccountPair
@@ -128,12 +113,10 @@ async function handleData(port: MessagePort) {
         continue
       }
 
-      const { accounts, betAmountStandardValid, isTicketBetFlags } = resultValidate
+      const { accounts, isTicketBetFlags } = resultValidate
 
       const ticketPairChecked = accounts.map((account, idx) => {
         const { setting } = account
-
-        const betAmount_Standard = betAmountStandardValid[idx]
 
         let isBetAllowed = setting.generalSetting !== 'NoBet'
         let betRejectionReason = isBetAllowed ? '' : 'No Bet By User'
@@ -149,7 +132,7 @@ async function handleData(port: MessagePort) {
           checkContra: setting.contra,
           isBetAllowed,
           betRejectionReason,
-          betAmount_Standard
+          betAmount_Standard: String(account.ticket.stake)
         }
       }) as TicketInfoDataBetType[]
 
@@ -324,11 +307,6 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
       UpsertTicketDelaySec(ticketIIUpdate)
     }
 
-    const setting = Setting.findAll() as SettingType[]
-    if (setting[0].enablePerMatchLimitSetting === 1) {
-      ticketUpdate.forEach(saveOrUpdateBetRecordPerMatchDetail)
-    }
-
     SuccessList.create({
       uuid,
       dataPair: JSON.stringify(ticketUpdate)
@@ -428,10 +406,6 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
         dataPair: JSON.stringify(ticketUpdateNew)
       }) as WaitingSuccessContraDBType
       UpdatePerMatchLimit(accountFailed, ticketFailed)
-      const setting = Setting.findAll() as SettingType[]
-      if (setting[0].enablePerMatchLimitSetting === 1) {
-        ticketUpdateNew.forEach(saveOrUpdateBetRecordPerMatchDetail)
-      }
     }
 
     port.postMessage({ type: recordType, recordDB })

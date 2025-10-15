@@ -191,10 +191,14 @@ async function loginToWbet(
       textLog = 'Login Status: (ERROR) - Request timed out.'
     } else if (errorMessage.includes('Invalid JSON')) {
       textLog = 'Login Status: (ERROR) - Invalid response from server.'
+    } else if (errorMessage.includes('HTTP error! Status: 404')) {
+      textLog = 'Website under maintenance or unavailable (404).'
     } else if (errorMessage.includes('HTTP error')) {
       textLog = `Login Status: (ERROR) - ${errorMessage}`
     }
+
     console.log('Loi workerLogin Wbet: ', textLog)
+
     await accountLogToFile(
       account.platformName,
       account.loginID,

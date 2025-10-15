@@ -35,8 +35,8 @@ function findProfitableMyArbitrage(
 ): ArbitrageResult | null {
   let best: ArbitrageResult | null = null
 
-  for (let stakeA = 1; stakeA <= creditEach; stakeA++) {
-    for (let stakeB = 1; stakeB <= creditEach; stakeB++) {
+  for (let stakeA = creditEach; stakeA >= 5; stakeA--) {
+    for (let stakeB = creditEach; stakeB >= 5; stakeB--) {
       // lợi nhuận khi thắng
       const profitA_Win = calcMyProfitWin(stakeA, oddA_MY)
       const profitB_Win = calcMyProfitWin(stakeB, oddB_MY)
@@ -46,15 +46,19 @@ function findProfitableMyArbitrage(
       const profitB_Lose = calcMyProfitLose(stakeB, oddB_MY)
 
       // tổng credit sau khi A thắng hoặc B thắng
-      const totalIfAWin = stakeA + stakeB - profitB_Lose + (stakeA + profitA_Win)
-      const totalIfBWin = stakeA + stakeB - profitA_Lose + (stakeB + profitB_Win)
+      const totalIfAWin = stakeA + stakeB - profitB_Lose + profitA_Win
+      const totalIfBWin = stakeA + stakeB - profitA_Lose + profitB_Win
 
       // tổng profit (so với vốn tổng)
-      const profitIfAWin = totalIfAWin - (stakeA + stakeB)
-      const profitIfBWin = totalIfBWin - (stakeA + stakeB)
+      const profitIfAWin = +(totalIfAWin - (stakeA + stakeB)).toFixed(2)
+      const profitIfBWin = +(totalIfBWin - (stakeA + stakeB)).toFixed(2)
 
       // chỉ chấp nhận nếu cả hai kịch bản đều >= vốn (không lỗ)
-      if (profitIfAWin >= 0 && profitIfBWin >= 0) {
+      if (
+        (profitIfAWin > 0 && profitIfBWin > 0) ||
+        (profitIfAWin == 0 && profitIfBWin > 0) ||
+        (profitIfAWin > 0 && profitIfBWin == 0)
+      ) {
         if (!best) {
           best = {
             isArbitrage: true,

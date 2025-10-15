@@ -350,16 +350,6 @@ export type SettingType = {
   gameType: string
 }
 
-export type SettingPerMatchLimitType = {
-  id: number
-  namePlatform: string
-  limitMethod: string
-
-  limitType: string
-  totalAmount: string
-  totalCount: string
-}
-
 export type SettingLeagueFilterType = {
   id: number
   filterType: string

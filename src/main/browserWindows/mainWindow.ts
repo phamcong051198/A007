@@ -22,13 +22,7 @@ import {
   handleLoginAccount,
   handleLogoutAccount
 } from '@/browserWindows/service/handleLoginLogoutAccount'
-import {
-  LeagueType,
-  PlatformType,
-  SettingPerMatchLimitType,
-  SettingType,
-  SportsBookType
-} from '@shared/common/types'
+import { LeagueType, PlatformType, SettingType, SportsBookType } from '@shared/common/types'
 import { GetAccount1Account2 } from '@/browserWindows/service/getAccount1Account2'
 import { GetListAccountPair } from '@/browserWindows/service/getListAccountPair'
 import { handleAddControls } from '@/browserWindows/service/handleAddControls'

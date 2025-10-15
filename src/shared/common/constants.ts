@@ -115,6 +115,8 @@ export const OU_FH = 1
 export const newDataTableEmpty = {
   id: 9999,
 
+  stake: 20,
+
   isBetAllowed: false,
   betRejectionReason: '',
 

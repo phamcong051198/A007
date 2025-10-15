@@ -1,104 +1,74 @@
-/**
- * ================================
- *  ⚽ ARBITRAGE CHECK (MY ODDS)
- * ================================
- *
- *  ✔ Tính theo MY odds thật
- *  ✔ Loại bỏ quarter handicap
- *  ✔ Tìm stake integer tối ưu
- *  ✔ Chỉ nhận kèo có lời ở cả 2 chiều
- *  ✔ Cho phép minProfit% tuỳ chỉnh
- */
-
 interface ArbitrageResult {
   isArbitrage: boolean
-  oddA_MY: string | number
-  oddB_MY: string | number
-  oddA_dec: number
-  oddB_dec: number
+  oddA_MY: number
+  oddB_MY: number
   stakeA: number
   stakeB: number
-  profitHome: number
-  profitAway: number
-  minProfit: number
-  profitPercent: number
-}
-
-interface PlatformData {
-  matchId: string
-  type: string
-  hdp_point: string | number
-  home_over: string | number
-  away_under: string | number
-}
-
-interface ArbitrageMatch extends ArbitrageResult {
-  matchId: string
-  type: string
-  hdp: string | number
-  direction: string
+  totalIfAWin: number
+  totalIfBWin: number
+  profitIfAWin: number
+  profitIfBWin: number
 }
 
 /**
- * ✅ Chuyển MY → Decimal
+ * ✅ Tính net profit (không bao gồm tiền gốc) theo MY odds.
+ *   - MY > 0: thắng lãi stake * MY
+ *   - MY < 0: thắng lãi stake / |MY|
  */
-function myToDecimal(myOdd: string | number): number | null {
-  const o = parseFloat(String(myOdd))
-  if (isNaN(o)) return null
-  return o >= 0 ? o + 1 : 1 + 1 / Math.abs(o)
+function calcMyProfitWin(stake: number, myOdd: number): number {
+  if (isNaN(myOdd)) return NaN
+  return myOdd > 0 ? stake * myOdd : stake
+}
+
+function calcMyProfitLose(stake: number, myOdd: number): number {
+  if (isNaN(myOdd)) return NaN
+  return myOdd > 0 ? stake : stake * myOdd * -1
 }
 
 /**
- * ✅ Tính lợi nhuận khi thắng theo MY odds
- */
-function calcMyProfit(stake: number, myOdd: string | number): number {
-  const o = parseFloat(String(myOdd))
-  if (isNaN(o)) return NaN
-  return o >= 0 ? stake * o : stake / Math.abs(o) - stake
-}
-
-/**
- * ✅ Kiểm tra kèo là half (0.5, 1.5, 2.5...) — bỏ quarter
- */
-export function isHalfHandicap(value: string | number): boolean {
-  const num = parseFloat(String(value))
-  if (isNaN(num)) return false
-  return Math.abs(num * 2) % 2 === 1 // chỉ nhận .5
-}
-
-/**
- * ✅ Tìm stake integer tối ưu sao cho cả 2 bên đều có lãi
+ * ✅ Tìm cặp stake integer sao cho tổng credit sau trận ≥ tổng vốn (2 * credit)
  */
 function findProfitableMyArbitrage(
-  oddA_MY: string | number,
-  oddB_MY: string | number,
-  totalStake: number = 100
-): {
-  stakeA: number
-  stakeB: number
-  profitHome: number
-  profitAway: number
-  minProfit: number
-} | null {
-  let best: {
-    stakeA: number
-    stakeB: number
-    profitHome: number
-    profitAway: number
-    minProfit: number
-  } | null = null
+  oddA_MY: number,
+  oddB_MY: number,
+  creditEach: number = 100
+): ArbitrageResult | null {
+  let best: ArbitrageResult | null = null
 
-  for (let stakeA = 1; stakeA < totalStake; stakeA++) {
-    const stakeB = totalStake - stakeA
+  for (let stakeA = 1; stakeA <= creditEach; stakeA++) {
+    for (let stakeB = 1; stakeB <= creditEach; stakeB++) {
+      // lợi nhuận khi thắng
+      const profitA_Win = calcMyProfitWin(stakeA, oddA_MY)
+      const profitB_Win = calcMyProfitWin(stakeB, oddB_MY)
 
-    const profitHome = calcMyProfit(stakeA, oddA_MY) - stakeB
-    const profitAway = calcMyProfit(stakeB, oddB_MY) - stakeA
-    const minProfit = Math.min(profitHome, profitAway)
+      // lợi nhuận khi thua
+      const profitA_Lose = calcMyProfitLose(stakeA, oddA_MY)
+      const profitB_Lose = calcMyProfitLose(stakeB, oddB_MY)
 
-    // chỉ lấy nếu cả hai cùng lời
-    if (profitHome > 0 && profitAway > 0) {
-      if (!best || minProfit > best.minProfit) {
-        best = { stakeA, stakeB, profitHome, profitAway, minProfit }
+      // tổng credit sau khi A thắng hoặc B thắng
+      const totalIfAWin = stakeA + stakeB - profitB_Lose + (stakeA + profitA_Win)
+      const totalIfBWin = stakeA + stakeB - profitA_Lose + (stakeB + profitB_Win)
+
+      // tổng profit (so với vốn tổng)
+      const profitIfAWin = totalIfAWin - (stakeA + stakeB)
+      const profitIfBWin = totalIfBWin - (stakeA + stakeB)
+
+      // chỉ chấp nhận nếu cả hai kịch bản đều >= vốn (không lỗ)
+      if (profitIfAWin >= 0 && profitIfBWin >= 0) {
+        if (!best) {
+          best = {
+            isArbitrage: true,
+            oddA_MY,
+            oddB_MY,
+            stakeA,
+            stakeB,
+            totalIfAWin,
+            totalIfBWin,
+            profitIfAWin,
+            profitIfBWin
+          }
+          return best
+        }
       }
     }
   }
@@ -107,78 +77,14 @@ function findProfitableMyArbitrage(
 }
 
 /**
- * ✅ Kiểm tra 1 cặp odd có arbitrage thật không
+ * ✅ Hàm chính kiểm tra cặp có arbitrage thật hay không
  */
-export function checkArbitrage(
-  oddA_MY: string | number,
-  oddB_MY: string | number,
-  totalStake: number = 100,
-  minProfitPercent: number = 2
+export function checkArbitrageMy(
+  oddA_MY: number,
+  oddB_MY: number,
+  creditEach: number = 100
 ): ArbitrageResult | null {
-  const oddA_dec = myToDecimal(oddA_MY)
-  const oddB_dec = myToDecimal(oddB_MY)
-  if (!oddA_dec || !oddB_dec) return null
-
-  const best = findProfitableMyArbitrage(oddA_MY, oddB_MY, totalStake)
-
+  const best = findProfitableMyArbitrage(oddA_MY, oddB_MY, creditEach)
   if (!best) return null
-
-  const profitPercent = (best.minProfit / totalStake) * 100
-
-  if (profitPercent < minProfitPercent) return null
-
-  return {
-    isArbitrage: true,
-    oddA_MY,
-    oddB_MY,
-    oddA_dec,
-    oddB_dec,
-    ...best,
-    profitPercent: 999
-  }
-}
-
-/**
- * ✅ Quét arbitrage giữa 2 platform
- */
-export function scanArbitrage(
-  platformA: PlatformData[],
-  platformB: PlatformData[],
-  totalStake: number = 100,
-  minProfitPercent: number = 2
-): ArbitrageMatch[] {
-  const results: ArbitrageMatch[] = []
-
-  for (const a of platformA) {
-    if (!isHalfHandicap(a.hdp_point)) continue // bỏ quarter
-
-    for (const b of platformB) {
-      if (a.matchId !== b.matchId || a.type !== b.type) continue
-
-      const arb1 = checkArbitrage(a.home_over, b.away_under, totalStake, minProfitPercent)
-      if (arb1) {
-        results.push({
-          matchId: a.matchId,
-          type: a.type,
-          hdp: a.hdp_point,
-          direction: 'A.home_over vs B.away_under',
-          ...arb1
-        })
-      }
-
-      const arb2 = checkArbitrage(a.away_under, b.home_over, totalStake, minProfitPercent)
-      if (arb2) {
-        results.push({
-          matchId: a.matchId,
-          type: a.type,
-          hdp: a.hdp_point,
-          direction: 'A.home_over vs B.away_under',
-          ...arb2
-        })
-      }
-    }
-  }
-
-  results.sort((a, b) => b.profitPercent - a.profitPercent)
-  return results
+  return best
 }

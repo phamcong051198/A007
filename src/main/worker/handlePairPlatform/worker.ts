@@ -2,8 +2,7 @@
 /* eslint-disable no-constant-condition */
 const { parentPort, workerData } = require('worker_threads')
 
-import { checkArbitrage, isHalfHandicap } from '@/worker/handlePairPlatform/helper/scanArbitrage'
-import { calculateProfit } from '@/worker/lib/calculateProfit'
+import { checkArbitrageMy } from '@/worker/handlePairPlatform/helper/scanArbitrage'
 import { checkOddsSetting } from '@/worker/lib/checkOddsSetting'
 import { clearTablesForGameType } from '@/worker/lib/clearTablesForGameType'
 import { findMatchingData } from '@/worker/lib/findMatchingData'
@@ -97,10 +96,9 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
     ]
 
     for (const { odd1, odd2, bet1, bet2 } of profitCombos) {
-      const totalStake = settingInfo[0].credit || 20
-      const minProfitPercent = 0 // 1% min profit
+      const totalStake = settingInfo[0].credit || 40
 
-      const arbitrage = checkArbitrage(odd1, odd2, totalStake, minProfitPercent)
+      const arbitrage = checkArbitrageMy(odd1, odd2, totalStake)
 
       if (!arbitrage) continue
 
@@ -134,7 +132,7 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
         bet2,
         odd2,
         checkOdds.Data.infoOdd2,
-        minProfitPercent,
+        9999,
         settingInfo[0].gameType
       )
 
@@ -184,4 +182,14 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
   }
 
   listDataPlatformPair.length = 0
+}
+
+/**
+ * ✅ Kiểm tra kèo là half (0.5, 1.5, 2.5...) — bỏ quarter
+ *
+ */
+function isHalfHandicap(value: string | number): boolean {
+  const num = parseFloat(String(value))
+  if (isNaN(num)) return false
+  return Math.abs(num * 2) % 2 === 1 // chỉ nhận .5
 }

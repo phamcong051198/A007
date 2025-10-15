@@ -1,21 +1,13 @@
-import { Setting } from '@db/model'
 import { OPTIONS_PROXY } from '@shared/main/constants'
-import { AccountType, SettingType } from '@shared/common/types'
+import { AccountType } from '@shared/common/types'
 
 export function isProxyConfigValid(account: AccountType) {
-  const setting = Setting.findAll()[0] as SettingType
-  const {
-    ipAddress: serverIp,
-    port: serverPort,
-    username: serverUser,
-    password: serverPass
-  } = setting
   const { proxyIP, proxyPort, proxyUsername, proxyPassword, proxyScope } = account
 
-  const newIpAddress = proxyIP ? proxyIP : serverIp
-  const newPort = proxyPort && proxyPort !== '0' ? proxyPort : serverPort
-  const newUsername = proxyUsername ? proxyUsername : serverUser
-  const newPassword = proxyPassword ? proxyPassword : serverPass
+  const newIpAddress = proxyIP
+  const newPort = proxyPort
+  const newUsername = proxyUsername
+  const newPassword = proxyPassword
 
   const ipRegex = /^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/
   const portRegex = /^\d+$/

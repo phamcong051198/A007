@@ -10,11 +10,6 @@ interface ArbitrageResult {
   profitIfBWin: number
 }
 
-/**
- * ✅ Tính net profit (không bao gồm tiền gốc) theo MY odds.
- *   - MY > 0: thắng lãi stake * MY
- *   - MY < 0: thắng lãi stake / |MY|
- */
 function calcMyProfitWin(stake: number, myOdd: number): number {
   if (isNaN(myOdd)) return NaN
   return myOdd > 0 ? stake * myOdd : stake
@@ -25,9 +20,6 @@ function calcMyProfitLose(stake: number, myOdd: number): number {
   return myOdd > 0 ? stake : stake * myOdd * -1
 }
 
-/**
- * ✅ Tìm cặp stake integer sao cho tổng credit sau trận ≥ tổng vốn (2 * credit)
- */
 function findProfitableMyArbitrage(
   oddA_MY: number,
   oddB_MY: number,
@@ -53,12 +45,7 @@ function findProfitableMyArbitrage(
       const profitIfAWin = +(totalIfAWin - (stakeA + stakeB)).toFixed(2)
       const profitIfBWin = +(totalIfBWin - (stakeA + stakeB)).toFixed(2)
 
-      // chỉ chấp nhận nếu cả hai kịch bản đều >= vốn (không lỗ)
-      if (
-        (profitIfAWin > 0 && profitIfBWin > 0) ||
-        (profitIfAWin == 0 && profitIfBWin > 0) ||
-        (profitIfAWin > 0 && profitIfBWin == 0)
-      ) {
+      if ((profitIfAWin > 0 && profitIfBWin >= 0) || (profitIfAWin >= 0 && profitIfBWin > 0)) {
         if (!best) {
           best = {
             isArbitrage: true,

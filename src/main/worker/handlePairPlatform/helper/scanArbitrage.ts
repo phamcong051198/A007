@@ -4,8 +4,6 @@ interface ArbitrageResult {
   oddB_MY: number
   stakeA: number
   stakeB: number
-  totalIfAWin: number
-  totalIfBWin: number
   profitIfAWin: number
   profitIfBWin: number
 }
@@ -28,38 +26,26 @@ function findProfitableMyArbitrage(
   let best: ArbitrageResult | null = null
 
   for (let stakeA = creditEach; stakeA >= 5; stakeA--) {
-    for (let stakeB = creditEach; stakeB >= 5; stakeB--) {
-      // lợi nhuận khi thắng
-      const profitA_Win = calcMyProfitWin(stakeA, oddA_MY)
-      const profitB_Win = calcMyProfitWin(stakeB, oddB_MY)
+    // Tính stakeB tối thiểu để profitIfAWin ≥ 0
+    let stakeB = (stakeA * (oddA_MY > 0 ? oddA_MY + 1 : 1)) / (oddB_MY > 0 ? oddB_MY : 1)
+    stakeB = Math.min(stakeB, creditEach)
+    if (stakeB < 5) continue
 
-      // lợi nhuận khi thua
-      const profitA_Lose = calcMyProfitLose(stakeA, oddA_MY)
-      const profitB_Lose = calcMyProfitLose(stakeB, oddB_MY)
+    const profitIfAWin = calcMyProfitWin(stakeA, oddA_MY) - calcMyProfitLose(stakeB, oddB_MY)
+    const profitIfBWin = calcMyProfitWin(stakeB, oddB_MY) - calcMyProfitLose(stakeA, oddA_MY)
 
-      // tổng credit sau khi A thắng hoặc B thắng
-      const totalIfAWin = stakeA + stakeB - profitB_Lose + profitA_Win
-      const totalIfBWin = stakeA + stakeB - profitA_Lose + profitB_Win
-
-      // tổng profit (so với vốn tổng)
-      const profitIfAWin = +(totalIfAWin - (stakeA + stakeB)).toFixed(2)
-      const profitIfBWin = +(totalIfBWin - (stakeA + stakeB)).toFixed(2)
-
-      if ((profitIfAWin > 0 && profitIfBWin >= 0) || (profitIfAWin >= 0 && profitIfBWin > 0)) {
-        if (!best) {
-          best = {
-            isArbitrage: true,
-            oddA_MY,
-            oddB_MY,
-            stakeA,
-            stakeB,
-            totalIfAWin,
-            totalIfBWin,
-            profitIfAWin,
-            profitIfBWin
-          }
-          return best
+    if (profitIfAWin > 0 && profitIfBWin > 0) {
+      if (!best) {
+        best = {
+          isArbitrage: true,
+          oddA_MY,
+          oddB_MY,
+          stakeA,
+          stakeB,
+          profitIfAWin,
+          profitIfBWin
         }
+        return best
       }
     }
   }

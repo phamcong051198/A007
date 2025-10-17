@@ -34,7 +34,7 @@ function findProfitableMyArbitrage(
     const profitIfAWin = calcMyProfitWin(stakeA, oddA_MY) - calcMyProfitLose(stakeB, oddB_MY)
     const profitIfBWin = calcMyProfitWin(stakeB, oddB_MY) - calcMyProfitLose(stakeA, oddA_MY)
 
-    if (profitIfAWin > 0 && profitIfBWin > 0) {
+    if ((profitIfAWin >= 0 && profitIfBWin > 0) || (profitIfAWin > 0 && profitIfBWin >= 0)) {
       if (!best) {
         best = {
           isArbitrage: true,

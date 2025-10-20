@@ -136,8 +136,8 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
         settingInfo[0].gameType
       )
 
-      const record = BetListResult.create({ dataPair: JSON.stringify(ticketUpdate) })
-      parentPort.postMessage({ type: 'BetList', recordDB: record })
+      // const record = BetListResult.create({ dataPair: JSON.stringify(ticketUpdate) })
+      // parentPort.postMessage({ type: 'BetList', recordDB: record })
       listDataPlatformPair.push(ticketUpdate)
     }
   }

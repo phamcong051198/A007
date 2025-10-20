@@ -351,7 +351,7 @@ export async function createMainWindow() {
   )
 
   ipcMain.handle('GetBetListResult', () => {
-    const data = BetListResult.findAll() as BetListDBType[]
+    const data = BetListResult.findAll({}, { orderBy: 'id', desc: true }) as BetListDBType[]
     return data.flatMap((item: BetListDBType) => JSON.parse(item.dataPair))
   })
 
@@ -361,12 +361,18 @@ export async function createMainWindow() {
   })
 
   ipcMain.handle('GetContraList', () => {
-    const data = ContraList.findAll() as WaitingSuccessContraDBType[]
+    const data = ContraList.findAll(
+      {},
+      { orderBy: 'id', desc: true }
+    ) as WaitingSuccessContraDBType[]
     return data.flatMap((item: WaitingSuccessContraDBType) => JSON.parse(item.dataPair))
   })
 
   ipcMain.handle('GetSuccessList', () => {
-    const data = SuccessList.findAll() as WaitingSuccessContraDBType[]
+    const data = SuccessList.findAll(
+      {},
+      { orderBy: 'id', desc: true }
+    ) as WaitingSuccessContraDBType[]
     return data.flatMap((item: WaitingSuccessContraDBType) => JSON.parse(item.dataPair))
   })
 

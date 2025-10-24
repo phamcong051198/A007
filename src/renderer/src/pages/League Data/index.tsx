@@ -94,6 +94,9 @@ export default function LeagueData() {
     league: ''
   })
 
+  // ✅ state popup delete
+  const [deleteTarget, setDeleteTarget] = useState<LeagueType | null>(null)
+
   useEffect(() => {
     const fetchData = async () => {
       const data = await window.electron.ipcRenderer.invoke('GetListPlatform')
@@ -118,7 +121,6 @@ export default function LeagueData() {
     }
   }, [selectedPlatform])
 
-  // Lọc dữ liệu dựa trên giá trị filter
   const filteredData = useMemo(() => {
     return data.filter((item) =>
       Object.entries(filters).every(([key, value]) => {
@@ -129,6 +131,17 @@ export default function LeagueData() {
       })
     )
   }, [data, filters])
+
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return
+
+    window.electron.ipcRenderer.send('DeleteLeagueRoot', {
+      selectedPlatform,
+      id: deleteTarget.id
+    })
+    setData((prev) => prev.filter((item) => item.id !== deleteTarget.id))
+    setDeleteTarget(null)
+  }
 
   const columns = React.useMemo<ColumnDef<LeagueType>[]>(
     () => [
@@ -152,14 +165,24 @@ export default function LeagueData() {
         header: 'League',
         size: 400,
         cell: ({ row }) => (
-          <EditableCell
-            row={row}
-            editingRowId={editingRowId}
-            setEditingRowId={setEditingRowId}
-            initialValue={row.original.league}
-            selectedPlatform={selectedPlatform}
-            setData={setData}
-          />
+          <div className="flex">
+            <div className="flex-1">
+              <EditableCell
+                row={row}
+                editingRowId={editingRowId}
+                setEditingRowId={setEditingRowId}
+                initialValue={row.original.league}
+                selectedPlatform={selectedPlatform}
+                setData={setData}
+              />
+            </div>
+            <button
+              className="ml-2 px-2 py-1 bg-red-500 text-white rounded"
+              onClick={() => setDeleteTarget(row.original)}
+            >
+              Delete
+            </button>
+          </div>
         )
       }
     ],
@@ -168,7 +191,7 @@ export default function LeagueData() {
 
   const table = useReactTable({
     columns,
-    data: filteredData, // Sử dụng dữ liệu đã lọc
+    data: filteredData,
     debugTable: true,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -178,7 +201,6 @@ export default function LeagueData() {
     }
   })
 
-  // Xử lý thay đổi giá trị filter
   const handleFilterChange = (columnId: string, value: string) => {
     setFilters((prev) => ({ ...prev, [columnId]: value }))
   }
@@ -210,7 +232,6 @@ export default function LeagueData() {
                 <thead className="sticky top-0 bg-gray-800 z-10">
                   {table.getHeaderGroups().map((headerGroup) => (
                     <React.Fragment key={headerGroup.id}>
-                      {/* Hàng header chính */}
                       <tr>
                         {headerGroup.headers.map((header) => (
                           <th
@@ -227,7 +248,6 @@ export default function LeagueData() {
                           </th>
                         ))}
                       </tr>
-                      {/* Hàng filter */}
                       <tr>
                         {headerGroup.headers.map((header) => (
                           <th
@@ -264,6 +284,31 @@ export default function LeagueData() {
                   ))}
                 </tbody>
               </table>
+
+              {/* ✅ POPUP CONFIRM DELETE */}
+              {deleteTarget && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                  <div className="bg-white text-black p-5 rounded shadow-lg w-80">
+                    <p className="font-bold mb-4">
+                      Bạn có chắc muốn xóa &quot;{deleteTarget.nameLeague}&quot;?
+                    </p>
+                    <div className="flex justify-end gap-3">
+                      <button
+                        className="px-3 py-1 bg-gray-500 text-white rounded"
+                        onClick={() => setDeleteTarget(null)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        className="px-3 py-1 bg-red-600 text-white rounded"
+                        onClick={handleConfirmDelete}
+                      >
+                        Confirm
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

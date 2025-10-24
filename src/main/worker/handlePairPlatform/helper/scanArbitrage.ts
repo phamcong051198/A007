@@ -42,8 +42,8 @@ function findProfitableMyArbitrage(
           oddB_MY,
           stakeA,
           stakeB,
-          profitIfAWin,
-          profitIfBWin
+          profitIfAWin: Number(profitIfAWin.toFixed(3)),
+          profitIfBWin: Number(profitIfBWin.toFixed(3))
         }
         return best
       }

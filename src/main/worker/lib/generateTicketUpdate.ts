@@ -1,15 +1,14 @@
 import { formatTime } from '@/worker/lib/formatTime'
 
 export const generateTicketUpdate = (
-  dataTicketI: { platform: string; number: number; stake: number },
+  dataTicketI: { platform: string; number: number; stake: number; profit: number },
   bet1: string,
   odd1: number,
   infoOdd1: string,
-  dataTicketII: { platform: string; number: number; stake: number },
+  dataTicketII: { platform: string; number: number; stake: number; profit: number },
   bet2: string,
   odd2: number,
   infoOdd2: string,
-  profit: number,
   gameType: string
 ) => {
   const createTicket = (
@@ -21,7 +20,6 @@ export const generateTicketUpdate = (
     ...data,
     bet,
     odd,
-    profit,
     info,
     betAmount_Standard: data.stake,
     company: data.platform,

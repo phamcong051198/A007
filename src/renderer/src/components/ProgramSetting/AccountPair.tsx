@@ -387,7 +387,7 @@ const ActionButtons = ({ setShowSaveSuccess, setMessageSuccess }) => {
             Add Combination
           </Button>
           <Button
-            className="whitespace-nowrap"
+            className="whitespace-nowrap border-border-default hover:border-gray-600"
             onClick={addAllCombinations}
             variant="bordered-white"
           >
@@ -397,7 +397,7 @@ const ActionButtons = ({ setShowSaveSuccess, setMessageSuccess }) => {
         <div className="flex items-center gap-4">
           <div
             onClick={clearInvalidAccounts}
-            className="text-orange-500 font-medium text-[14px] cursor-pointer whitespace-nowrap border border-orange-500 py-[5px] px-3 rounded-md"
+            className="font-medium text-[14px] cursor-pointer whitespace-nowrap border text-[#F97066] border-[#F97066]  py-[5px] px-3 rounded-md"
           >
             Clear Invalid Account
           </div>

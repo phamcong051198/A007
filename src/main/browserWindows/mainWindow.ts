@@ -167,6 +167,13 @@ export async function createMainWindow() {
     LeagueModel.update({ id: row.id }, { league: row.league.trim() })
   })
 
+  ipcMain.on('DeleteLeagueRoot', (_, data) => {
+    const { selectedPlatform, id } = data
+
+    const LeagueModel = getLeagueModelByPlatform(selectedPlatform.name)
+    LeagueModel.delete({ id })
+  })
+
   ipcMain.handle('AddPlatForm', (_, platform: PlatformType) => {
     const isPlatform = SportsBook.findOne({ platform: platform.name }) as SportsBookType
     if (isPlatform) {

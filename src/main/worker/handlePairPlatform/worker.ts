@@ -120,8 +120,18 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
 
       const commonData = { score, redCard, stat, type }
 
-      const dataTicketI = { ...dataCrawlPlatform1, ...commonData, stake: arbitrage.stakeA }
-      const dataTicketII = { ...dataCrawlPlatform2, ...commonData, stake: arbitrage.stakeB }
+      const dataTicketI = {
+        ...dataCrawlPlatform1,
+        ...commonData,
+        stake: arbitrage.stakeA,
+        profit: arbitrage.profitIfAWin
+      }
+      const dataTicketII = {
+        ...dataCrawlPlatform2,
+        ...commonData,
+        stake: arbitrage.stakeB,
+        profit: arbitrage.profitIfBWin
+      }
 
       const ticketUpdate = generateTicketUpdate(
         dataTicketI,
@@ -132,7 +142,6 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
         bet2,
         odd2,
         checkOdds.Data.infoOdd2,
-        9999,
         settingInfo[0].gameType
       )
 

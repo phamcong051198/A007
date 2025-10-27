@@ -4,7 +4,6 @@ import { MessagePort, parentPort } from 'worker_threads'
 
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { handleBetTicket, handleGetTicket, handleReBetTicket } from '@/worker/lib/betService'
-import { calculateProfit } from '@/worker/lib/calculateProfit'
 import { checkAccountContinues } from '@/worker/lib/checkAccountContinues'
 import { checkBetLimit } from '@/worker/lib/checkBetLimit'
 import { checkClearData } from '@/worker/lib/checkClearData'
@@ -36,6 +35,7 @@ import {
   WaitingSuccessContraDBType
 } from '@shared/common/types'
 import { AccountType, DataBetType, SettingType } from '@shared/common/types'
+import { checkArbitrageMy } from '@/worker/handlePairPlatform/helper/scanArbitrage'
 
 const port = parentPort
 if (!port) throw new Error('IllegalState')
@@ -220,64 +220,55 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
   const ticketIUpdate = { ...ticketI, info: MessageI, hdp_point: Hdp_pointI, HDP: HDPI }
   const ticketIIUpdate = { ...ticketII, info: MessageII, hdp_point: Hdp_pointII, HDP: HDPII }
 
+  const settingInfo = Setting.findAll() as SettingType[]
+  const totalStake = settingInfo[0].credit || 40
+
   if (MessageI == 'ODDS_CHANGE' && (MessageII == 'OK' || ErrorCodeII == 400)) {
-    const { status, profit } = calculateProfit(Number(OddsI), Number(ticketII.odd))
-    if (status === 'Fail') {
-      handleOutOfCommission(
-        port,
-        profit,
-        ticketI,
-        ticketII,
-        OddsI,
-        ticketII.odd,
-        ticketI.odd,
-        ticketII.odd
-      )
+    const arbitrage = checkArbitrageMy(Number(OddsI), Number(ticketII.odd), totalStake)
+
+    if (arbitrage.isArbitrage == false) {
+      ticketI.profit = arbitrage.profitIfAWin
+      ticketII.profit = arbitrage.profitIfBWin
+
+      handleOutOfCommission(port, ticketI, ticketII, OddsI, ticketII.odd, ticketI.odd, ticketII.odd)
       return
     }
+
     ticketIUpdate.odd = OddsI
 
-    ticketIUpdate.profit = profit
-    ticketIIUpdate.profit = profit
+    ticketIUpdate.profit = arbitrage.profitIfAWin
+    ticketIIUpdate.profit = arbitrage.profitIfBWin
   } else if ((MessageI == 'OK' || ErrorCodeI == 400) && MessageII == 'ODDS_CHANGE') {
-    const { status, profit } = calculateProfit(Number(ticketI.odd), Number(OddsII))
-    if (status === 'Fail') {
-      handleOutOfCommission(
-        port,
-        profit,
-        ticketI,
-        ticketII,
-        ticketI.odd,
-        OddsII,
-        ticketI.odd,
-        ticketII.odd
-      )
+    const arbitrage = checkArbitrageMy(Number(ticketI.odd), Number(OddsII), totalStake)
+
+    if (arbitrage.isArbitrage == false) {
+      ticketI.profit = arbitrage.profitIfAWin
+      ticketII.profit = arbitrage.profitIfBWin
+
+      handleOutOfCommission(port, ticketI, ticketII, ticketI.odd, OddsII, ticketI.odd, ticketII.odd)
       return
     }
+
     ticketIIUpdate.odd = OddsII
 
-    ticketIUpdate.profit = profit
-    ticketIIUpdate.profit = profit
+    ticketIUpdate.profit = arbitrage.profitIfAWin
+    ticketIIUpdate.profit = arbitrage.profitIfBWin
   } else if (MessageI == 'ODDS_CHANGE' && MessageII == 'ODDS_CHANGE') {
-    const { status, profit } = calculateProfit(Number(OddsI), Number(OddsII))
-    if (status === 'Fail') {
-      handleOutOfCommission(
-        port,
-        profit,
-        ticketI,
-        ticketII,
-        OddsI,
-        OddsII,
-        ticketI.odd,
-        ticketII.odd
-      )
+    const arbitrage = checkArbitrageMy(Number(OddsI), Number(OddsII), totalStake)
+
+    if (arbitrage.isArbitrage == false) {
+      ticketI.profit = arbitrage.profitIfAWin
+      ticketII.profit = arbitrage.profitIfBWin
+
+      handleOutOfCommission(port, ticketI, ticketII, OddsI, OddsII, ticketI.odd, ticketII.odd)
       return
     }
+
     ticketIUpdate.odd = OddsI
     ticketIIUpdate.odd = OddsII
 
-    ticketIUpdate.profit = profit
-    ticketIIUpdate.profit = profit
+    ticketIUpdate.profit = arbitrage.profitIfAWin
+    ticketIIUpdate.profit = arbitrage.profitIfBWin
   }
 
   const [
@@ -294,18 +285,13 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
   ]
   checkClearData()
 
-  const isSuccess =
-    (ErrorCodeBetI === 0 || ErrorCodeBetI === 400) &&
-    (ErrorCodeBetII === 0 || ErrorCodeBetII === 400)
+  const isSuccess = ErrorCodeBetI === 0 && ErrorCodeBetII === 0
   if (isSuccess) {
-    if (ErrorCodeBetI === 0) {
-      UpdatePerMatchLimit(accountInfoI, ticketIUpdate)
-      UpsertTicketDelaySec(ticketIUpdate)
-    }
-    if (ErrorCodeBetII === 0) {
-      UpdatePerMatchLimit(accountInfoII, ticketIIUpdate)
-      UpsertTicketDelaySec(ticketIIUpdate)
-    }
+    UpdatePerMatchLimit(accountInfoI, ticketIUpdate)
+    UpsertTicketDelaySec(ticketIUpdate)
+
+    UpdatePerMatchLimit(accountInfoII, ticketIIUpdate)
+    UpsertTicketDelaySec(ticketIIUpdate)
 
     SuccessList.create({
       uuid,
@@ -320,9 +306,7 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
   }
 
   const isFail =
-    ((ErrorCodeBetI === 1 || ErrorCodeBetI === 400) &&
-      (ErrorCodeBetII === 1 || ErrorCodeBetII === 400)) ||
-    (ErrorCodeBetI === 2 && ErrorCodeBetII === 2)
+    (ErrorCodeBetI === 1 && ErrorCodeBetII === 1) || (ErrorCodeBetI === 2 && ErrorCodeBetII === 2)
   if (isFail) {
     const recordDB = BetListResult.create({
       dataPair: JSON.stringify(ticketUpdate)
@@ -359,7 +343,7 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
     await accountLogToFile(
       ticketFailed.platform,
       accountFailed.loginID,
-      `# Handle Retry BetTicket: ${ticketFailed.bet}, ${ticketFailed.number == 0 ? 'FullTime' : '1StHalf'} ${ticketFailed.type}@${ticketFailed.bet.trim() == ticketFailed.nameAway.trim() ? -Number(ticketFailed.hdp_point) : ticketFailed.hdp_point}, Odd: ${ticketFailed.odd}`,
+      `###### Handle Retry BetTicket: ${ticketFailed.bet}, ${ticketFailed.number == 0 ? 'FullTime' : '1StHalf'} ${ticketFailed.type}@${ticketFailed.bet.trim() == ticketFailed.nameAway.trim() ? -Number(ticketFailed.hdp_point) : ticketFailed.hdp_point}, Odd: ${ticketFailed.odd}`,
       'BetList'
     )
 
@@ -370,17 +354,18 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
     )
 
     const { info, receiptID, receiptStatus, odd } = Data
-    const profit = Number((odd + ticketStable.odd).toFixed(3))
+
+    const arbitrage = checkArbitrageMy(odd, ticketStable.odd, totalStake)
 
     const ticketUpdateNew = [
       {
         ...ticketUpdate[0],
-        profit,
+        profit: isErrorI ? arbitrage.profitIfAWin : arbitrage.profitIfBWin,
         ...(isErrorI ? { odd, info: info + '(ContraBet)', receiptID, receiptStatus } : {})
       },
       {
         ...ticketUpdate[1],
-        profit,
+        profit: isErrorII ? arbitrage.profitIfBWin : arbitrage.profitIfAWin,
         ...(isErrorII ? { odd, info: info + '(ContraBet)', receiptID, receiptStatus } : {})
       }
     ]

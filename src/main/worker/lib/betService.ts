@@ -76,10 +76,11 @@ export const handleReBetTicket = async (
     } = await getTicket(accountInfo, ticket)
 
     if (errorCodeGetTicket === 1 || !dataGetTicket) {
-      return {
-        ErrorCode: 1,
-        Data: { info: Message, receiptID: '', receiptStatus: 'Fail', odd: Odds }
-      }
+      continue
+      // return {
+      //   ErrorCode: 1,
+      //   Data: { info: Message, receiptID: '', receiptStatus: 'Fail', odd: Odds }
+      // }
     }
 
     const ticketUpdate = { ...ticket, hdp_point: Hdp_point, HDP, odd: Odds }

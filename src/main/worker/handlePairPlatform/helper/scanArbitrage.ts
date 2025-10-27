@@ -21,36 +21,25 @@ function calcMyProfitLose(stake: number, myOdd: number): number {
 function findProfitableMyArbitrage(
   oddA_MY: number,
   oddB_MY: number,
-  creditEach: number = 100
-): ArbitrageResult | null {
-  let best: ArbitrageResult | null = null
+  creditEach: number = 40
+): ArbitrageResult {
+  const stakeA = creditEach
+  const stakeB = creditEach
+  const profitIfAWin = calcMyProfitWin(stakeA, oddA_MY) - calcMyProfitLose(stakeB, oddB_MY)
+  const profitIfBWin = calcMyProfitWin(stakeB, oddB_MY) - calcMyProfitLose(stakeA, oddA_MY)
 
-  for (let stakeA = creditEach; stakeA >= 5; stakeA--) {
-    // Tính stakeB tối thiểu để profitIfAWin ≥ 0
-    let stakeB = (stakeA * (oddA_MY > 0 ? oddA_MY + 1 : 1)) / (oddB_MY > 0 ? oddB_MY : 1)
-    stakeB = Math.min(stakeB, creditEach)
-    if (stakeB < 5) continue
+  const isArbitrage =
+    (profitIfAWin >= 0 && profitIfBWin > 0) || (profitIfAWin > 0 && profitIfBWin >= 0)
 
-    const profitIfAWin = calcMyProfitWin(stakeA, oddA_MY) - calcMyProfitLose(stakeB, oddB_MY)
-    const profitIfBWin = calcMyProfitWin(stakeB, oddB_MY) - calcMyProfitLose(stakeA, oddA_MY)
-
-    if ((profitIfAWin >= 0 && profitIfBWin > 0) || (profitIfAWin > 0 && profitIfBWin >= 0)) {
-      if (!best) {
-        best = {
-          isArbitrage: true,
-          oddA_MY,
-          oddB_MY,
-          stakeA,
-          stakeB,
-          profitIfAWin: Number(profitIfAWin.toFixed(3)),
-          profitIfBWin: Number(profitIfBWin.toFixed(3))
-        }
-        return best
-      }
-    }
+  return {
+    isArbitrage,
+    oddA_MY,
+    oddB_MY,
+    stakeA,
+    stakeB,
+    profitIfAWin: Number(profitIfAWin.toFixed(3)),
+    profitIfBWin: Number(profitIfBWin.toFixed(3))
   }
-
-  return best
 }
 
 /**
@@ -59,9 +48,8 @@ function findProfitableMyArbitrage(
 export function checkArbitrageMy(
   oddA_MY: number,
   oddB_MY: number,
-  creditEach: number = 100
-): ArbitrageResult | null {
+  creditEach: number = 40
+): ArbitrageResult {
   const best = findProfitableMyArbitrage(oddA_MY, oddB_MY, creditEach)
-  if (!best) return null
   return best
 }

@@ -9,7 +9,7 @@ import { findMatchingData } from '@/worker/lib/findMatchingData'
 import { generateTicketUpdate } from '@/worker/lib/generateTicketUpdate'
 import { handleCombinationWithDataTicket } from '@/worker/lib/handleCombinationWithDataTicket'
 import { isValidData } from '@/worker/lib/isValidData'
-import { AccountPair, BetListResult, createModel, DataBet, PlatformPair, Setting } from '@db/model'
+import { AccountPair, createModel, DataBet, PlatformPair, Setting } from '@db/model'
 import { AccountPairDBType } from '@db/schema/accountPair'
 import dataCrawlByPlatformSchema from '@db/schema/dataCrawlByPlatform'
 import { PlatformPairType } from '@db/schema/platformPair'
@@ -100,7 +100,7 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
 
       const arbitrage = checkArbitrageMy(odd1, odd2, totalStake)
 
-      if (!arbitrage) continue
+      if (arbitrage.isArbitrage == false) continue
 
       console.log('arbitrage', arbitrage)
 

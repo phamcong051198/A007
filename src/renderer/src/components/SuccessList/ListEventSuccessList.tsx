@@ -32,7 +32,7 @@ const ListEventSuccessList = () => {
       setDataTable((prev) =>
         prev.length / ROW_SIZE >= maxLength
           ? [...dataEvent, newDataTableEmpty]
-          : [...dataEvent, ...prev, newDataTableEmpty]
+          : [...dataEvent, newDataTableEmpty, ...prev]
       )
     },
     [settings.clearWhenOver100]

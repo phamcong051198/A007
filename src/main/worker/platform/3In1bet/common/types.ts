@@ -140,3 +140,21 @@ interface BetDataItem {
   OddType: string
   EX: string | null
 }
+
+export interface BetInfo {
+  no: string
+  betId: string
+  sport: string
+  status: string
+}
+
+export interface Summary {
+  subtotalWin: string
+  subtotalCom: string
+  total: string
+}
+
+export interface BetTableData {
+  bets: BetInfo[]
+  summary: Summary
+}

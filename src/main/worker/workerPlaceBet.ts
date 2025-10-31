@@ -280,8 +280,8 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
   ])
 
   const ticketUpdate = [
-    { ...ticketIUpdate, ...DataBetI },
-    { ...ticketIIUpdate, ...DataBetII }
+    { ...ticketIUpdate, ...DataBetI, resultBet: null },
+    { ...ticketIIUpdate, ...DataBetII, resultBet: null }
   ]
   checkClearData()
 

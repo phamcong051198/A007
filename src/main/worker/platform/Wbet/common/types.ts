@@ -65,3 +65,12 @@ export interface BetCheckResponse {
   pending_bet: boolean
   retrieve_profile: boolean
 }
+
+export interface ResultType {
+  result_id: number
+  winlose: number
+}
+export interface ResultCancelType {
+  bet_id: number
+  bet_status: string
+}

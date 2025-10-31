@@ -243,11 +243,21 @@ export const defaultColumns = [
     accessorKey: 'receiptID',
     header: () => <span>ReceiptID</span>,
     footer: (props: { column: { id: string } }) => props.column.id,
-    size: 140,
+    size: 180,
     cell: ({ row }) => {
       const company = row.original.company
       const receiptID = row.original.receiptID || '-'
       return <span className="px-2"> {company === '' ? '' : receiptID}</span>
+    }
+  },
+  {
+    accessorKey: 'resultBet',
+    header: () => <span>ResultBet</span>,
+    footer: (props: { column: { id: string } }) => props.column.id,
+    size: 180,
+    cell: ({ row }) => {
+      const resultBet = row?.original?.resultBet || ''
+      return <span className="px-2">{resultBet.toUpperCase()}</span>
     }
   }
 ]

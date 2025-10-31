@@ -30,7 +30,7 @@ export const NotificationError: React.FC<AlertErrorProps> = ({
 
   return (
     <AlertDialog open={showAlertDialog} onOpenChange={setShowAlertDialog}>
-      <AlertDialogContent className="gap-0 p-0 w-[420px]  bg-[#0C0E12]  rounded-lg border-0 shadow-lg">
+      <AlertDialogContent className="gap-0 p-0 w-[380px] bg-black  rounded-lg border-0 shadow-lg">
         <AlertDialogHeader className="relative p-6 pb-4">
           <button
             onClick={() => setShowAlertDialog(false)}
@@ -77,7 +77,7 @@ export const NotificationError: React.FC<AlertErrorProps> = ({
 
         <AlertDialogFooter className="flex gap-3 p-6 pt-4">
           <Button
-            className="flex-1 text-white bg-[#0C0E12] hover:bg-white hover:text-[#0C0E12]"
+            className="flex-1 text-white bg-transparent border-[1px] border-border-default hover:text-white hover:border-gray-600 "
             variant="bordered-white"
             onClick={() => setShowAlertDialog(false)}
           >

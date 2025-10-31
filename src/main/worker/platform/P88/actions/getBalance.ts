@@ -41,7 +41,7 @@ export const getBalanceP88bet = async (account: AccountType) => {
         'x-u': objectCookie.u,
         'x-slid': objectCookie.SLID,
         'x-lcu': objectCookie.lcu,
-        Cookie: cookie,
+        cookie: cookie,
         ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
       },
       ...(proxyAgent && { agent: proxyAgent })

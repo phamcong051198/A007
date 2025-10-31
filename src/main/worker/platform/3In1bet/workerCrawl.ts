@@ -366,6 +366,8 @@ const handleData = async ({ dataOdds, account }) => {
     }
     if (league_3in1Bet && !league_3in1Bet.league) continue
 
+    if (GAME_TYPES.RUNNING == gameType && dataOdd[53]?.includes('ET')) continue
+
     // index check đội nào mạnh
     const indexCheck = dataOdd[24]
 

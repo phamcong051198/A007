@@ -88,20 +88,20 @@ export function CFS(password: string, IsSecond = null) {
 
 export async function extractTkAndId(html) {
   try {
-    // Regular expression to find the MS2.account object in the HTML
-    const accountRegex = /MS2\.account\s*=\s*({[\s\S]*?});/
-    const match = html.match(accountRegex)
+    // Regex tìm giá trị chuỗi trong MS2.id và MS2.at
+    const idRegex = /MS2\.id\s*=\s*"([^"]+)"/
+    const atRegex = /MS2\.at\s*=\s*"([^"]+)"/
 
-    if (!match || !match[1]) {
-      throw new Error('MS2.account object not found in HTML')
+    const matchId = html.match(idRegex)
+    const matchAt = html.match(atRegex)
+
+    if (!matchId || !matchAt) {
+      throw new Error('MS2.id or MS2.at not found in HTML')
     }
 
-    // Parse the matched JSON string into a JavaScript object
-    const accountObj = JSON.parse(match[1])
-
-    // Extract tk and ID
-    const tk = accountObj.pnv?.tk
-    const id = accountObj.ID
+    // Lấy giá trị thực (group 1)
+    const id = matchId[1]
+    const tk = matchAt[1]
 
     if (!tk || !id) {
       throw new Error('tk or ID not found in MS2.account')
@@ -133,8 +133,8 @@ export function buildSocketIoWsUrl(token: string, id: string) {
   }
 
   const gid = createGid()
-  const rid = 0
+  const rid = 'jwt'
   const host = 'agnj3.viva88.net'
 
-  return `wss://${host}/socket.io/?gid=${gid}&token=${encodeURIComponent(token)}&id=${id}&rid=${rid}&EIO=3&transport=websocket`
+  return `wss://${host}/socket.io/?gid=${gid}&token=${token}&id=${id}&rid=${rid}&EIO=3&transport=websocket`
 }

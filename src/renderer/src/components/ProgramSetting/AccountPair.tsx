@@ -239,6 +239,11 @@ const ActionButtons = ({ setShowSaveSuccess, setMessageSuccess }) => {
       setShowAlertError(true)
       return
     }
+    if (selectionContext.account1.platformName === selectionContext.account2.platformName) {
+      setMessageError('Both accounts are from the same platform')
+      setShowAlertError(true)
+      return
+    }
 
     const [firstAccount, secondAccount] = [
       selectionContext.account1,
@@ -490,7 +495,7 @@ const PlatformSettingsSection = ({ typeAccount }: { typeAccount: 'account1' | 'a
         <p className="text-gray-400 text-sm">{dataAccountPair.loginID || 'Unknown Account'}</p>
       </div>
 
-      <div className="space-y-4">
+      {/* <div className="space-y-4">
         <div>
           <label className="text-gray-300 text-sm">Bet Amount ($)</label>
           <InputNumber
@@ -500,7 +505,7 @@ const PlatformSettingsSection = ({ typeAccount }: { typeAccount: 'account1' | 'a
             onChange={(value) => updateBetAmount(value)}
           />
         </div>
-      </div>
+      </div> */}
     </div>
   )
 }
@@ -536,13 +541,10 @@ const GeneralSettingsSection = ({ typeAccount }: { typeAccount: 'account1' | 'ac
 
   return (
     <div className="px-4 pb-4">
-      <h5 className="text-gray-200 font-semibold mb-3 border-[#22262F] border-t pt-4">
-        {dataAccountPair.platform} - {dataAccountPair.loginID}
-      </h5>
       <RadioGroup
         value={dataAccountPair?.generalSetting || 'BetAll'}
         onValueChange={updateGeneralSetting}
-        className="flex space-x-4 items-center"
+        className="space-x-4 items-center flex justify-center"
       >
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="BetAll" id={`BetAll_${typeAccount}`} />

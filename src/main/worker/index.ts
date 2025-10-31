@@ -18,6 +18,7 @@ import createWorkerLogin3IN1Bet from './platform/3In1bet/workerLogin?nodeWorker'
 import createWorkerCrawl3IN1Bet from './platform/3In1bet/workerCrawl?nodeWorker'
 
 import createWorkerAutoLogin from './workerAutoLogin?nodeWorker'
+import createWorkerGetResultBet from './workerGetResultBet?nodeWorker'
 import createWorkerPlaceBet from './workerPlaceBet?nodeWorker'
 
 import handleBetList from '@/worker/lib/handleBetList'
@@ -41,6 +42,7 @@ let workerHandleDataViva88: Worker | null = null
 
 let workerPlaceBet: Worker | null = null
 let workerAutoLogin: Worker | null = null
+let workerGetResultBet: Worker | null = null
 
 const platformHandlers: Record<string, QueueHandler> = {
   P88Bet: {
@@ -304,6 +306,18 @@ async function startWorker(account: AccountType, mainWindow: BrowserWindow) {
 
     workerAutoLogin.on('error', (error) => {
       console.error('WorkerAutoLogin error:', error)
+    })
+  }
+
+  if (!workerGetResultBet) {
+    workerGetResultBet = createWorkerGetResultBet({ workerData: 'worker' })
+
+    workerGetResultBet.on('exit', (code) => {
+      console.log('Exit WorkerGetResultBet...', code)
+    })
+
+    workerGetResultBet.on('error', (error) => {
+      console.error('WorkerGetResultBet error:', error)
     })
   }
 

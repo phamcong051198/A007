@@ -96,13 +96,20 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
     ]
 
     for (const { odd1, odd2, bet1, bet2 } of profitCombos) {
+      const stat1 = dataCrawlPlatform1?.stat
+      const stat2 = dataCrawlPlatform2?.stat
+
+      // Nếu 1 trong 2 stat có 'ET' (Extra Time) => bỏ qua
+      // if ([stat1, stat2].some((stat) => stat?.includes('ET'))) continue
+
+      const stat = stat1 ?? stat2
+      const type = dataCrawlPlatform1?.type ?? dataCrawlPlatform2?.type
+
       const totalStake = settingInfo[0].credit || 40
 
       const arbitrage = checkArbitrageMy(odd1, odd2, totalStake)
 
       if (arbitrage.isArbitrage == false) continue
-
-      console.log('arbitrage', arbitrage)
 
       const checkOdds = checkOddsSetting()
 
@@ -114,9 +121,6 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
         gameType === GAME_TYPES.RUNNING
           ? (dataCrawlPlatform1.redCard ?? dataCrawlPlatform2.redCard)
           : ''
-
-      const stat = dataCrawlPlatform1.stat ?? dataCrawlPlatform2.stat
-      const type = dataCrawlPlatform1.type ?? dataCrawlPlatform2.type
 
       const commonData = { score, redCard, stat, type }
 

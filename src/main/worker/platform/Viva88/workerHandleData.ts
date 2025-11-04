@@ -203,7 +203,7 @@ async function handleData(data: any) {
             if (matchInfo.homered !== undefined) updateFields.homered = matchInfo.homered
 
             if (Object.keys(updateFields).length > 0) {
-              await Viva88Bet.updateMany({ idEvent: matchInfo.matchid }, updateFields)
+              Viva88Bet.updateMany({ idEvent: matchInfo.matchid }, updateFields)
             }
           }
         }

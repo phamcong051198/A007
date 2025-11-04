@@ -39,7 +39,7 @@ export const getResultBet_P88 = async (
   const t = now.toISOString().slice(0, 10) + ' 00:00:00'
 
   const past = new Date()
-  past.setDate(now.getDate() - 2)
+  past.setDate(now.getDate() - 4)
   const f = past.toISOString().slice(0, 10) + ' 00:00:00'
 
   const body = new URLSearchParams({

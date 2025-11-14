@@ -51,7 +51,7 @@ export const handleReBetTicket = async (
   ticket: TicketInfoDataBetType,
   accountInfo: AccountType,
   betPlatform: string,
-  retries = 10
+  retries = 30
 ): Promise<{
   ErrorCode: number
   Data: { info: string; receiptID: string; receiptStatus: string; odd: number }

@@ -10,10 +10,10 @@ const port = parentPort
 if (!port) throw new Error('IllegalState')
 
 //300 = 5 phut x 60
-// const numberDelay = 300
+const numberDelay = 300
 
 // 60 = 1 phút x 60 giây
-const numberDelay = 30
+// const numberDelay = 30
 
 setInterval(() => getResultBetRoot(), numberDelay * 1000)
 

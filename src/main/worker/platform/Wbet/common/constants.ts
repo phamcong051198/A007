@@ -160,8 +160,8 @@ export const HEADERS = {
 }
 
 export const BET_TYPE_MAP = {
-  [TYPE_ODD.HDP]: ['HDP', 'HHDP'],
-  [TYPE_ODD.OU]: ['OU', 'HOU']
+  [TYPE_ODD.HDP]: ['HDP', 'HDPH'],
+  [TYPE_ODD.OU]: ['OU', 'OUH']
 }
 
 export const ODDS_COL_MAP = {

@@ -101,6 +101,7 @@ app.whenReady().then(async () => {
     'Sbobet',
     'WBet',
     'IIIin1Bet',
+    'IndexViva88',
     'EventViva88',
     'LeagueViva88',
     'EventSbobet',
@@ -111,6 +112,8 @@ app.whenReady().then(async () => {
     'DataBet',
     'BetListResult',
     'WaitingList'
+    // 'ContraList',
+    // 'SuccessList'
   ]
   clearTables.forEach(clearTable)
 

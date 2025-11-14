@@ -1,7 +1,7 @@
 export const API_BASE_URL = 'https://www.p88.bet'
 
 export const API_ENDPOINTS = {
-  AUTH: `${API_BASE_URL}/member-service/v2/authenticate?locale=en_US&_=${Date.now()}&withCredentials=true`,
+  AUTH: `${API_BASE_URL}/member-auth/v2/authenticate?locale=en_US&_=${Date.now()}&withCredentials=true`,
   BALANCE: `${API_BASE_URL}/member-service/v2/account-balance?locale=en_US&_=${Date.now()}&withCredentials=true`,
   RESULT_BET: `${API_BASE_URL}/member-service/v2/wager-filter?locale=en_US`
 }

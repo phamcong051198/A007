@@ -264,95 +264,50 @@ async function handleData(data: any) {
             altLineId: matchInfo?.oddsid
           }) as DataCrawlType
 
-          if (matchInfo?.matchid || matchInfo?.oddsid) {
-            if (!findTicket) {
-              let checkNumber =
-                matchInfo.parenttypeid === 1 ||
-                matchInfo.parenttypeid === 3 ||
-                matchInfo.parenttypeid === 7
-                  ? 0
-                  : 1
+          if (!matchInfo?.oddsid) continue
 
-              if (checkNumber === 0 && matchInfo.parenttypeid === 7 && matchInfo.bettype === 7) {
-                checkNumber = 1
-              }
-              const dataSave = {
-                platform: 'Viva88Bet',
-                idLeague: leagueid ?? matchInfo?.leagueid ?? '',
-                nameLeague: findLeague?.nameLeague ?? matchInfo?.league ?? '',
-                idEvent: matchInfo.matchid,
-                nameHome: matchInfo.hteamnameen,
-                nameAway: matchInfo.ateamnameen,
-                number: checkNumber,
-                altLineId: matchInfo.oddsid,
-                hdp_point:
-                  matchInfo.parenttypeid === 1 || matchInfo.parenttypeid === 7
-                    ? matchInfo.hdp1 !== 0
-                      ? -matchInfo.hdp1
-                      : matchInfo.hdp2
-                    : matchInfo.hdp1 !== 0
-                      ? matchInfo.hdp1
-                      : -matchInfo.hdp1,
-                home_over: matchInfo.odds1a,
-                away_under: matchInfo.odds2a,
-                redCard: `${matchInfo.homered ?? 0}-${matchInfo.awayred ?? 0}`,
-                score: `${matchInfo.livehomescore ?? 0}-${matchInfo.liveawayscore ?? 0}`,
-                stat: getElapsedTime(matchInfo.livetimer, matchInfo.liveperiod, gameType) ?? '',
-                typeOdd:
-                  matchInfo.parenttypeid === 1 || matchInfo.parenttypeid === 7 ? SPREAD : TOTAL,
-                type: matchInfo.parenttypeid === 1 || matchInfo.parenttypeid === 7 ? 'HDP' : 'OU',
-                bettype: matchInfo.bettype ?? '',
-                HDP: CONVERT_HDP[
-                  toPositiveNumber(
-                    Math.abs(
-                      matchInfo.parenttypeid === 1 || matchInfo.parenttypeid === 7
-                        ? matchInfo.hdp1 !== 0
-                          ? -matchInfo.hdp1
-                          : matchInfo.hdp2
-                        : matchInfo.hdp1 !== 0
-                          ? matchInfo.hdp1
-                          : -matchInfo.hdp1
-                    )
-                  )
-                ],
-                specialOdd: null,
-                league: matchInfo.league,
-                home: matchInfo.home,
-                away: matchInfo.away
-              }
+          if (!findTicket) {
+            if (!matchInfo?.oddsid && !matchInfo?.matchid) continue
 
-              const requiredFields = [
-                'idLeague',
-                'nameLeague',
-                'idEvent',
-                'nameHome',
-                'nameAway',
-                'altLineId',
-                'hdp_point',
-                'home_over',
-                'away_under'
-              ]
+            let checkNumber =
+              matchInfo.parenttypeid === 1 ||
+              matchInfo.parenttypeid === 3 ||
+              matchInfo.parenttypeid === 7
+                ? 0
+                : 1
 
-              const isComplete = requiredFields.every(
-                (key) => dataSave[key] !== undefined && dataSave[key] !== null
-              )
-
-              if (isComplete) {
-                records.push(dataSave)
-                if (records.length >= BATCH_SIZE) {
-                  insertRecords(records, Viva88Bet)
-                }
-              }
-            } else {
-              if (matchInfo) {
-                const updateFields: Record<string, any> = {}
-
-                if (
-                  matchInfo.hdp1 !== undefined &&
-                  matchInfo.hdp2 !== undefined &&
-                  matchInfo.parenttypeid !== undefined
-                ) {
-                  updateFields.hdp_point =
+            if (checkNumber === 0 && matchInfo.parenttypeid === 7 && matchInfo.bettype === 7) {
+              checkNumber = 1
+            }
+            const dataSave = {
+              platform: 'Viva88Bet',
+              idLeague: leagueid ?? matchInfo?.leagueid ?? '',
+              nameLeague: findLeague?.nameLeague ?? matchInfo?.league ?? '',
+              idEvent: matchInfo.matchid,
+              nameHome: matchInfo.hteamnameen,
+              nameAway: matchInfo.ateamnameen,
+              number: checkNumber,
+              altLineId: matchInfo.oddsid,
+              hdp_point:
+                matchInfo.parenttypeid === 1 || matchInfo.parenttypeid === 7
+                  ? matchInfo.hdp1 !== 0
+                    ? -matchInfo.hdp1
+                    : matchInfo.hdp2
+                  : matchInfo.hdp1 !== 0
+                    ? matchInfo.hdp1
+                    : -matchInfo.hdp1,
+              home_over: matchInfo.odds1a,
+              away_under: matchInfo.odds2a,
+              redCard: `${matchInfo.homered ?? 0}-${matchInfo.awayred ?? 0}`,
+              score: `${matchInfo.livehomescore ?? 0}-${matchInfo.liveawayscore ?? 0}`,
+              stat: getElapsedTime(matchInfo.livetimer, matchInfo.liveperiod, gameType) ?? '',
+              typeOdd:
+                matchInfo.parenttypeid === 1 || matchInfo.parenttypeid === 7 ? SPREAD : TOTAL,
+              type: matchInfo.parenttypeid === 1 || matchInfo.parenttypeid === 7 ? 'HDP' : 'OU',
+              bettype: matchInfo.bettype ?? '',
+              HDP: CONVERT_HDP[
+                toPositiveNumber(
+                  Math.abs(
                     matchInfo.parenttypeid === 1 || matchInfo.parenttypeid === 7
                       ? matchInfo.hdp1 !== 0
                         ? -matchInfo.hdp1
@@ -360,25 +315,92 @@ async function handleData(data: any) {
                       : matchInfo.hdp1 !== 0
                         ? matchInfo.hdp1
                         : -matchInfo.hdp1
-                }
+                  )
+                )
+              ],
+              specialOdd: null,
+              league: matchInfo.league,
+              home: matchInfo.home,
+              away: matchInfo.away
+            }
 
-                if (matchInfo.odds1a !== undefined) {
-                  updateFields.home_over = matchInfo.odds1a
-                }
-                if (matchInfo.odds2a !== undefined) {
-                  updateFields.away_under = matchInfo.odds2a
-                }
+            const requiredFields = [
+              'idLeague',
+              'nameLeague',
+              'idEvent',
+              'nameHome',
+              'nameAway',
+              'altLineId',
+              'hdp_point',
+              'home_over',
+              'away_under'
+            ]
 
-                // Nếu có ít nhất một field để update
-                if (Object.keys(updateFields).length > 0) {
-                  Viva88Bet.update({ id: findTicket.id }, updateFields)
-                }
+            const isComplete = requiredFields.every(
+              (key) => dataSave[key] !== undefined && dataSave[key] !== null
+            )
+
+            if (isComplete) {
+              records.push(dataSave)
+              if (records.length >= BATCH_SIZE) {
+                insertRecords(records, Viva88Bet)
               }
             }
+          } else {
+            const updateFields: Record<string, any> = {}
 
-            if (records.length > 0) {
-              insertRecords(records, Viva88Bet)
+            const parenttypeid = findTicket.betType
+            const hdpPoint = findTicket.hdp_point
+
+            const isNegative = hdpPoint.toString().includes('-') // true nếu có dấu '-'
+            const isMatchTypeId = [3, 8].includes(parenttypeid) // true
+
+            if (matchInfo.hdp1 !== undefined && matchInfo.hdp2 !== undefined) {
+              updateFields.hdp_point = !isMatchTypeId
+                ? matchInfo.hdp1 !== 0
+                  ? -matchInfo.hdp1
+                  : matchInfo.hdp2
+                : matchInfo.hdp1 !== 0
+                  ? matchInfo.hdp1
+                  : -matchInfo.hdp1
             }
+
+            if (matchInfo.hdp1 !== undefined && matchInfo.hdp2 == undefined) {
+              updateFields.hdp_point = isMatchTypeId
+                ? matchInfo.hdp1
+                : isNegative
+                  ? -matchInfo.hdp1
+                  : matchInfo.hdp1
+
+              updateFields.HDP = toPositiveNumber(matchInfo.hdp1)
+            }
+
+            if (matchInfo.hdp1 == undefined && matchInfo.hdp2 != undefined) {
+              updateFields.hdp_point = isMatchTypeId
+                ? matchInfo.hdp2
+                : isNegative
+                  ? -matchInfo.hdp2
+                  : matchInfo.hdp2
+
+              updateFields.HDP = toPositiveNumber(matchInfo.hdp2)
+            }
+
+            if (matchInfo.odds1a !== undefined) {
+              updateFields.home_over = matchInfo.odds1a
+            }
+
+            if (matchInfo.odds2a !== undefined) {
+              updateFields.away_under = matchInfo.odds2a
+            }
+
+            // Nếu có ít nhất một field để update
+            if (Object.keys(updateFields).length > 0) {
+              Viva88Bet.update({ id: findTicket.id }, updateFields)
+            }
+          }
+
+          if (records.length > 0) {
+            insertRecords(records, Viva88Bet)
           }
         }
 
@@ -416,11 +438,8 @@ function getElapsedTime(kickoffTimestamp, liveperiod, gameType) {
 }
 
 function insertRecords(records: any, Viva88Bet: Model) {
-  // for (const record of records) {
   Viva88Bet.insertMany(records)
-  // }
   records.length = 0
-  // records.length = 0
 }
 
 function createReverseMap(obj: Record<string, number>): Record<number, string> {

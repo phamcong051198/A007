@@ -48,11 +48,16 @@ export const getResultBet_Viva88 = async (
     return `${dd}-${mm}-${yyyy}`
   }
 
+  // ✅ Tính hôm nay, hôm qua, hôm kia
   const today = new Date()
   const yesterday = new Date(today)
-  yesterday.setDate(today.getDate() - 1)
+  const dayBeforeYesterday = new Date(today)
 
-  const dates = [formatDate(today), formatDate(yesterday)]
+  yesterday.setDate(today.getDate() - 1)
+  dayBeforeYesterday.setDate(today.getDate() - 2)
+
+  // ✅ Mảng 3 ngày gần nhất
+  const dates = [formatDate(today), formatDate(yesterday), formatDate(dayBeforeYesterday)]
   const dataTypes = ['1', '2']
 
   try {

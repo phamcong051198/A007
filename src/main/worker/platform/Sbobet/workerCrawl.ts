@@ -276,7 +276,7 @@ const fnCrawlData = async (account: AccountType) => {
     }
 
     if (gameType === 'Today') {
-      DataPreset = { presetFilter: 'All', date: 'Today' }
+      DataPreset = { presetFilter: 'NonLive', date: 'Today' }
     }
 
     const variablesString = encodeURIComponent(

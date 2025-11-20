@@ -50,4 +50,3 @@ VITE_URL_SOCKET='https://be.vbsoft.vip'
 VITE_URL_RELEASES='https://upload.vbsoft.vip/bsoft/'
 VITE_URL_RELEASES_CORNERS='https://upload.vbsoft.vip/bsoft-corners/'
 ```
-

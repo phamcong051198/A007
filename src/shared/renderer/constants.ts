@@ -104,16 +104,9 @@ export const CHECK_BOX_DETAIL_SETTING = [
   { key: 'Half_Under', label: 'Half Under' }
 ]
 
-export const SPORTS_BOOK_LIST = [
-  { id: 'sports-book1', label: 'SportsBook 1' },
-  { id: 'sports-book2', label: 'SportsBook 2' },
-  { id: 'sports-book3', label: 'SportsBook 3' },
-  { id: 'sports-book4', label: 'SportsBook 4' },
-  { id: 'sports-book5', label: 'SportsBook 5' }
-]
+export const SPORTS_BOOK_LIST = [{ id: 'sports-book1', label: 'SportsBook 1' }]
 
 export const PROGRAM_SETTING_LIST = [
   { id: 'general-setting', label: 'General Settings' },
-  { id: 'account-pair', label: 'Account Pair' },
-  { id: 'language', label: 'Language' }
+  { id: 'account-pair', label: 'Account Pair' }
 ]

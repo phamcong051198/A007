@@ -110,11 +110,11 @@ function AccountInfo({ account }) {
       </div>
 
       <AlertDialog open={openModalSetting}>
-        <AlertDialogContent className="p-0  rounded-[12px] h-[515px] w-[668px] border-border-default bg-black flex flex-col gap-0">
+        <AlertDialogContent className="p-0  rounded-[12px] border-border-default bg-black flex flex-col gap-0">
           <header className="flex p-[16px] border-b border-border-default">
             <div className="ml-[16px] flex flex-col">
               <div className="flex justify-between">
-                <p className="text-lg font-semibold text-[#F7F7F7]">Account information </p>
+                <p className="text-lg font-semibold text-[#F7F7F7]">Account Information </p>
                 <button
                   className="absolute top-[6px] right-[6px] font-normal block w-9 h-9 leading-none text-[#85888E] hover:bg-gray-900 hover:rounded-full"
                   onClick={() => setOpenModalSetting(false)}
@@ -127,10 +127,9 @@ function AccountInfo({ account }) {
 
           <main className="flex-1 gap-[16px] px-[24px]">
             <div className="flex-1 py-[20px] flex border-b border-border-default">
-              <p className="w-[140px]">Account info</p>
               <div className="flex-1">
-                <div className="flex flex-col mb-[8px]">
-                  <p className="mb-[6px]">Username</p>
+                <div className="flex mb-[8px]">
+                  <p className="w-28 mb-[6px] leading-none">Username</p>
                   <input
                     className="flex-1 block bg-transparent border border-border-default rounded-lg py-[6px] px-[14px] focus:border-gray-500"
                     ref={firstInputRef}
@@ -141,8 +140,8 @@ function AccountInfo({ account }) {
                     maxLength={20}
                   />
                 </div>
-                <div>
-                  <p className="mb-[6px]">Password</p>
+                <div className="flex">
+                  <p className="w-28 mb-[6px] leading-none">Password</p>
                   <div className="flex flex-1 bg-transparent border border-border-default rounded-lg py-[6px] px-[14px] focus-within:border-gray-500">
                     <input
                       type={isPasswordVisible ? 'text' : 'password'}
@@ -164,20 +163,20 @@ function AccountInfo({ account }) {
               </div>
             </div>
 
-            <div className="flex-1 py-[20px] flex">
-              <p className="w-[140px]">Per-match limit</p>
+            <div className="flex-1 py-[15px]">
+              <p className="font-bold pb-2">Per - Match Limit</p>
               <div className="flex flex-col h-full gap-7">
-                <div className="flex">
-                  <div className="w-[96px] mr-[20px]">Limit Method</div>
+                <div>
+                  <div className="text-sm font-semibold pb-2">Limit Method</div>
                   <div>
                     <RadioGroup
                       className="flex justify-center"
                       value={formData.limitMethod}
                       onValueChange={(value) => handleInputChange('limitMethod', value)}
                     >
-                      <div className="flex flex-col gap-3">
+                      <div className="flex flex-col gap-5">
                         <div className="flex">
-                          <div className="flex w-44 items-center space-x-2">
+                          <div className="flex w-[180px] items-center space-x-2">
                             <RadioGroupItem
                               value={LIMIT_METHOD.TEAM_NAME}
                               id={LIMIT_METHOD.TEAM_NAME}
@@ -201,7 +200,7 @@ function AccountInfo({ account }) {
                         </div>
 
                         <div className="flex">
-                          <div className="flex w-44 items-center space-x-2">
+                          <div className="flex w-[180px] items-center space-x-2">
                             <RadioGroupItem
                               value={LIMIT_METHOD.NAME_BETTYPE_LIMIT}
                               id={LIMIT_METHOD.NAME_BETTYPE_LIMIT}
@@ -229,8 +228,8 @@ function AccountInfo({ account }) {
                     </RadioGroup>
                   </div>
                 </div>
-                <div className="flex">
-                  <div className="w-[96px] mr-[20px]">Limit Type</div>
+                <div>
+                  <div className="text-sm font-semibold pb-1">Limit Type</div>
                   <div className="flex-1">
                     <RadioGroup
                       className="flex"
@@ -240,21 +239,21 @@ function AccountInfo({ account }) {
                       <div className="flex flex-col gap-2">
                         {/* Total Amount */}
                         <div className="flex items-center">
-                          <div className="flex w-[204px] items-center space-x-2">
+                          <div className="flex w-[180px] items-center space-x-2">
                             <RadioGroupItem
                               value={LIMIT_TYPE.TOTAL_AMOUNT}
                               id={LIMIT_TYPE.TOTAL_AMOUNT}
                             />
                             <Label htmlFor={LIMIT_TYPE.TOTAL_AMOUNT} className="font-normal">
-                              Limit by total amount $
+                              Limit By Total Amount
                             </Label>
                           </div>
 
                           <input
-                            className={`border border-border-default w-20 block outline-none ${
+                            className={`w-[175px] bg-transparent border border-border-default rounded-lg py-[6px] pl-[14px] pr-[5px] focus:border-gray-500 ${
                               formData.limitType !== LIMIT_TYPE.TOTAL_AMOUNT
-                                ? 'bg-transparent'
-                                : 'bg-bg-gray'
+                                ? ''
+                                : 'border-gray-500'
                             }`}
                             type="number"
                             id="InputLimitByTotalAmount"
@@ -267,21 +266,19 @@ function AccountInfo({ account }) {
 
                         {/* Total Count */}
                         <div className="flex items-center">
-                          <div className="flex w-[204px] items-center space-x-2">
+                          <div className="flex w-[180px] items-center space-x-2">
                             <RadioGroupItem
                               value={LIMIT_TYPE.TOTAL_COUNT}
                               id={LIMIT_TYPE.TOTAL_COUNT}
                             />
                             <Label htmlFor={LIMIT_TYPE.TOTAL_COUNT} className="font-normal">
-                              Limit by total count
+                              Limit By Total Count
                             </Label>
                           </div>
 
                           <input
-                            className={`border border-border-default w-20 block outline-none ${
-                              formData.limitType !== LIMIT_TYPE.TOTAL_COUNT
-                                ? 'bg-transparent'
-                                : 'bg-bg-gray'
+                            className={`w-[175px] bg-transparent border border-border-default rounded-lg py-[6px] pl-[14px] pr-[5px] focus:border-gray-500 ${
+                              formData.limitType !== LIMIT_TYPE.TOTAL_COUNT ? '' : 'border-gray-500'
                             }`}
                             type="number"
                             id="InputLimitByTotalCount"
@@ -299,7 +296,7 @@ function AccountInfo({ account }) {
             </div>
           </main>
 
-          <footer className="flex gap-[16px]  p-[24px] ">
+          <footer className="flex gap-[16px] p-[24px]">
             <button
               className="flex-1 outline-none border border-border-default hover:border-gray-700 block h-[40px] font-semibold rounded-[8px]"
               onClick={() => setOpenModalSetting(false)}

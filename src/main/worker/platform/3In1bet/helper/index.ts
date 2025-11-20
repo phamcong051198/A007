@@ -6,7 +6,7 @@ export function extractBetTable(html: string): BetTableData {
   const bets: BetInfo[] = []
   const summary: Summary = { subtotalWin: '0', subtotalCom: '0', total: '0' }
 
-  $('#GV_MBBetTrans tr').each((i, row) => {
+  $('#GV_MBBetTrans tr').each((_, row) => {
     const $row = $(row)
     const $cells = $row.find('> td')
 

@@ -7,7 +7,6 @@ import SportsBookTab from '@renderer/components/SportsBook/SportsBookTab'
 import ProgramSetting from '@renderer/pages/ProgramSetting'
 import GeneralSetting from '@renderer/components/ProgramSetting/GeneralSetting'
 import AccountPair from '@renderer/components/ProgramSetting/AccountPair'
-import Language from '@renderer/components/ProgramSetting/Language'
 import BetList from '@renderer/pages/BetList'
 import WaitingList from '@renderer/pages/WaitingList'
 import ContraList from '@renderer/pages/ContraList'
@@ -33,7 +32,6 @@ function Router() {
             <Route index element={<Navigate to="general-setting" replace />} />
             <Route path="general-setting" element={<GeneralSetting />} />
             <Route path="account-pair" element={<AccountPair />} />
-            <Route path="language" element={<Language />} />
           </Route>
         </Route>
         <Route path={Path.login} element={<Login />} />

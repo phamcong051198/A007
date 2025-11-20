@@ -7,10 +7,7 @@ export default function HeaderListAccount() {
       <span className="w-[82px] inline-block text-center">Action</span>
       <span className="w-[52px] inline-block text-center">Cr</span>
       <span className="w-[62px] inline-block text-center">Bet</span>
-      <span className="w-[62px] inline-block text-center">Refresh</span>
       <span className="w-[62px] inline-block text-center">AutoLogin</span>
-      <span className="w-[62px] inline-block text-center">LockURL</span>
-      <span>Status</span>
     </div>
   )
 }

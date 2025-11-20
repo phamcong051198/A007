@@ -234,13 +234,7 @@ const AccountPlatform: React.FC<AccountPlatformProps> = ({ account, index, highl
             onChange={() => handleCheckboxChange('checkBoxBet', 'checkBet')}
             className={'w-[62px] flex items-center justify-center'}
           />
-          <CheckboxField
-            key="checkbox_refresh"
-            id={`${account.id}_checkbox_refresh`}
-            checked={accountState.checkRefresh}
-            onChange={() => handleCheckboxChange('checkBoxRefresh', 'checkRefresh')}
-            className={'w-[62px] flex items-center justify-center'}
-          />
+
           <CheckboxField
             key="checkbox_autoLogin"
             id={`${account.id}_checkbox_autoLogin`}
@@ -248,18 +242,11 @@ const AccountPlatform: React.FC<AccountPlatformProps> = ({ account, index, highl
             onChange={() => handleCheckboxChange('checkBoxAutoLogin', 'checkAutoLogin')}
             className={'w-[62px] flex items-center justify-center'}
           />
-          <CheckboxField
-            key="checkbox_lockURL"
-            id={`${account.id}_checkbox_lockURL`}
-            checked={accountState.checkLockURL}
-            onChange={() => handleCheckboxChange('checkBoxLockURL', 'checkLockURL')}
-            className={'w-[62px] flex items-center justify-center'}
-          />
         </div>
       </div>
       <div
         className={twMerge(
-          'flex-1 w-1 h-6 flex items-center justify-start overflow-hidden text-ellipsis mr-1 border border-border-default bg-black rounded-md',
+          'flex-1 w-1 h-6 flex items-center justify-start overflow-hidden text-ellipsis ml-6 mr-1 border border-border-default bg-black rounded-md',
           getLogClass
         )}
       >

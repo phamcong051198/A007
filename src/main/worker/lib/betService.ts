@@ -76,6 +76,7 @@ export const handleReBetTicket = async (
     } = await getTicket(accountInfo, ticket)
 
     if (errorCodeGetTicket === 1 || !dataGetTicket) {
+      console.log(Message)
       continue
       // return {
       //   ErrorCode: 1,

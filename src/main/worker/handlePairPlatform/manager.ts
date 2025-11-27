@@ -10,7 +10,7 @@ const activeWorkers = new Map()
 export const platformPairStatusManager = (mainWindow: BrowserWindow) => {
   const listPlatformPair = PlatformPair.findAll() as PlatformPairType[]
   const newPairs = listPlatformPair.map((item) => item.key)
-  console.log('List key PlatformPair', newPairs)
+
   newPairs.forEach((pair) => {
     if (!activeWorkers.has(pair)) {
       const worker = createWorker({ workerData: { pair } })

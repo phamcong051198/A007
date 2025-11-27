@@ -151,12 +151,6 @@ export const getTicket_3in1Bet = async (
     await accountLogToFile(
       accountInfo.platformName,
       accountInfo.loginID,
-      `Payload GetTicket: ${JSON.stringify(body)}`,
-      'BetList'
-    )
-    await accountLogToFile(
-      accountInfo.platformName,
-      accountInfo.loginID,
       `Response Ticket: ${JSON.stringify(setData)}`,
       'BetList'
     )

@@ -256,8 +256,16 @@ export const defaultColumns = [
     footer: (props: { column: { id: string } }) => props.column.id,
     size: 180,
     cell: ({ row }) => {
-      const resultBet = row?.original?.resultBet || ''
-      return <span className="px-2">{resultBet.toUpperCase()}</span>
+      const resultBetRaw = row?.original?.resultBet || ''
+      const resultBet = resultBetRaw.toUpperCase()
+
+      const isWin = resultBet === 'WIN' || resultBet === 'WON'
+
+      return (
+        <span className={`px-2 font-semibold ${isWin ? 'text-[#00FF7F]' : 'text-[#FF0000]'}`}>
+          {resultBet}
+        </span>
+      )
     }
   }
 ]

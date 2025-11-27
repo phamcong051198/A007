@@ -328,18 +328,6 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
 
     UpdatePerMatchLimit(accountStable, ticketStable)
 
-    const settingTableView = SettingTableView.findOne({ tab: 'ContraList' }) as SettingTableViewType
-    if (ticketFailed.checkContra === 0 || settingTableView.contraStrategy !== 'auto') {
-      const recordDB = BetListResult.create({ dataPair: JSON.stringify(ticketUpdate) })
-
-      ContraList.create({
-        uuid,
-        dataPair: JSON.stringify(ticketUpdate)
-      }) as WaitingSuccessContraDBType
-      port.postMessage({ type: 'ContraList', recordDB })
-      return
-    }
-
     await accountLogToFile(
       ticketFailed.platform,
       accountFailed.loginID,

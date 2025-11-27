@@ -64,6 +64,10 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
     if (settingInfo[0].enable == 1) return
 
     const { league, home, away, typeOdd, hdp_point, number } = dataCrawlPlatform1
+
+    // Loại bỏ những trận có hiệp phụ (ViVa88 có (ET) ở cuối tên đội)
+    if (dataCrawlPlatform1.nameHome.includes('(ET)')) continue
+
     if (!league || !home || !away) continue
 
     const listDataCrawlPlatform2 = Platform2_Model.findAll({
@@ -77,6 +81,9 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
 
     const dataCrawlPlatform2 = findMatchingData(listDataCrawlPlatform2, home, away)
     if (!dataCrawlPlatform2) continue
+
+    // Loại bỏ những trận có hiệp phụ (ViVa88 có (ET) ở cuối tên đội)
+    if (dataCrawlPlatform2.nameHome.includes('(ET)')) continue
 
     if (isValidData(dataCrawlPlatform2) == false) continue
 
@@ -100,7 +107,7 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
       const stat2 = dataCrawlPlatform2?.stat
 
       // Nếu 1 trong 2 stat có 'ET' (Extra Time) => bỏ qua
-      // if ([stat1, stat2].some((stat) => stat?.includes('ET'))) continue
+      if ([stat1, stat2].some((stat) => stat?.includes('ET'))) continue
 
       const stat = stat1 ?? stat2
       const type = dataCrawlPlatform1?.type ?? dataCrawlPlatform2?.type

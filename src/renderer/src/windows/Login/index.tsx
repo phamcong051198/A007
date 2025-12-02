@@ -82,14 +82,6 @@ export default function Login() {
     })
   }, [username, password, isSaveLogin])
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsSaveLogin(e.target.checked)
-    if (!e.target.checked) {
-      localStorage.removeItem('username')
-      localStorage.removeItem('password')
-    }
-  }
-
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Enter') {
@@ -105,6 +97,10 @@ export default function Login() {
 
   return (
     <div className="h-full py-[64px] px-[48px] border border-border-default">
+      <div
+        className="absolute top-0 left-0 w-full h-[40px]"
+        style={{ ['-webkit-app-region']: 'drag' } as React.CSSProperties}
+      />
       <div className="h-full">
         <div className="mb-[32px]">
           <div className="pb-[16px] flex justify-center">

@@ -19,15 +19,15 @@ export const generateTicketUpdate = (
   ) => ({
     ...data,
     bet,
-    odd,
-    info,
     betAmount_Standard: data.stake,
     company: data.platform,
     coverage: data.number === 0 ? 'FT' : 'FirstHalf',
     gameType,
-    time: formatTime(),
+    info,
+    odd,
     receiptID: '',
-    receiptStatus: ''
+    receiptStatus: '',
+    time: formatTime()
   })
 
   return [

@@ -1,16 +1,17 @@
+import { Setting } from '@db/model'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import fetch from 'node-fetch'
+
+import { TicketInfoDataBetType } from '@shared/common/types'
+import { AccountType, SettingType } from '@shared/common/types'
 
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { handleBetError, handleBetSuccess } from '@/worker/lib/handleLogBet'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
-import { Setting } from '@db/model'
-import { TicketInfoDataBetType } from '@shared/common/types'
 import {
   OddsInfoItem_TicketSbobet,
   PlaceBetResponse_Sbobet
 } from '@/worker/platform/Sbobet/common/types'
-import { AccountType, SettingType } from '@shared/common/types'
 
 export const placeBet_Sbobet = async (
   ticket: TicketInfoDataBetType,
@@ -25,12 +26,12 @@ export const placeBet_Sbobet = async (
       'BetList'
     )
     return {
-      ErrorCode: 400,
       Data: {
         info: ticket.betRejectionReason,
         receiptID: '',
         receiptStatus: ''
-      }
+      },
+      ErrorCode: 400
     }
   }
 
@@ -41,12 +42,13 @@ export const placeBet_Sbobet = async (
   } = (await bettingProcessBet__Sbobet(accountInfo, ticket, dataGetTicketInfo)) ?? {}
 
   return {
-    ErrorCode: ErrorCode_ProcessBet, // 0: Success, 1: Fail, 2: Retry
+    // 0: Success, 1: Fail, 2: Retry
     Data: {
       info: String(Info),
       receiptID,
       receiptStatus: ErrorCode_ProcessBet == 0 ? 'Success' : 'Fail'
-    }
+    },
+    ErrorCode: ErrorCode_ProcessBet
   }
 }
 
@@ -73,25 +75,26 @@ async function bettingProcessBet__Sbobet(
 
     const stake = Number(ticket.betAmount_Standard)
     const dataPost = {
-      uid: dataGetTicketInfo.uid,
-      oddsId: dataGetTicketInfo.oddsId,
+      betPage: settings[0].gameType === 'Early' ? 5 : settings[0].gameType === 'Running' ? 1 : 2,
       eventId: dataGetTicketInfo.eventId,
       liveScore: {
-        home: dataGetTicketInfo.liveHomeScore,
-        away: dataGetTicketInfo.liveAwayScore
+        away: dataGetTicketInfo.liveAwayScore,
+        home: dataGetTicketInfo.liveHomeScore
       },
-      point: dataGetTicketInfo.point,
-      option: dataGetTicketInfo.option,
       marketType: dataGetTicketInfo.marketType,
+      oddsId: dataGetTicketInfo.oddsId,
+      option: dataGetTicketInfo.option,
+      point: dataGetTicketInfo.point,
       sportType: 1,
-      betPage: settings[0].gameType === 'Early' ? 5 : settings[0].gameType === 'Running' ? 1 : 2,
       stake: stake > (dataGetTicketInfo.maxStake ?? 0) ? dataGetTicketInfo.maxStake : stake,
+      uid: dataGetTicketInfo.uid,
       voucherIdString: ''
     }
     const headersGetToken = {
       Accept: 'application/json, text/plain, */*',
       'Accept-Language': 'en-US,en;q=0.9,vi;q=0.8',
       'Content-Type': 'application/json',
+      Cookie: accountInfo.cookie,
       Origin: accountInfo.host,
       Referer: accountInfo.host,
       'Sec-Fetch-Dest': 'empty',
@@ -103,7 +106,6 @@ async function bettingProcessBet__Sbobet(
       'sec-ch-ua': '"Chromium";v="136", "Google Chrome";v="136", "Not.A/Brand";v="99"',
       'sec-ch-ua-mobile': '?0',
       'sec-ch-ua-platform': '"Windows"',
-      Cookie: accountInfo.cookie,
       ...(accountInfo.customIP ? { 'X-Forwarded-For': accountInfo.customIP } : {})
     }
 
@@ -118,8 +120,8 @@ async function bettingProcessBet__Sbobet(
       'BetList'
     )
     const resBetPlacement = await fetch(urlMultiTicket, {
-      method: 'POST',
       headers: headersGetToken,
+      method: 'POST',
       ...(proxyAgent && { agent: proxyAgent }),
       body
     })

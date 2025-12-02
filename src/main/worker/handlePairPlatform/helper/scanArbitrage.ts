@@ -35,10 +35,10 @@ function findProfitableMyArbitrage(
     isArbitrage,
     oddA_MY,
     oddB_MY,
-    stakeA,
-    stakeB,
     profitIfAWin: Number(profitIfAWin.toFixed(3)),
-    profitIfBWin: Number(profitIfBWin.toFixed(3))
+    profitIfBWin: Number(profitIfBWin.toFixed(3)),
+    stakeA,
+    stakeB
   }
 }
 

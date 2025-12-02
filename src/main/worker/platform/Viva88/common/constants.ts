@@ -6,6 +6,6 @@ export const API_ENDPOINTS = {
 
 export const gameTypeMapViva88: { [key: string]: string } = {
   Early: 'E',
-  Today: 'T',
-  Running: 'L'
+  Running: 'L',
+  Today: 'T'
 }

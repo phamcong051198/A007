@@ -1,6 +1,7 @@
 import { Account } from '@db/model'
-import { AccountType } from '@shared/common/types'
 import { BrowserWindow } from 'electron'
+
+import { AccountType } from '@shared/common/types'
 
 export function sendAccountUpdate(accountId: number, mainWindow: BrowserWindow) {
   const account = Account.findOne({ id: accountId, statusDelete: 0 }) as AccountType

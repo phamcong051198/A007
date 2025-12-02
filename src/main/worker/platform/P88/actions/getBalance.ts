@@ -1,6 +1,8 @@
-import fetch from 'node-fetch'
 import { HttpsProxyAgent } from 'https-proxy-agent'
+import fetch from 'node-fetch'
+
 import { AccountType } from '@shared/common/types'
+
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
 import { API_ENDPOINTS, buildHeadersP88Bet } from '@/worker/platform/P88/common/contants'
@@ -33,17 +35,17 @@ export const getBalanceP88bet = async (account: AccountType) => {
 
   try {
     const res = await fetch(API_ENDPOINTS.BALANCE, {
-      method: 'GET',
       headers: {
         ...buildHeadersP88Bet(account),
+        cookie: cookie,
         'x-browser-session-id': objectCookie.BrowserSessionId,
         'x-custid': objectCookie.custid,
-        'x-u': objectCookie.u,
-        'x-slid': objectCookie.SLID,
         'x-lcu': objectCookie.lcu,
-        cookie: cookie,
+        'x-slid': objectCookie.SLID,
+        'x-u': objectCookie.u,
         ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
       },
+      method: 'GET',
       ...(proxyAgent && { agent: proxyAgent })
     })
 
@@ -56,14 +58,14 @@ export const getBalanceP88bet = async (account: AccountType) => {
     )
 
     if (resData.error === 'MULTIPLE_LOGIN') {
-      return { ErrorCode: 106, Data: 'Another session logged in. Forced to logout.' }
+      return { Data: 'Another session logged in. Forced to logout.', ErrorCode: 106 }
     }
 
     if (!('betCredit' in resData)) {
-      return { ErrorCode: 107, Data: 'EXCEPTION in DoSpiderTask: Account has been logged out.' }
+      return { Data: 'EXCEPTION in DoSpiderTask: Account has been logged out.', ErrorCode: 107 }
     }
 
-    return { ErrorCode: 0, Data: String(resData.betCredit) }
+    return { Data: String(resData.betCredit), ErrorCode: 0 }
   } catch (error) {
     console.error('Error fetching account-balance P88:', error)
 
@@ -74,16 +76,16 @@ export const getBalanceP88bet = async (account: AccountType) => {
       )
     ) {
       return {
-        ErrorCode: -2,
-        Data: `Error: Client network socket disconnected before secure TLS connection was established`
+        Data: `Error: Client network socket disconnected before secure TLS connection was established`,
+        ErrorCode: -2
       }
     }
 
     return {
-      ErrorCode: -1,
       Data: `Error Res Balance: ${
         error instanceof Error ? error.message : 'Unstable network, proxy or server-side issue.'
-      }`
+      }`,
+      ErrorCode: -1
     }
   }
 }

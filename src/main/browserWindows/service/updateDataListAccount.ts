@@ -1,7 +1,9 @@
-import { handleGetDataSportsBook } from '@/browserWindows/service/handleGetDataSportsBook'
 import { Account } from '@db/model'
-import { AccountType } from '@shared/common/types'
 import { BrowserWindow } from 'electron'
+
+import { AccountType } from '@shared/common/types'
+
+import { handleGetDataSportsBook } from '@/browserWindows/service/handleGetDataSportsBook'
 
 export function updateDataListAccount(
   dataAccountInfo: AccountType[],
@@ -26,37 +28,37 @@ export function updateDataListAccount(
       Account.update(
         { id: account.id },
         {
+          checkBoxAutoLogin: 0,
+          cookie: null,
+          credit: '0',
+          customIP: account.customIP,
+          host: null,
           loginID: account.loginID,
           password: account.password,
-          credit: '0',
-          checkBoxAutoLogin: 0,
-          textLog: null,
-          statusLogin: null,
-          status: 'Login',
-          cookie: null,
-          socketUrl: null,
-          host: null,
-          customIP: account.customIP,
           proxyIP: account.proxyIP,
-          proxyPort: account.proxyPort,
-          proxyUsername: account.proxyUsername,
           proxyPassword: account.proxyPassword,
-          proxyScope: account.proxyScope
+          proxyPort: account.proxyPort,
+          proxyScope: account.proxyScope,
+          proxyUsername: account.proxyUsername,
+          socketUrl: null,
+          status: 'Login',
+          statusLogin: null,
+          textLog: null
         }
       )
     } else {
       Account.update(
         { id: account.id },
         {
-          loginID: account.loginID,
-          password: account.password,
           customIP: account.customIP,
+          loginID: account.loginID,
+          orderNumber: account.orderNumber,
+          password: account.password,
           proxyIP: account.proxyIP,
-          proxyPort: account.proxyPort,
-          proxyUsername: account.proxyUsername,
           proxyPassword: account.proxyPassword,
+          proxyPort: account.proxyPort,
           proxyScope: account.proxyScope,
-          orderNumber: account.orderNumber
+          proxyUsername: account.proxyUsername
         }
       )
     }

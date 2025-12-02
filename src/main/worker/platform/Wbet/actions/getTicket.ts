@@ -1,12 +1,13 @@
 import { HttpsProxyAgent } from 'https-proxy-agent'
 
-import { accountLogToFile } from '@/worker/lib/accountLogToFile'
-import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
+import { OVER } from '@shared/common/constants'
 import { TicketInfoDataBetType } from '@shared/common/types'
 import { AccountType } from '@shared/common/types'
-import { OVER } from '@shared/common/constants'
-import { buildBodyBalance, fetchJsonWithDecompress } from '@/worker/platform/Wbet/helper'
+
+import { accountLogToFile } from '@/worker/lib/accountLogToFile'
+import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
 import { API_ENDPOINTS, BET_TYPE_MAP, ODDS_COL_MAP } from '@/worker/platform/Wbet/common/constants'
+import { buildBodyBalance, fetchJsonWithDecompress } from '@/worker/platform/Wbet/helper'
 
 export const getTicket_WBet = async (accountInfo: AccountType, ticket: TicketInfoDataBetType) => {
   if (!ticket.isBetAllowed) {
@@ -17,12 +18,12 @@ export const getTicket_WBet = async (accountInfo: AccountType, ticket: TicketInf
       'BetList'
     )
     return {
+      Data: null,
       ErrorCode: 400,
-      Message: 'No Bet By User',
-      Hdp_point: ticket.hdp_point,
       HDP: ticket.HDP,
-      Odds: 0,
-      Data: null
+      Hdp_point: ticket.hdp_point,
+      Message: 'No Bet By User',
+      Odds: 0
     }
   }
   await accountLogToFile(accountInfo.platformName, accountInfo.loginID, '', 'BetList')
@@ -63,20 +64,20 @@ export const getTicket_WBet = async (accountInfo: AccountType, ticket: TicketInf
     const oddValue = Number(ticket.odd)
 
     const body = JSON.stringify({
-      sports_type: 1,
-      odds_type: 1,
       account_id: accountInfo.loginID,
-      session_token: accountInfo.cookie,
-      parlay: false,
-      odds_id: ticket.altLineId,
-      submatch_id: ticket.submatch_id,
-      bet_type,
-      bet_team_id,
-      home_away,
-      odds_display: oddValue,
-      odds_mo: oddValue / 0.1,
       ball_display: ticket.HDP,
-      odds_col
+      bet_team_id,
+      bet_type,
+      home_away,
+      odds_col,
+      odds_display: oddValue,
+      odds_id: ticket.altLineId,
+      odds_mo: oddValue / 0.1,
+      odds_type: 1,
+      parlay: false,
+      session_token: accountInfo.cookie,
+      sports_type: 1,
+      submatch_id: ticket.submatch_id
     })
 
     await accountLogToFile(
@@ -87,13 +88,13 @@ export const getTicket_WBet = async (accountInfo: AccountType, ticket: TicketInf
     )
     const [dataBalance, dataGetTicket] = await Promise.all([
       await fetchJsonWithDecompress(API_ENDPOINTS.BALANCE, accountInfo, {
-        method: 'POST',
         body: JSON.stringify(buildBodyBalance(accountInfo)),
+        method: 'POST',
         ...(proxyAgent && { agent: proxyAgent })
       }),
       await fetchJsonWithDecompress(API_ENDPOINTS.BET_CHECK, accountInfo, {
-        method: 'POST',
         body,
+        method: 'POST',
         ...(proxyAgent && { agent: proxyAgent })
       })
     ])
@@ -110,12 +111,12 @@ export const getTicket_WBet = async (accountInfo: AccountType, ticket: TicketInf
       )
 
       return {
+        Data: null,
         ErrorCode: 1,
-        Message: `Error: Credit currently [${dataBalance.balance}] less than bet amount setting [${ticket.betAmount_Standard}]`,
-        Hdp_point: ticket.hdp_point,
         HDP: ticket.HDP,
-        Odds: 0,
-        Data: null
+        Hdp_point: ticket.hdp_point,
+        Message: `Error: Credit currently [${dataBalance.balance}] less than bet amount setting [${ticket.betAmount_Standard}]`,
+        Odds: 0
       }
     }
 
@@ -134,12 +135,12 @@ export const getTicket_WBet = async (accountInfo: AccountType, ticket: TicketInf
         'BetList'
       )
       return {
+        Data: null,
         ErrorCode: 1,
-        Message: 'Error: Get Ticket invalidOdds (313)',
-        Hdp_point: ticket.hdp_point,
         HDP: ticket.HDP,
-        Odds: 0,
-        Data: null
+        Hdp_point: ticket.hdp_point,
+        Message: 'Error: Get Ticket invalidOdds (313)',
+        Odds: 0
       }
     }
 
@@ -159,12 +160,12 @@ export const getTicket_WBet = async (accountInfo: AccountType, ticket: TicketInf
         )
 
         return {
+          Data: null,
           ErrorCode: 1,
-          Message: `Error: Bet Amount [${ticket.betAmount_Standard}] less than Min Bet [${min_bet}]`,
-          Hdp_point: ticket.hdp_point,
           HDP: ticket.HDP,
-          Odds: 0,
-          Data: null
+          Hdp_point: ticket.hdp_point,
+          Message: `Error: Bet Amount [${ticket.betAmount_Standard}] less than Min Bet [${min_bet}]`,
+          Odds: 0
         }
       }
 
@@ -177,22 +178,22 @@ export const getTicket_WBet = async (accountInfo: AccountType, ticket: TicketInf
         )
 
         return {
+          Data: null,
           ErrorCode: 1,
-          Message: `Error: Bet Amount [${ticket.betAmount_Standard}] more than Max Bet [${max_bet}]`,
-          Hdp_point: ticket.hdp_point,
           HDP: ticket.HDP,
-          Odds: 0,
-          Data: null
+          Hdp_point: ticket.hdp_point,
+          Message: `Error: Bet Amount [${ticket.betAmount_Standard}] more than Max Bet [${max_bet}]`,
+          Odds: 0
         }
       }
 
       return {
+        Data: dataGetTicket,
         ErrorCode: 0,
-        Message: odds_change ? 'ODDS_CHANGE' : 'OK',
-        Hdp_point: ticket.hdp_point,
         HDP: ticket.HDP,
-        Odds: odds_change ? Number(odds_display_new) : ticket.odd,
-        Data: dataGetTicket
+        Hdp_point: ticket.hdp_point,
+        Message: odds_change ? 'ODDS_CHANGE' : 'OK',
+        Odds: odds_change ? Number(odds_display_new) : ticket.odd
       }
     } else {
       throw new Error(`Error: ${dataGetTicket.statusdesc || 'Unknown error'}`)
@@ -210,12 +211,12 @@ export const getTicket_WBet = async (accountInfo: AccountType, ticket: TicketInf
       'BetList'
     )
     return {
+      Data: null,
       ErrorCode: 1,
-      Message: `Error: Get Ticket Fail ${error instanceof Error ? error.message : 'Unknown Error'}`,
-      Hdp_point: ticket.hdp_point,
       HDP: ticket.HDP,
-      Odds: 0,
-      Data: null
+      Hdp_point: ticket.hdp_point,
+      Message: `Error: Get Ticket Fail ${error instanceof Error ? error.message : 'Unknown Error'}`,
+      Odds: 0
     }
   }
 }

@@ -1,8 +1,10 @@
-import { formatTime } from '@/worker/lib/formatTime'
-import { validateSettingAccountPairBeforeBet } from '@/worker/lib/validateSettingAccountPairBeforeBet'
 import { AccountPairDBType } from '@db/schema/accountPair'
+
 import { AccountSettingType } from '@shared/common/types'
 import { DataPairPlatformType } from '@shared/common/types'
+
+import { formatTime } from '@/worker/lib/formatTime'
+import { validateSettingAccountPairBeforeBet } from '@/worker/lib/validateSettingAccountPairBeforeBet'
 
 export const handleCombinationWithDataTicket = async (
   arrDataBet: { idAccountPair: string; dataPair: string }[][],
@@ -44,26 +46,26 @@ export const handleCombinationWithDataTicket = async (
 
       return {
         ...account.ticket,
-        checkOdd: setting.checkOdd,
-        oddFrom: setting.oddFrom,
-        oddTo: setting.oddTo,
-        checkContra: setting.contra,
-        isBetAllowed,
-        betRejectionReason,
-        idAccount: account.info.id,
         betAmount_Standard: account.ticket.stake,
+        betRejectionReason,
+        checkContra: setting.contra,
+        checkOdd: setting.checkOdd,
         company,
         coverage,
         gameType,
-        time: formatTime(),
+        idAccount: account.info.id,
         info: '',
+        isBetAllowed,
+        oddFrom: setting.oddFrom,
+        oddTo: setting.oddTo,
         receiptID: '',
-        receiptStatus: ''
+        receiptStatus: '',
+        time: formatTime()
       }
     })
   ].map((pair) => ({
-    idAccountPair: accountPair.id,
-    dataPair: JSON.stringify(pair)
+    dataPair: JSON.stringify(pair),
+    idAccountPair: accountPair.id
   }))
 
   arrDataBet.push(dataTicketBet)

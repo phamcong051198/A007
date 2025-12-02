@@ -1,5 +1,6 @@
+import { createContext, useEffect, useState } from 'react'
+
 import { SettingType } from '@shared/common/types'
-import { createContext, SetStateAction, useEffect, useState } from 'react'
 
 interface SchedulerContextType {
   oddsTypeSetting: {
@@ -38,8 +39,8 @@ export const SettingProvider = ({ children }) => {
   }, [])
 
   const contextValue: SchedulerContextType = {
-    oddsTypeSetting: { profitMin, setProfitMin, profitMax, setProfitMax },
-    gameType: { gameType, setGameType }
+    gameType: { gameType, setGameType },
+    oddsTypeSetting: { profitMax, profitMin, setProfitMax, setProfitMin }
   }
 
   return <SettingContext.Provider value={contextValue}>{children}</SettingContext.Provider>

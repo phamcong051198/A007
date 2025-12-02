@@ -1,17 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import fetch from 'node-fetch'
+import { MessagePort } from 'worker_threads'
+import { parentPort } from 'worker_threads'
+
+import { Account, Setting } from '@db/model'
 import FormData from 'form-data'
 import { HttpsProxyAgent } from 'https-proxy-agent'
+import fetch from 'node-fetch'
 
-import { MessagePort } from 'worker_threads'
-import { Account, Setting } from '@db/model'
 import { AccountType, SettingType } from '@shared/common/types'
-import { parentPort } from 'worker_threads'
-import { buildHeaders, getXsrfToken, handleLoginFail } from '@/worker/platform/Sbobet/helper'
 import { OPTIONS_PROXY, STATUS_ACCOUNT, STATUS_LOGIN } from '@shared/main/constants'
-import { AccountBalanceResponse } from '@/worker/platform/Sbobet/common/constants'
-import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
+
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
+import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
+import { AccountBalanceResponse } from '@/worker/platform/Sbobet/common/constants'
+import { buildHeaders, getXsrfToken, handleLoginFail } from '@/worker/platform/Sbobet/helper'
 
 const port = parentPort
 if (!port) throw new Error('IllegalState')
@@ -96,13 +98,13 @@ async function loginToSbobet(port: MessagePort, account: AccountType) {
       : undefined
 
   port?.postMessage({
-    type: 'DataUpdateAccount',
     data: Account.update(
       { id: account.id },
       {
         textLog: `Verifying login information`
       }
-    )
+    ),
+    type: 'DataUpdateAccount'
   })
 
   await accountLogToFile(account.platformName, account.loginID, `Verifying login`, 'Program')
@@ -123,13 +125,13 @@ async function loginToSbobet(port: MessagePort, account: AccountType) {
   }
 
   port?.postMessage({
-    type: 'DataUpdateAccount',
     data: Account.update(
       { id: account.id },
       {
         textLog: `Init homepage success`
       }
-    )
+    ),
+    type: 'DataUpdateAccount'
   })
   await accountLogToFile(
     account.platformName,
@@ -148,13 +150,13 @@ async function loginToSbobet(port: MessagePort, account: AccountType) {
     throw new Error('No redirect location found in response')
   }
   port?.postMessage({
-    type: 'DataUpdateAccount',
     data: Account.update(
       { id: account.id },
       {
         textLog: `Get product success`
       }
-    )
+    ),
+    type: 'DataUpdateAccount'
   })
   await accountLogToFile(
     account.platformName,
@@ -178,13 +180,13 @@ async function loginToSbobet(port: MessagePort, account: AccountType) {
     throw new Error('No redirect location found in response')
   }
   port?.postMessage({
-    type: 'DataUpdateAccount',
     data: Account.update(
       { id: account.id },
       {
         textLog: `Get authorize success`
       }
-    )
+    ),
+    type: 'DataUpdateAccount'
   })
   await accountLogToFile(
     account.platformName,
@@ -205,13 +207,13 @@ async function loginToSbobet(port: MessagePort, account: AccountType) {
   const xsrfToken = getXsrfToken(setCookie)
 
   port?.postMessage({
-    type: 'DataUpdateAccount',
     data: Account.update(
       { id: account.id },
       {
         textLog: `Get xsrf-token success`
       }
-    )
+    ),
+    type: 'DataUpdateAccount'
   })
   await accountLogToFile(
     account.platformName,
@@ -229,9 +231,9 @@ async function loginToSbobet(port: MessagePort, account: AccountType) {
   form.append('DeviceType', '0')
 
   const response6 = await fetchWithSession(url6, {
-    method: 'POST',
-    headers: buildHeaders(account, { 'X-Xsrf-Token': xsrfToken }),
     body: form,
+    headers: buildHeaders(account, { 'X-Xsrf-Token': xsrfToken }),
+    method: 'POST',
     redirect: 'manual'
   })
 
@@ -246,13 +248,13 @@ async function loginToSbobet(port: MessagePort, account: AccountType) {
   }
 
   port?.postMessage({
-    type: 'DataUpdateAccount',
     data: Account.update(
       { id: account.id },
       {
         textLog: `Request login success`
       }
-    )
+    ),
+    type: 'DataUpdateAccount'
   })
   await accountLogToFile(
     account.platformName,
@@ -297,13 +299,13 @@ async function loginToSbobet(port: MessagePort, account: AccountType) {
     throw new Error('No redirect location found in response')
   }
   port?.postMessage({
-    type: 'DataUpdateAccount',
     data: Account.update(
       { id: account.id },
       {
         textLog: `Get customer-info success`
       }
-    )
+    ),
+    type: 'DataUpdateAccount'
   })
   await accountLogToFile(
     account.platformName,
@@ -332,22 +334,22 @@ async function loginToSbobet(port: MessagePort, account: AccountType) {
 
   const setting = Setting.findAll()[0] as SettingType
   port?.postMessage({
-    type: 'DataUpdateAccount',
     data: Account.update(
       { id: account.id },
       {
+        checkBoxAutoLogin: 1,
         checkBoxBet: 1,
         checkBoxRefresh: 1,
-        checkBoxAutoLogin: 1,
-        typeCrawl: setting.gameType,
-        credit,
         cookie: globalCookie,
+        credit,
+        host: 'https://sportsbook.sbobet.com/',
         status: STATUS_ACCOUNT.LOGOUT,
         statusLogin: STATUS_LOGIN.SUCCESS,
         textLog: `Login ${account.loginID} successfully!`,
-        host: 'https://sportsbook.sbobet.com/'
+        typeCrawl: setting.gameType
       }
-    )
+    ),
+    type: 'DataUpdateAccount'
   })
   await accountLogToFile(account.platformName, account.loginID, `Login successful`, 'Program')
 

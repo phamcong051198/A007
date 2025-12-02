@@ -1,11 +1,12 @@
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import fetch from 'node-fetch'
 
+import { TicketInfoDataBetType } from '@shared/common/types'
+import { AccountType } from '@shared/common/types'
+
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
-import { TicketInfoDataBetType } from '@shared/common/types'
 import { OddsInfoItem_TicketSbobet, TypeTicket_Sbobet } from '@/worker/platform/Sbobet/common/types'
-import { AccountType } from '@shared/common/types'
 
 export const getTicket_Sbobet = async (accountInfo: AccountType, ticket: TicketInfoDataBetType) => {
   if (!ticket.isBetAllowed) {
@@ -16,12 +17,12 @@ export const getTicket_Sbobet = async (accountInfo: AccountType, ticket: TicketI
       'BetList'
     )
     return {
+      Data: null,
       ErrorCode: 400,
-      Message: 'No Bet By User',
-      Hdp_point: ticket.hdp_point,
       HDP: ticket.HDP,
-      Odds: 0,
-      Data: null
+      Hdp_point: ticket.hdp_point,
+      Message: 'No Bet By User',
+      Odds: 0
     }
   }
   await accountLogToFile(accountInfo.platformName, accountInfo.loginID, '', 'BetList')
@@ -52,17 +53,18 @@ export const getTicket_Sbobet = async (accountInfo: AccountType, ticket: TicketI
 
     const dataPost = {
       eventId: ticket.idEvent,
-      oddsId: ticket.altLineId,
+      isLive: ticket.betType === 1 ? true : false,
       marketType: ticket.specialOdd,
+      oddsId: ticket.altLineId,
       option: ticket.bet === ticket.nameHome || ticket.bet === 'Over' ? 'h' : 'a',
-      sportType: 1,
-      isLive: ticket.betType === 1 ? true : false
+      sportType: 1
     }
 
     const headersGetToken = {
       Accept: 'application/json, text/plain, */*',
       'Accept-Language': 'en-US,en;q=0.9,vi;q=0.8',
       'Content-Type': 'application/json',
+      Cookie: accountInfo.cookie,
       Origin: accountInfo.host,
       Referer: accountInfo.host,
       'Sec-Fetch-Dest': 'empty',
@@ -74,7 +76,6 @@ export const getTicket_Sbobet = async (accountInfo: AccountType, ticket: TicketI
       'sec-ch-ua': '"Chromium";v="136", "Google Chrome";v="136", "Not.A/Brand";v="99"',
       'sec-ch-ua-mobile': '?0',
       'sec-ch-ua-platform': '"Windows"',
-      Cookie: accountInfo.cookie,
       ...(accountInfo.customIP ? { 'X-Forwarded-For': accountInfo.customIP } : {})
     }
 
@@ -82,8 +83,8 @@ export const getTicket_Sbobet = async (accountInfo: AccountType, ticket: TicketI
 
     const body = JSON.stringify(dataPost)
     const response = await fetch(urlMultiTicket, {
-      method: 'POST',
       headers: headersGetToken,
+      method: 'POST',
       ...(proxyAgent && { agent: proxyAgent }),
       body
     })
@@ -103,12 +104,12 @@ export const getTicket_Sbobet = async (accountInfo: AccountType, ticket: TicketI
         'BetList'
       )
       return {
+        Data: null,
         ErrorCode: 1,
-        Message: `Error: Get MultiTicket Fail`,
-        Hdp_point: ticket.hdp_point,
         HDP: ticket.HDP,
-        Odds: 0,
-        Data: null
+        Hdp_point: ticket.hdp_point,
+        Message: `Error: Get MultiTicket Fail`,
+        Odds: 0
       }
     }
 
@@ -121,12 +122,12 @@ export const getTicket_Sbobet = async (accountInfo: AccountType, ticket: TicketI
       )
 
       return {
+        Data: null,
         ErrorCode: 1,
-        Message: `Error: Credit currently [${dataMultiTicket.balance}] less than bet amount setting [${ticket.betAmount_Standard}]`,
-        Hdp_point: ticket.hdp_point,
         HDP: ticket.HDP,
-        Odds: 0,
-        Data: null
+        Hdp_point: ticket.hdp_point,
+        Message: `Error: Credit currently [${dataMultiTicket.balance}] less than bet amount setting [${ticket.betAmount_Standard}]`,
+        Odds: 0
       }
     }
 
@@ -139,12 +140,12 @@ export const getTicket_Sbobet = async (accountInfo: AccountType, ticket: TicketI
       )
 
       return {
+        Data: null,
         ErrorCode: 1,
-        Message: `Error: Bet Amount [${ticket.betAmount_Standard}] less than Min Bet [${dataMultiTicket.minBet}]`,
-        Hdp_point: ticket.hdp_point,
         HDP: ticket.HDP,
-        Odds: 0,
-        Data: null
+        Hdp_point: ticket.hdp_point,
+        Message: `Error: Bet Amount [${ticket.betAmount_Standard}] less than Min Bet [${dataMultiTicket.minBet}]`,
+        Odds: 0
       }
     }
 
@@ -153,19 +154,19 @@ export const getTicket_Sbobet = async (accountInfo: AccountType, ticket: TicketI
     const dataGetOdds = {
       ...oddInfo,
       eventId: ticket.idEvent,
-      minStake: dataMultiTicket.minBet,
-      maxStake: dataMultiTicket.maxBet,
       marketType: ticket.specialOdd,
+      maxStake: dataMultiTicket.maxBet,
+      minStake: dataMultiTicket.minBet,
       option: dataPost.option
     } as OddsInfoItem_TicketSbobet
 
     return {
+      Data: dataGetOdds,
       ErrorCode: 0,
-      Message: Number(ticket?.odd) === Number(oddInfo.price) ? 'OK' : 'ODDS_CHANGE',
-      Hdp_point: ticket.hdp_point,
       HDP: ticket.HDP,
-      Odds: oddInfo.price,
-      Data: dataGetOdds
+      Hdp_point: ticket.hdp_point,
+      Message: Number(ticket?.odd) === Number(oddInfo.price) ? 'OK' : 'ODDS_CHANGE',
+      Odds: oddInfo.price
     }
   } catch (error) {
     console.log(
@@ -180,12 +181,12 @@ export const getTicket_Sbobet = async (accountInfo: AccountType, ticket: TicketI
       'BetList'
     )
     return {
+      Data: null,
       ErrorCode: 1,
-      Message: `Error: Get Ticket Fail ${error instanceof Error ? error.message : 'Unknown Error'}`,
-      Hdp_point: ticket.hdp_point,
       HDP: ticket.HDP,
-      Odds: 0,
-      Data: null
+      Hdp_point: ticket.hdp_point,
+      Message: `Error: Get Ticket Fail ${error instanceof Error ? error.message : 'Unknown Error'}`,
+      Odds: 0
     }
   }
 }

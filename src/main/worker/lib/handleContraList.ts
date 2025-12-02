@@ -1,6 +1,7 @@
 import { clearTable, ContraList, SettingTableView } from '@db/model'
-import { SettingTableViewType } from '@shared/common/types'
 import { BrowserWindow } from 'electron'
+
+import { SettingTableViewType } from '@shared/common/types'
 
 async function handleContraList(recordDB, mainWindow: BrowserWindow): Promise<void> {
   const SettingTableViewContraList = SettingTableView.findOne({

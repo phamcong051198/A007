@@ -1,9 +1,10 @@
-import fetch, { Response } from 'node-fetch'
 import { HttpsProxyAgent } from 'https-proxy-agent'
+import fetch, { Response } from 'node-fetch'
+
+import { AccountType } from '@shared/common/types'
 
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
-import { AccountType } from '@shared/common/types'
 
 /**
  * Build HTTP headers for Sbobet API
@@ -13,6 +14,7 @@ function buildHeaders(account: AccountType, cookieString?: string) {
     Accept: 'application/json, text/plain, */*',
     'Accept-Language': 'en-US,en;q=0.9,vi;q=0.8',
     Connection: 'keep-alive',
+    Cookie: cookieString ?? account.cookie,
     Referer: account.host,
     'Sec-Fetch-Dest': 'empty',
     'Sec-Fetch-Mode': 'cors',
@@ -22,7 +24,6 @@ function buildHeaders(account: AccountType, cookieString?: string) {
     'sec-ch-ua': '"Chromium";v="136", "Google Chrome";v="136", "Not.A/Brand";v="99"',
     'sec-ch-ua-mobile': '?0',
     'sec-ch-ua-platform': '"Windows"',
-    Cookie: cookieString ?? account.cookie,
     ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
   }
 }
@@ -35,14 +36,14 @@ async function parseResponse(response: Response) {
 
   if (contentType?.includes('application/json')) {
     try {
-      return { ok: true, data: await response.json() }
+      return { data: await response.json(), ok: true }
     } catch {
-      return { ok: false, error: { ErrorCode: -5, Data: 'Error parsing JSON' } }
+      return { error: { Data: 'Error parsing JSON', ErrorCode: -5 }, ok: false }
     }
   }
 
   const text = await response.text()
-  return { ok: false, error: { ErrorCode: -4, Data: `Invalid JSON response: ${text}` } }
+  return { error: { Data: `Invalid JSON response: ${text}`, ErrorCode: -4 }, ok: false }
 }
 
 export async function getBalanceSbobet(account: AccountType, cookieString?: string) {
@@ -58,8 +59,8 @@ export async function getBalanceSbobet(account: AccountType, cookieString?: stri
   try {
     const headers = buildHeaders(account, cookieString)
     const response = await fetch('https://api-home.sbobet.com/api/user/GetBalance', {
-      method: 'POST',
       headers,
+      method: 'POST',
       ...(proxyAgent && { agent: proxyAgent })
     })
 
@@ -76,13 +77,13 @@ export async function getBalanceSbobet(account: AccountType, cookieString?: stri
     )
 
     if (result.error === 'MULTIPLE_LOGIN') {
-      return { ErrorCode: 106, Data: 'Another session logged in. Forced to logout.' }
+      return { Data: 'Another session logged in. Forced to logout.', ErrorCode: 106 }
     }
     if (!('betCredit' in result)) {
-      return { ErrorCode: 107, Data: `Not betCredit response: ${JSON.stringify(result)}` }
+      return { Data: `Not betCredit response: ${JSON.stringify(result)}`, ErrorCode: 107 }
     }
 
-    return { ErrorCode: 0, Data: result.betCredit }
+    return { Data: result.betCredit, ErrorCode: 0 }
   } catch (error) {
     console.error('Error fetching account-balance Sbobet:', error)
 
@@ -93,16 +94,16 @@ export async function getBalanceSbobet(account: AccountType, cookieString?: stri
       )
     ) {
       return {
-        ErrorCode: -2,
-        Data: 'Error: TLS connection could not be established (proxy/network issue)'
+        Data: 'Error: TLS connection could not be established (proxy/network issue)',
+        ErrorCode: -2
       }
     }
 
     return {
-      ErrorCode: -1,
       Data: `Error Res Balance: ${
         error instanceof Error ? error.message : 'Unstable network, proxy or server-side issue.'
-      }`
+      }`,
+      ErrorCode: -1
     }
   }
 }

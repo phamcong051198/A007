@@ -1,4 +1,5 @@
 import { Account } from '@db/model'
+
 import { AccountType } from '@shared/common/types'
 
 export const findValidAccount = (id: number): AccountType | null => {

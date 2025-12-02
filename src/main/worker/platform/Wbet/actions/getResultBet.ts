@@ -1,9 +1,11 @@
-import fetch from 'node-fetch'
+import { SuccessList } from '@db/model'
 import { HttpsProxyAgent } from 'https-proxy-agent'
+import fetch from 'node-fetch'
+
 import { AccountType, WaitingSuccessContraDBType } from '@shared/common/types'
+
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
 import { ResultCancelType, ResultType } from '@/worker/platform/Wbet/common/types'
-import { SuccessList } from '@db/model'
 
 // ======= Utils =======
 
@@ -19,13 +21,13 @@ const buildProxyAgent = (account: AccountType) => {
 
 const buildHeaders = (account: AccountType) => ({
   Accept: 'application/json, text/plain, */*',
+  'Accept-Language': 'vi,en-US;q=0.9,en;q=0.8,ko;q=0.7',
   'Content-Type': 'application/json;charset=UTF-8',
   Origin: 'https://true88.com',
   Referer: 'https://true88.com/',
+  'Sec-Fetch-Mode': 'cors',
   'User-Agent':
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
-  'Accept-Language': 'vi,en-US;q=0.9,en;q=0.8,ko;q=0.7',
-  'Sec-Fetch-Mode': 'cors',
   ...(account?.customIP ? { 'X-Forwarded-For': account.customIP } : {})
 })
 
@@ -63,8 +65,8 @@ export const getResultBet_WBet = async (
   const headers = buildHeaders(account)
 
   const baseOptions = {
-    method: 'POST',
     headers,
+    method: 'POST',
     ...(proxyAgent && { agent: proxyAgent })
   }
 
@@ -79,12 +81,12 @@ export const getResultBet_WBet = async (
 
   const bodyResult = JSON.stringify({
     account_id: account.loginID,
-    session_token: account.cookie,
-    start_date,
-    end_date,
     category_type: 'sportsbook',
+    end_date,
     page_number: 1,
-    page_size: '100'
+    page_size: '100',
+    session_token: account.cookie,
+    start_date
   })
 
   try {
@@ -109,10 +111,10 @@ export const getResultBet_WBet = async (
       const working_date = formatDate(date)
       const bodyCancelled = JSON.stringify({
         account_id: account.loginID,
-        session_token: account.cookie,
-        working_date,
         page_number: 1,
-        page_size: '100'
+        page_size: '100',
+        session_token: account.cookie,
+        working_date
       })
 
       try {

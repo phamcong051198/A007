@@ -1,18 +1,19 @@
-import fetch from 'node-fetch'
-import { HttpsProxyAgent } from 'https-proxy-agent'
-
-import { accountLogToFile } from '@/worker/lib/accountLogToFile'
-import { toQueryString } from '@/worker/lib/toQueryString'
-import { SPREAD } from '@shared/common/constants'
-import { AccountType, DataCrawlType } from '@shared/common/types'
-import { loginCheckin_Viva88Bet } from '@/worker/platform/Viva88/actions/loginCheckin'
 import { createModel } from '@db/model'
 import dataCrawlByPlatformSchema from '@db/schema/dataCrawlByPlatform'
-import { toPositiveNumber } from '@/worker/lib/toPositiveNumber'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+import fetch from 'node-fetch'
+
+import { SPREAD } from '@shared/common/constants'
 import { CONVERT_HDP } from '@shared/common/constants'
-import { TypeGetTickets_Viva88 } from '@/worker/platform/Viva88/common/types'
+import { AccountType, DataCrawlType } from '@shared/common/types'
 import { TicketInfoDataBetType } from '@shared/common/types'
+
+import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
+import { toPositiveNumber } from '@/worker/lib/toPositiveNumber'
+import { toQueryString } from '@/worker/lib/toQueryString'
+import { loginCheckin_Viva88Bet } from '@/worker/platform/Viva88/actions/loginCheckin'
+import { TypeGetTickets_Viva88 } from '@/worker/platform/Viva88/common/types'
 import { configHeaders } from '@/worker/platform/Viva88/helper'
 
 export async function getTicket_Viva88Bet(accountInfo: AccountType, ticket: TicketInfoDataBetType) {
@@ -24,12 +25,12 @@ export async function getTicket_Viva88Bet(accountInfo: AccountType, ticket: Tick
       'BetList'
     )
     return {
+      Data: null,
       ErrorCode: 400,
-      Message: 'No Bet By User',
-      Hdp_point: ticket.hdp_point,
       HDP: ticket.HDP,
-      Odds: 0,
-      Data: null
+      Hdp_point: ticket.hdp_point,
+      Message: 'No Bet By User',
+      Odds: 0
     }
   }
   await accountLogToFile(accountInfo.platformName, accountInfo.loginID, '', 'BetList')
@@ -56,12 +57,12 @@ export async function getTicket_Viva88Bet(accountInfo: AccountType, ticket: Tick
 
   if (ErrorCode !== 0) {
     return {
+      Data: null,
       ErrorCode: 1,
-      Message: Data,
-      Hdp_point: ticket.hdp_point,
       HDP: ticket.HDP,
-      Odds: 0,
-      Data: null
+      Hdp_point: ticket.hdp_point,
+      Message: Data,
+      Odds: 0
     }
   }
 
@@ -102,39 +103,39 @@ export async function getTicket_Viva88Bet(accountInfo: AccountType, ticket: Tick
     }
     const itemList = [
       {
-        Type: 'OU',
+        AcceptBetterOdds: 'true',
+        Ascore: '',
+        Away: nameAway,
+        Betteam: bet === 'Under' || bet === nameAway ? 'a' : 'h',
         Bettype: betType,
-        Oddsid: altLineId + '',
-        Odds: odd + '',
-        Line: line + '',
+        ChoiceValue: bet + '',
+        Gameid: '1',
         Hdp1: hdp1 + '',
         Hdp2: hdp2 + '',
-        Hscore: '',
-        Ascore: '',
-        Betteam: bet === 'Under' || bet === nameAway ? 'a' : 'h',
-        Stake: '',
-        Matchid: idEvent + '',
-        ChoiceValue: bet + '',
-        SrcOddsInfo: '',
         Home: nameHome,
-        Away: nameAway,
-        Gameid: '1',
+        Hscore: '',
+        IsInPlay: 'false',
+        Line: line + '',
+        MMR: '',
+        Matchid: idEvent + '',
+        Odds: odd + '',
+        Oddsid: altLineId + '',
         ProgramID: '',
         RaceNum: '0',
         Runner: '0',
-        AcceptBetterOdds: 'true',
+        SrcOddsInfo: '',
+        Stake: '',
+        Type: 'OU',
         isQuickBet: 'false',
         isTablet: 'false',
-        IsInPlay: 'false',
-        parentMatchId: '0',
-        MMR: ''
+        parentMatchId: '0'
       }
     ]
     const additionalParams = {
-      lastReq: `${Math.floor(Date.now() / 1000)}`,
+      LicUserName: '',
       OddsType: '4',
       WebSkinType: '3',
-      LicUserName: ''
+      lastReq: `${Math.floor(Date.now() / 1000)}`
     }
 
     const bodyGetTickets = toQueryString(itemList, additionalParams)
@@ -148,13 +149,13 @@ export async function getTicket_Viva88Bet(accountInfo: AccountType, ticket: Tick
 
     const [resBalance, resGetTickets] = await Promise.all([
       fetch(urlBalance, {
-        method: 'POST',
         headers: { ...configHeaders(accountInfo), Authorization: `bearer ${Data}` },
+        method: 'POST',
         ...(proxyAgent && { agent: proxyAgent })
       }),
       fetch(urlGetTickets, {
-        method: 'POST',
         headers: { ...configHeaders(accountInfo), Authorization: `bearer ${Data}` },
+        method: 'POST',
         ...(proxyAgent && { agent: proxyAgent }),
         body: bodyGetTickets
       })
@@ -174,12 +175,12 @@ export async function getTicket_Viva88Bet(accountInfo: AccountType, ticket: Tick
       )
 
       return {
+        Data: null,
         ErrorCode: 1,
-        Message: `Error: Credit currently [${resDataBalance.Data.BCredit}] less than bet amount setting [${ticket.betAmount_Standard}]`,
-        Hdp_point: ticket.hdp_point,
         HDP: ticket.HDP,
-        Odds: 0,
-        Data: null
+        Hdp_point: ticket.hdp_point,
+        Message: `Error: Credit currently [${resDataBalance.Data.BCredit}] less than bet amount setting [${ticket.betAmount_Standard}]`,
+        Odds: 0
       }
     }
 
@@ -199,12 +200,12 @@ export async function getTicket_Viva88Bet(accountInfo: AccountType, ticket: Tick
         'BetList'
       )
       return {
+        Data: null,
         ErrorCode: 1,
-        Message: 'Error: Get Ticket Fail',
-        Hdp_point: ticket.hdp_point,
         HDP: ticket.HDP,
-        Odds: 0,
-        Data: null
+        Hdp_point: ticket.hdp_point,
+        Message: 'Error: Get Ticket Fail',
+        Odds: 0
       }
     } else if (dataGetTickets.Data[0].Code == 6) {
       await accountLogToFile(
@@ -214,12 +215,12 @@ export async function getTicket_Viva88Bet(accountInfo: AccountType, ticket: Tick
         'BetList'
       )
       return {
+        Data: null,
         ErrorCode: 1,
-        Message: `Error: ${dataGetTickets.Data[0].Message} `,
-        Hdp_point: ticket.hdp_point,
         HDP: ticket.HDP,
-        Odds: 0,
-        Data: null
+        Hdp_point: ticket.hdp_point,
+        Message: `Error: ${dataGetTickets.Data[0].Message} `,
+        Odds: 0
       }
     } else if (
       dataGetTickets.Data[0].Code == 15 &&
@@ -233,12 +234,12 @@ export async function getTicket_Viva88Bet(accountInfo: AccountType, ticket: Tick
         'BetList'
       )
       return {
+        Data: null,
         ErrorCode: 1,
-        Message: `Error: Suspend the betting odds`,
-        Hdp_point: ticket.hdp_point,
         HDP: ticket.HDP,
-        Odds: 0,
-        Data: null
+        Hdp_point: ticket.hdp_point,
+        Message: `Error: Suspend the betting odds`,
+        Odds: 0
       }
     } else if (dataGetTickets.Data[0].isLineChange == true) {
       const Viva88Bet = createModel('Viva88Bet', dataCrawlByPlatformSchema)
@@ -253,14 +254,14 @@ export async function getTicket_Viva88Bet(accountInfo: AccountType, ticket: Tick
           { id },
           {
             ...updateData,
-            hdp_point: dataGetTickets.Data[0].Line,
             HDP: CONVERT_HDP[
               toPositiveNumber(
                 dataGetTickets.Data[0].Line < 0
                   ? dataGetTickets.Data[0].Line * -1
                   : dataGetTickets.Data[0].Line
               )
-            ]
+            ],
+            hdp_point: dataGetTickets.Data[0].Line
           }
         )
       }
@@ -271,12 +272,12 @@ export async function getTicket_Viva88Bet(accountInfo: AccountType, ticket: Tick
         'BetList'
       )
       return {
+        Data: null,
         ErrorCode: 1,
-        Message: `Error: Hdp/ou has been changed`,
-        Hdp_point: ticket.hdp_point,
         HDP: ticket.HDP,
-        Odds: 0,
-        Data: null
+        Hdp_point: ticket.hdp_point,
+        Message: `Error: Hdp/ou has been changed`,
+        Odds: 0
       }
     }
 
@@ -289,23 +290,19 @@ export async function getTicket_Viva88Bet(accountInfo: AccountType, ticket: Tick
       )
 
       return {
+        Data: null,
         ErrorCode: 1,
-        Message: `Error: Bet Amount [${ticket.betAmount_Standard}] less than Min Bet [${parseFloat(dataGetTickets.Data[0].Minbet.replace(/,/g, ''))}]`,
-        Hdp_point: ticket.hdp_point,
         HDP: ticket.HDP,
-        Odds: 0,
-        Data: null
+        Hdp_point: ticket.hdp_point,
+        Message: `Error: Bet Amount [${ticket.betAmount_Standard}] less than Min Bet [${parseFloat(dataGetTickets.Data[0].Minbet.replace(/,/g, ''))}]`,
+        Odds: 0
       }
     }
 
     return {
+      Data: { authorization: Data, dataGetTicketInfo: dataGetTickets.Data[0] },
       ErrorCode: 0,
-      Message:
-        dataGetTickets.Data[0].Code == 15 && dataGetTickets.Data[0].isOddsChange == true
-          ? 'ODDS_CHANGE'
-          : 'OK',
 
-      Hdp_point: ticket.hdp_point,
       HDP: CONVERT_HDP[
         toPositiveNumber(
           dataGetTickets.Data[0].Line < 0
@@ -313,8 +310,12 @@ export async function getTicket_Viva88Bet(accountInfo: AccountType, ticket: Tick
             : dataGetTickets.Data[0].Line
         )
       ],
-      Odds: dataGetTickets.Data[0].SrcOdds,
-      Data: { dataGetTicketInfo: dataGetTickets.Data[0], authorization: Data }
+      Hdp_point: ticket.hdp_point,
+      Message:
+        dataGetTickets.Data[0].Code == 15 && dataGetTickets.Data[0].isOddsChange == true
+          ? 'ODDS_CHANGE'
+          : 'OK',
+      Odds: dataGetTickets.Data[0].SrcOdds
     }
   } catch (error) {
     console.log(
@@ -329,12 +330,12 @@ export async function getTicket_Viva88Bet(accountInfo: AccountType, ticket: Tick
     )
 
     return {
+      Data: null,
       ErrorCode: 1,
-      Message: `Error: Get Ticket Fail ${error instanceof Error ? error.message : 'Unknown Error'}`,
-      Hdp_point: ticket.hdp_point,
       HDP: ticket.HDP,
-      Odds: 0,
-      Data: null
+      Hdp_point: ticket.hdp_point,
+      Message: `Error: Get Ticket Fail ${error instanceof Error ? error.message : 'Unknown Error'}`,
+      Odds: 0
     }
   }
 }

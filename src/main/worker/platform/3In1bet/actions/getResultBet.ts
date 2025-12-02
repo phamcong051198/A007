@@ -1,10 +1,12 @@
-import fetch from 'node-fetch'
-import { HttpsProxyAgent } from 'https-proxy-agent'
-import { AccountType, WaitingSuccessContraDBType } from '@shared/common/types'
-import { extractBetTable } from '@/worker/platform/3In1bet/helper'
-import { BetTableData } from '@/worker/platform/3In1bet/common/types'
 import { SuccessList } from '@db/model'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+import fetch from 'node-fetch'
+
+import { AccountType, WaitingSuccessContraDBType } from '@shared/common/types'
+
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
+import { BetTableData } from '@/worker/platform/3In1bet/common/types'
+import { extractBetTable } from '@/worker/platform/3In1bet/helper'
 
 /** Trả về chuỗi YYYYMMDD cho ngày truyền vào */
 function formatDateString(date: Date) {

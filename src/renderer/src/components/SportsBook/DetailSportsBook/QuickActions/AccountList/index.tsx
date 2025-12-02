@@ -1,9 +1,11 @@
-import React, { useState } from 'react'
-import { DropdownMenuItem } from '@renderer/components/ui/dropdown-menu'
-import { SportsBookType } from '@shared/common/types'
-import { AlertDialog, AlertDialogContent } from '@renderer/components/ui/alert-dialog'
-import UsersICon from '@renderer/icons/users'
+import { useState } from 'react'
+
 import { Main } from '@renderer/components/SportsBook/DetailSportsBook/QuickActions/AccountList/Main'
+import { AlertDialog, AlertDialogContent } from '@renderer/components/ui/alert-dialog'
+import { DropdownMenuItem } from '@renderer/components/ui/dropdown-menu'
+import UsersICon from '@renderer/icons/users'
+
+import { SportsBookType } from '@shared/common/types'
 
 function AccountList({ sportsBook }: { sportsBook: SportsBookType }) {
   const [openModalSetting, setOpenModalSetting] = useState(false)

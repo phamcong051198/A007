@@ -1,9 +1,11 @@
-import { formatTime } from '@/worker/lib/formatTime'
 import { BetListResult, PerMatchLimit, Setting } from '@db/model'
 import { PerMatchLimitType } from '@db/schema/perMatchLimit'
+
 import { LIMIT_METHOD, LIMIT_TYPE } from '@shared/common/constants'
 import { TicketInfoDataBetType } from '@shared/common/types'
 import { AccountType, DataPairPlatformType, SettingType } from '@shared/common/types'
+
+import { formatTime } from '@/worker/lib/formatTime'
 
 /**
  * Kiểm tra 1 account có vượt limit không
@@ -13,10 +15,10 @@ function checkAccountLimit(
   ticket: DataPairPlatformType | TicketInfoDataBetType
 ): boolean {
   let where: Partial<PerMatchLimitType> = {
-    league: ticket.league || '',
-    home: ticket.home || '',
     away: ticket.away || '',
-    idAccount: account.id
+    home: ticket.home || '',
+    idAccount: account.id,
+    league: ticket.league || ''
   }
 
   if (account.limitMethod === LIMIT_METHOD.TEAM_NAME_HANDICAP) {
@@ -24,11 +26,11 @@ function checkAccountLimit(
   }
 
   if (account.limitMethod === LIMIT_METHOD.NAME_BETTYPE_LIMIT) {
-    where = { ...where, type: ticket.type, hdp_point: ticket.hdp_point }
+    where = { ...where, hdp_point: ticket.hdp_point, type: ticket.type }
   }
 
   if (account.limitMethod === LIMIT_METHOD.NAME_TARGET_LIMIT) {
-    where = { ...where, type: ticket.type, hdp_point: ticket.hdp_point, odd: ticket.odd }
+    where = { ...where, hdp_point: ticket.hdp_point, odd: ticket.odd, type: ticket.type }
   }
 
   const perMatchLimit = PerMatchLimit.findAll(where) as PerMatchLimitType[]
@@ -61,12 +63,12 @@ function buildTicketUpdate(
     company: `${account.platformName}-${account.loginID}`,
     coverage: ticket.number === 0 ? 'FT' : 'FirstHalf',
     gameType: setting.gameType,
-    time: formatTime(),
     info: reachedLimit
       ? `Get Ticket Failed: Account ${account.platformName}-${account.loginID} reached per-match limit!`
       : 'Get Ticket Failed: Do not have any available account for betting!',
     receiptID: '',
-    receiptStatus: ''
+    receiptStatus: '',
+    time: formatTime()
   }
 }
 
@@ -96,7 +98,7 @@ export async function checkBetLimit(
       dataPair: JSON.stringify(ticketUpdate)
     })
 
-    port?.postMessage({ type: 'BetList', recordDB })
+    port?.postMessage({ recordDB, type: 'BetList' })
     return false
   }
 

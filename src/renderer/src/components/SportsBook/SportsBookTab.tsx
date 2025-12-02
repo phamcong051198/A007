@@ -1,8 +1,10 @@
-import DetailSportsBook from '@renderer/components/SportsBook/DetailSportsBook'
-import { AccountUpdateProvider } from '@renderer/context/AccountContext'
-import { AccountType, DataPlatformType } from '@shared/common/types'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+
+import DetailSportsBook from '@renderer/components/SportsBook/DetailSportsBook'
+import { AccountUpdateProvider } from '@renderer/context/AccountContext'
+
+import { AccountType, DataPlatformType } from '@shared/common/types'
 
 export default function SportsBookTab() {
   const { id: activeId } = useParams()

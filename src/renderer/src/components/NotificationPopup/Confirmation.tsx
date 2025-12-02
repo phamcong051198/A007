@@ -1,3 +1,7 @@
+import { X } from 'lucide-react'
+
+import { Button } from '../ui/button'
+
 import {
   AlertDialog,
   AlertDialogContent,
@@ -6,8 +10,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
-import { X } from 'lucide-react'
-import { Button } from '../ui/button'
 
 interface ConfirmationProps {
   showAlertDialog: boolean

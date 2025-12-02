@@ -1,18 +1,20 @@
-import fetch from 'node-fetch'
-import { HttpsProxyAgent } from 'https-proxy-agent'
-
 import { MessagePort, parentPort } from 'worker_threads'
-import { AccountType, SettingType } from '@shared/common/types'
+
 import { Account, Setting } from '@db/model'
-import { LoginResponse } from '@/worker/platform/Viva88/common/types'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+import fetch from 'node-fetch'
+
+import { AccountType, SettingType } from '@shared/common/types'
 import { OPTIONS_PROXY, STATUS_ACCOUNT, STATUS_LOGIN } from '@shared/main/constants'
-import { API_BASE_URL, API_ENDPOINTS } from '@/worker/platform/Viva88/common/constants'
-import { buildSocketIoWsUrl, CFS, extractTkAndId } from '@/worker/platform/Viva88/helper'
-import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
+
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
-import { getBalanceViva88bet } from '@/worker/platform/Viva88/actions/getBalance'
-import { mergeCookies } from '@/worker/lib/mergeCookies'
 import { exitWithLog } from '@/worker/lib/exitWithLog'
+import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
+import { mergeCookies } from '@/worker/lib/mergeCookies'
+import { getBalanceViva88bet } from '@/worker/platform/Viva88/actions/getBalance'
+import { API_BASE_URL, API_ENDPOINTS } from '@/worker/platform/Viva88/common/constants'
+import { LoginResponse } from '@/worker/platform/Viva88/common/types'
+import { buildSocketIoWsUrl, CFS, extractTkAndId } from '@/worker/platform/Viva88/helper'
 
 const port = parentPort
 
@@ -34,11 +36,11 @@ port.on('message', async ({ account }: { account: AccountType }) => {
 async function loginToViva88Bet(port: MessagePort, account: AccountType) {
   const updateLog = (textLog: string, statusLogin?, status?) => {
     port.postMessage({
-      type: 'DataUpdateAccount',
       data: Account.update(
         { id: account.id },
         { textLog, ...(statusLogin && { statusLogin }), ...(status && { status }) }
-      )
+      ),
+      type: 'DataUpdateAccount'
     })
   }
 
@@ -80,26 +82,26 @@ async function loginToViva88Bet(port: MessagePort, account: AccountType) {
     // Step 1: login
     updateLog('Step 1: Sending login request...')
     const loginRes = await fetch(API_ENDPOINTS.LOGIN, {
-      method: 'POST',
+      body: JSON.stringify({
+        language: 'en',
+        loginCode: '',
+        password: CFS(account.password),
+        platform: 'desktop',
+        username: account.loginID
+      }),
       headers: {
-        Host: 'api.viva88.net',
-        'Content-Type': 'application/json',
         Accept: '*/*',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'max-age=0',
+        'Content-Type': 'application/json',
+        Host: 'api.viva88.net',
         Origin: API_BASE_URL,
         Referer: API_BASE_URL,
         'User-Agent':
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Cache-Control': 'max-age=0',
         ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
       },
-      body: JSON.stringify({
-        username: account.loginID,
-        password: CFS(account.password),
-        platform: 'desktop',
-        language: 'en',
-        loginCode: ''
-      }),
+      method: 'POST',
       ...(proxyAgent && { agent: proxyAgent })
     })
     cookieHeader = mergeCookies(cookieHeader, loginRes.headers.get('set-cookie'))
@@ -133,27 +135,27 @@ async function loginToViva88Bet(port: MessagePort, account: AccountType) {
     // Step 2: Goto RedirectUrl
     updateLog('Step 2: Following redirect URL...')
     const resRedirectUrl = await fetch(redirectUrl, {
-      method: 'GET',
       headers: {
-        Host: 'd.viva88.net',
+        Accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'en-US,en;q=0.9',
         Cookie: 'LOGIN_PLATFORM=desktop; rememberMe=false',
+        Host: 'd.viva88.net',
+        Priority: 'u=0, i',
+        Referer: 'https://www.viva88.net/',
         'Sec-Ch-Ua': `"Not=A?Brand";v="24", "Chromium";v="140"`,
         'Sec-Ch-Ua-Mobile': '?0',
         'Sec-Ch-Ua-Platform': `"Windows"`,
-        'Accept-Language': 'en-US,en;q=0.9',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'same-site',
+        'Sec-Fetch-User': '?1',
         'Upgrade-Insecure-Requests': '1',
         'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-        Accept:
-          'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-        'Sec-Fetch-Site': 'same-site',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-User': '?1',
-        'Sec-Fetch-Dest': 'document',
-        Referer: 'https://www.viva88.net/',
-        'Accept-Encoding': 'gzip, deflate, br',
-        Priority: 'u=0, i'
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36'
       },
+      method: 'GET',
       redirect: 'manual',
       ...(proxyAgent && { agent: proxyAgent })
     })
@@ -174,15 +176,15 @@ async function loginToViva88Bet(port: MessagePort, account: AccountType) {
     // Step 3: Goto Home/Index by location
     updateLog('Step 3: Accessing Home/Index page...')
     const resHomeIndex = await fetch(location, {
-      method: 'GET',
       headers: {
-        Host: 'd.viva88.net',
-        Cookie: cookieHeader,
         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        Referer: 'https://www.viva88.net/',
+        'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'en-US,en;q=0.9',
-        'Accept-Encoding': 'gzip, deflate, br'
+        Cookie: cookieHeader,
+        Host: 'd.viva88.net',
+        Referer: 'https://www.viva88.net/'
       },
+      method: 'GET',
       redirect: 'manual',
       ...(proxyAgent && { agent: proxyAgent })
     })
@@ -196,7 +198,7 @@ async function loginToViva88Bet(port: MessagePort, account: AccountType) {
 
     const accountUpdate = Account.update(
       { id: account.id },
-      { host: 'https://d.viva88.net', socketUrl, cookie: cookieHeader }
+      { cookie: cookieHeader, host: 'https://d.viva88.net', socketUrl }
     ) as AccountType
 
     accountLogToFile(
@@ -212,20 +214,20 @@ async function loginToViva88Bet(port: MessagePort, account: AccountType) {
 
     const setting = Setting.findAll()[0] as SettingType
     port.postMessage({
-      type: 'LoginSuccess',
       data: Account.update(
         { id: account.id },
         {
+          checkBoxAutoLogin: 1,
           checkBoxBet: 1,
           checkBoxRefresh: 1,
-          checkBoxAutoLogin: 1,
-          typeCrawl: setting.gameType,
           credit: dataBalance.Data,
           status: STATUS_ACCOUNT.LOGOUT,
           statusLogin: STATUS_LOGIN.SUCCESS,
-          textLog: `Login ${account.loginID} successfully!`
+          textLog: `Login ${account.loginID} successfully!`,
+          typeCrawl: setting.gameType
         }
-      )
+      ),
+      type: 'LoginSuccess'
     })
     updateLog(`Login ${account.loginID} successfully!`)
 

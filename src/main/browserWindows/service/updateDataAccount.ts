@@ -1,7 +1,9 @@
-import { handleGetDataSportsBook } from '@/browserWindows/service/handleGetDataSportsBook'
 import { Account, PerMatchLimit } from '@db/model'
-import { AccountType } from '@shared/common/types'
 import { BrowserWindow } from 'electron'
+
+import { AccountType } from '@shared/common/types'
+
+import { handleGetDataSportsBook } from '@/browserWindows/service/handleGetDataSportsBook'
 
 interface UpdateAccountPayload {
   id: number
@@ -28,14 +30,14 @@ export function updateDataAccount(
   const updateData = credentialsChanged
     ? {
         ...baseUpdate,
-        credit: '0',
         checkBoxAutoLogin: 0,
-        textLog: null,
-        statusLogin: null,
-        status: 'Login',
         cookie: null,
+        credit: '0',
+        host: null,
         socketUrl: null,
-        host: null
+        status: 'Login',
+        statusLogin: null,
+        textLog: null
       }
     : { ...baseUpdate, limitMethod, limitType, totalAmount, totalCount }
 

@@ -1,19 +1,20 @@
 import React, { useCallback } from 'react'
 import { useEffect, useState } from 'react'
 
-import TotalTicket from '@renderer/components/BetListContraListSuccessList/TotalTicket'
 import SettingCheckBox from '@renderer/components/BetListContraListSuccessList/SettingCheckBox'
+import TableData from '@renderer/components/BetListContraListSuccessList/TableData'
+import TotalTicket from '@renderer/components/BetListContraListSuccessList/TotalTicket'
+import { useCount } from '@renderer/context/CountContext'
+import { addEmptyRows } from '@renderer/lib/addEmptyRows'
+import { handleSaveReport } from '@renderer/lib/handleSaveReport'
+import DownloadCloudIcon from '@renderer/icons/download-cloud-icon'
+
+import { newDataTableEmpty, ROW_SIZE } from '@shared/common/constants'
 import {
   SettingTableViewType,
   TicketInfoDataBetType,
   WaitingSuccessContraDBType
 } from '@shared/common/types'
-import TableData from '@renderer/components/BetListContraListSuccessList/TableData'
-import { newDataTableEmpty, ROW_SIZE } from '@shared/common/constants'
-import { addEmptyRows } from '@renderer/lib/addEmptyRows'
-import { handleSaveReport } from '@renderer/lib/handleSaveReport'
-import DownloadCloudIcon from '@renderer/icons/download-cloud-icon'
-import { useCount } from '@renderer/context/CountContext'
 
 const ListEventSuccessList = () => {
   const [settings, setSettings] = useState({ clearWhenOver100: 0, enableScroll: 0 })
@@ -70,11 +71,11 @@ const ListEventSuccessList = () => {
 
   useEffect(() => {
     window.electron.ipcRenderer.send('UpdateSettingViewTable', {
-      tab: 'SuccessList',
       data: {
         clear: settings.clearWhenOver100,
         scroll: settings.enableScroll
-      }
+      },
+      tab: 'SuccessList'
     })
   }, [settings])
 

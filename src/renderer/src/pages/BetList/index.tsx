@@ -1,6 +1,7 @@
 import clsx from 'clsx'
-import { useSidebar } from '@renderer/context/SidebarContext'
+
 import ListEventBetList from '@renderer/components/BetList/ListEventBetList'
+import { useSidebar } from '@renderer/context/SidebarContext'
 
 function BetList() {
   const { collapsed } = useSidebar()

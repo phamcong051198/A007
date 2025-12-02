@@ -1,27 +1,28 @@
-import { twMerge } from 'tailwind-merge'
-import { useParams } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { twMerge } from 'tailwind-merge'
 
+import { NotificationError } from '@renderer/components/NotificationPopup/NotificationError'
 import { AlertDialog, AlertDialogContent } from '@renderer/components/ui/alert-dialog'
+import { Label } from '@renderer/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@renderer/components/ui/radio-group'
 import { validateAndUpdateData } from '@renderer/lib/validateAndUpdateData'
+import ExclamationTriangle from '@renderer/icons/exclamation-triangle'
 import Eye from '@renderer/icons/eye'
 import EyeSlash from '@renderer/icons/eye-slash'
-import { AccountType } from '@shared/common/types'
-import { RadioGroup, RadioGroupItem } from '@renderer/components/ui/radio-group'
-import { Label } from '@renderer/components/ui/label'
-import { NotificationError } from '@renderer/components/NotificationPopup/NotificationError'
-import ExclamationTriangle from '@renderer/icons/exclamation-triangle'
+
 import { getThemeClass, LIMIT_METHOD, LIMIT_TYPE } from '@shared/common/constants'
+import { AccountType } from '@shared/common/types'
 
 function AccountInfo({ account }) {
   const { id: activeId } = useParams()
   const [openModalSetting, setOpenModalSetting] = useState(false)
 
   const [formData, setFormData] = useState({
-    loginID: '',
-    password: '',
     limitMethod: 'TeamName',
     limitType: 'TotalCount',
+    loginID: '',
+    password: '',
     totalAmount: '5000',
     totalCount: '2'
   })
@@ -29,8 +30,8 @@ function AccountInfo({ account }) {
   const [platform, setPlatform] = useState('')
 
   const [alertConfig, setAlertConfig] = useState({
-    title: '',
     message: '',
+    title: '',
     visible: false
   })
 
@@ -46,10 +47,10 @@ function AccountInfo({ account }) {
       )) as AccountType
       setPlatform(data.platformName)
       setFormData({
-        loginID: data.loginID || '',
-        password: data.password || '',
         limitMethod: data.limitMethod,
         limitType: data.limitType,
+        loginID: data.loginID || '',
+        password: data.password || '',
         totalAmount: data.totalAmount,
         totalCount: data.totalCount
       })
@@ -71,13 +72,13 @@ function AccountInfo({ account }) {
   const save = async () => {
     if (formData.loginID && formData.loginID !== loginID) {
       const isDuplicate = await window.electron.ipcRenderer.invoke('CheckUserNameAccount', {
-        username: formData.loginID,
-        platform
+        platform,
+        username: formData.loginID
       })
       if (isDuplicate) {
         setAlertConfig({
-          title: 'Notification',
           message: 'This account already exists!',
+          title: 'Notification',
           visible: true
         })
         return
@@ -86,11 +87,11 @@ function AccountInfo({ account }) {
     const validateFormData = validateAndUpdateData(formData)
 
     window.electron.ipcRenderer.send('Data_AccountLoginForm', {
-      activeId,
       account: {
         id: account.id,
         ...validateFormData
-      }
+      },
+      activeId
     })
     setOpenModalSetting(false)
   }

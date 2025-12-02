@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react'
 import { X } from 'lucide-react'
-import { Button } from './button'
+
 import { cn } from '@renderer/lib/utils'
+
+import { Button } from './button'
 
 interface ModalProps {
   isOpen: boolean
@@ -51,11 +53,11 @@ const Modal: React.FC<ModalProps> = ({
 
   // Size variants
   const sizeClasses = {
-    sm: 'max-w-md',
-    md: 'w-lg',
+    full: 'w-[95vw] max-h-[95vh]',
     lg: 'w-2xl',
-    xl: 'w-[80vw]',
-    full: 'w-[95vw] max-h-[95vh]'
+    md: 'w-lg',
+    sm: 'max-w-md',
+    xl: 'w-[80vw]'
   }
 
   if (!isOpen) return null
@@ -224,5 +226,5 @@ const FormModal: React.FC<FormModalProps> = ({
   )
 }
 
-export { Modal, ConfirmModal, FormModal }
-export type { ModalProps, ConfirmModalProps, FormModalProps }
+export { ConfirmModal, FormModal, Modal }
+export type { ConfirmModalProps, FormModalProps, ModalProps }

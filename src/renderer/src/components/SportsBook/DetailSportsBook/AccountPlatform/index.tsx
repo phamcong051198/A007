@@ -1,13 +1,15 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
+
+import CheckboxField from '@renderer/components/SportsBook/CheckboxField'
+import AccountInfo from '@renderer/components/SportsBook/DetailSportsBook/AccountPlatform/AccountInfo'
+import DeleteAccount from '@renderer/components/SportsBook/DetailSportsBook/AccountPlatform/DeleteAccount'
+import { useAccountUpdate } from '@renderer/context/AccountContext'
+import ExclamationTriangle from '@renderer/icons/exclamation-triangle'
+
+import { AccountType } from '@shared/common/types'
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { AccountType } from '@shared/common/types'
-import ExclamationTriangle from '@renderer/icons/exclamation-triangle'
-import { useAccountUpdate } from '@renderer/context/AccountContext'
-import CheckboxField from '@renderer/components/SportsBook/CheckboxField'
-import DeleteAccount from '@renderer/components/SportsBook/DetailSportsBook/AccountPlatform/DeleteAccount'
-import AccountInfo from '@renderer/components/SportsBook/DetailSportsBook/AccountPlatform/AccountInfo'
 
 interface AccountPlatformProps {
   account: AccountType
@@ -30,25 +32,25 @@ const AccountPlatform: React.FC<AccountPlatformProps> = ({ account, index, highl
   const updateData = useAccountUpdate()
 
   const [accountState, setAccountState] = useState<AccountState>({
-    buttonText: account.status,
-    log: account.textLog,
     betCredit: account.credit,
-    checkBet: Boolean(account.checkBoxBet),
-    checkRefresh: Boolean(account.checkBoxRefresh),
+    buttonText: account.status,
     checkAutoLogin: Boolean(account.checkBoxAutoLogin),
+    checkBet: Boolean(account.checkBoxBet),
     checkLockURL: Boolean(account.checkBoxLockURL),
+    checkRefresh: Boolean(account.checkBoxRefresh),
+    log: account.textLog,
     statusLogin: account.statusLogin
   })
 
   useEffect(() => {
     setAccountState({
-      buttonText: account.status,
-      log: account.textLog,
       betCredit: account.credit,
-      checkBet: Boolean(account.checkBoxBet),
-      checkRefresh: Boolean(account.checkBoxRefresh),
+      buttonText: account.status,
       checkAutoLogin: Boolean(account.checkBoxAutoLogin),
+      checkBet: Boolean(account.checkBoxBet),
       checkLockURL: Boolean(account.checkBoxLockURL),
+      checkRefresh: Boolean(account.checkBoxRefresh),
+      log: account.textLog,
       statusLogin: account.statusLogin
     })
   }, [account])
@@ -58,24 +60,24 @@ const AccountPlatform: React.FC<AccountPlatformProps> = ({ account, index, highl
       setAccountState((prev) => {
         const newState: AccountState = {
           ...prev,
-          buttonText: updateData.status ?? prev.buttonText,
-          log: updateData.textLog ?? prev.log,
           betCredit: updateData.credit ?? prev.betCredit,
-          statusLogin: updateData.statusLogin ?? prev.statusLogin,
-          checkBet:
-            updateData.checkBoxBet !== undefined ? Boolean(updateData.checkBoxBet) : prev.checkBet,
-          checkRefresh:
-            updateData.checkBoxRefresh !== undefined
-              ? Boolean(updateData.checkBoxRefresh)
-              : prev.checkRefresh,
+          buttonText: updateData.status ?? prev.buttonText,
           checkAutoLogin:
             updateData.checkBoxAutoLogin !== undefined
               ? Boolean(updateData.checkBoxAutoLogin)
               : prev.checkAutoLogin,
+          checkBet:
+            updateData.checkBoxBet !== undefined ? Boolean(updateData.checkBoxBet) : prev.checkBet,
           checkLockURL:
             updateData.checkBoxLockURL !== undefined
               ? Boolean(updateData.checkBoxLockURL)
-              : prev.checkLockURL
+              : prev.checkLockURL,
+          checkRefresh:
+            updateData.checkBoxRefresh !== undefined
+              ? Boolean(updateData.checkBoxRefresh)
+              : prev.checkRefresh,
+          log: updateData.textLog ?? prev.log,
+          statusLogin: updateData.statusLogin ?? prev.statusLogin
         }
         return newState
       })
@@ -127,9 +129,9 @@ const AccountPlatform: React.FC<AccountPlatformProps> = ({ account, index, highl
 
   const buttonClass = useMemo(() => {
     const classes: Record<string, string> = {
-      Logout: 'underline text-[#FF0000] hover:cursor-pointer',
       Exit: 'underline text-[#FF0000] hover:cursor-pointer',
-      'In-Progress': 'text-[#FF8C00]'
+      'In-Progress': 'text-[#FF8C00]',
+      Logout: 'underline text-[#FF0000] hover:cursor-pointer'
     }
     return classes[accountState.buttonText] || 'underline text-blue-color hover:cursor-pointer'
   }, [accountState.buttonText])

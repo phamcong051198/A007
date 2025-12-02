@@ -1,15 +1,16 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
-import TotalTicket from '@renderer/components/BetListContraListSuccessList/TotalTicket'
-import ContraStrategy from '@renderer/components/Common/ContraStrategy'
 import SettingCheckBox from '@renderer/components/BetListContraListSuccessList/SettingCheckBox'
 import TableData from '@renderer/components/BetListContraListSuccessList/TableData'
-import { BetListDBType, SettingTableViewType, TicketInfoDataBetType } from '@shared/common/types'
+import TotalTicket from '@renderer/components/BetListContraListSuccessList/TotalTicket'
+import ContraStrategy from '@renderer/components/Common/ContraStrategy'
+import { useCount } from '@renderer/context/CountContext'
 import { addEmptyRows } from '@renderer/lib/addEmptyRows'
-import { newDataTableEmpty, ROW_SIZE } from '@shared/common/constants'
 import { handleSaveReport } from '@renderer/lib/handleSaveReport'
 import DownloadCloudIcon from '@renderer/icons/download-cloud-icon'
-import { useCount } from '@renderer/context/CountContext'
+
+import { newDataTableEmpty, ROW_SIZE } from '@shared/common/constants'
+import { BetListDBType, SettingTableViewType, TicketInfoDataBetType } from '@shared/common/types'
 
 const ListEventBetList = () => {
   const [strategy, setStrategy] = useState('')
@@ -72,12 +73,12 @@ const ListEventBetList = () => {
 
   useEffect(() => {
     window.electron.ipcRenderer.send('UpdateSettingViewTable', {
-      tab: 'BetList',
       data: {
-        contraStrategy: strategy,
         clear: settings.clearWhenOver100,
+        contraStrategy: strategy,
         scroll: settings.enableScroll
-      }
+      },
+      tab: 'BetList'
     })
   }, [strategy, settings])
 

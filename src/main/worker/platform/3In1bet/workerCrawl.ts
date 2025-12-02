@@ -1,13 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-constant-condition */
-import { HttpsProxyAgent } from 'https-proxy-agent'
 import { setTimeout } from 'timers/promises'
-import { accountLogToFile } from '@/worker/lib/accountLogToFile'
-import { Account, clearTable, createModel, Setting } from '@db/model'
-import { AccountType, LeagueType, SettingType } from '@shared/common/types'
 import { parentPort } from 'worker_threads'
-import { isAccountActive } from '@/worker/lib/checkAccount'
-import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
+
+import { Account, clearTable, createModel, Setting } from '@db/model'
+import dataCrawlByPlatformSchema from '@db/schema/dataCrawlByPlatform'
+import rootLeagueSchema from '@db/schema/rootLeague'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+
+import { CONVERT_HDP, GAME_TYPES } from '@shared/common/constants'
+import { AccountType, LeagueType, SettingType } from '@shared/common/types'
 import {
   OPTIONS_PROXY,
   PLATFORM,
@@ -16,7 +18,10 @@ import {
   TYPE_ODD,
   TYPE_ODD_DETAIL
 } from '@shared/main/constants'
-import { CONVERT_HDP, GAME_TYPES } from '@shared/common/constants'
+
+import { accountLogToFile } from '@/worker/lib/accountLogToFile'
+import { isAccountActive } from '@/worker/lib/checkAccount'
+import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
 import {
   API_BASE_URL,
   API_ENDPOINTS,
@@ -28,9 +33,7 @@ import {
   DataOddsResponse,
   UserInfoResponse
 } from '@/worker/platform/3In1bet/common/types'
-import dataCrawlByPlatformSchema from '@db/schema/dataCrawlByPlatform'
 import { createPayload, isArError } from '@/worker/platform/3In1bet/helper'
-import rootLeagueSchema from '@db/schema/rootLeague'
 
 let gameType: string | null = null
 
@@ -57,8 +60,8 @@ const handleCrawlData = async () => {
     const listAccount = Account.findAll({
       platformName: PLATFORM['3IN1BET'],
       status: STATUS_ACCOUNT.LOGOUT,
-      statusLogin: STATUS_LOGIN.SUCCESS,
-      statusDelete: 0
+      statusDelete: 0,
+      statusLogin: STATUS_LOGIN.SUCCESS
     }) as AccountType[]
 
     if (!listAccount.length) {
@@ -82,8 +85,8 @@ const fnCrawlData = async (account: AccountType) => {
 
   const accountInfo = Account.findOne({
     id: account.id,
-    statusDelete: 0,
     status: STATUS_ACCOUNT.LOGOUT,
+    statusDelete: 0,
     statusLogin: STATUS_LOGIN.SUCCESS
   }) as AccountType
   if (!accountInfo) return
@@ -105,8 +108,8 @@ const fnCrawlData = async (account: AccountType) => {
         }
       ) &&
       port.postMessage({
-        type: 'DataUpdateAccount',
-        idAccount: account.id
+        idAccount: account.id,
+        type: 'DataUpdateAccount'
       })
 
     return
@@ -125,16 +128,16 @@ const fnCrawlData = async (account: AccountType) => {
 
   try {
     const arRes = await fetch(API_ENDPOINTS.AR, {
-      method: 'POST',
       headers: {
-        'User-Agent': 'Mozilla/5.0',
         'Content-Type': 'application/json; charset=UTF-8',
-        'X-Requested-With': 'XMLHttpRequest',
+        Cookie: account.cookie,
         Origin: API_BASE_URL,
         Referer: API_BASE_URL + '/main/index.aspx',
-        Cookie: account.cookie,
+        'User-Agent': 'Mozilla/5.0',
+        'X-Requested-With': 'XMLHttpRequest',
         ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
       },
+      method: 'POST',
       ...(proxyAgent && { agent: proxyAgent }),
       body: JSON.stringify({
         a: '',
@@ -153,17 +156,17 @@ const fnCrawlData = async (account: AccountType) => {
           Account.update(
             { id: account.id },
             {
-              statusLogin: STATUS_LOGIN.FAIL,
-              textLog: 'Logged Again ...',
-              credit: '0',
               cookie: null,
+              credit: '0',
               host: null,
-              socketUrl: null
+              socketUrl: null,
+              statusLogin: STATUS_LOGIN.FAIL,
+              textLog: 'Logged Again ...'
             }
           ) &&
           port.postMessage({
-            type: 'LoggedAgain',
-            idAccount: account.id
+            idAccount: account.id,
+            type: 'LoggedAgain'
           })
       } else {
         isAccountActive(account.id) &&
@@ -175,8 +178,8 @@ const fnCrawlData = async (account: AccountType) => {
             }
           ) &&
           port.postMessage({
-            type: 'DataUpdateAccount',
-            idAccount: account.id
+            idAccount: account.id,
+            type: 'DataUpdateAccount'
           })
       }
 
@@ -184,16 +187,16 @@ const fnCrawlData = async (account: AccountType) => {
     }
 
     const userInfoRes = await fetch(API_ENDPOINTS.USER_INFO_PANEL_HOST, {
-      method: 'POST',
       headers: {
-        'User-Agent': 'Mozilla/5.0',
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'X-Requested-With': 'XMLHttpRequest',
+        Cookie: account.cookie,
         Origin: API_BASE_URL,
         Referer: API_BASE_URL + '/main/index.aspx',
-        Cookie: account.cookie,
+        'User-Agent': 'Mozilla/5.0',
+        'X-Requested-With': 'XMLHttpRequest',
         ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
       },
+      method: 'POST',
       ...(proxyAgent && { agent: proxyAgent })
     })
     if (!userInfoRes.ok) {
@@ -215,13 +218,14 @@ const fnCrawlData = async (account: AccountType) => {
         }
       ) &&
       port.postMessage({
-        type: 'DataUpdateAccount',
-        idAccount: account.id
+        idAccount: account.id,
+        type: 'DataUpdateAccount'
       })
 
     const res = await fetch(API_ENDPOINTS.DATA_ODDS, {
       method: 'POST',
       ...(proxyAgent && { agent: proxyAgent }),
+      body: payload.toString(),
       headers: {
         accept: 'application/json, text/javascript, */*',
         'accept-language': 'vi,en-US;q=0.9,en;q=0.8,ko;q=0.7',
@@ -233,8 +237,7 @@ const fnCrawlData = async (account: AccountType) => {
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36',
         'x-requested-with': 'XMLHttpRequest',
         ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
-      },
-      body: payload.toString()
+      }
     })
 
     if (!res.ok) {
@@ -247,7 +250,7 @@ const fnCrawlData = async (account: AccountType) => {
       ? ((data as DataOddsEarly).today ?? [])
       : ((data as DataOddsNormal).data ?? [])
 
-    handleData({ dataOdds, account })
+    handleData({ account, dataOdds })
   } catch (error) {
     console.error(
       'Error Crawl Data 3in1Bet:',
@@ -264,17 +267,17 @@ const fnCrawlData = async (account: AccountType) => {
       Account.update(
         { id: account.id },
         {
-          statusLogin: STATUS_LOGIN.FAIL,
-          textLog: 'Logged Again ...',
-          credit: '0',
           cookie: null,
+          credit: '0',
           host: null,
-          socketUrl: null
+          socketUrl: null,
+          statusLogin: STATUS_LOGIN.FAIL,
+          textLog: 'Logged Again ...'
         }
       ) &&
       port.postMessage({
-        type: 'LoggedAgain',
-        idAccount: account.id
+        idAccount: account.id,
+        type: 'LoggedAgain'
       })
   }
 }
@@ -295,10 +298,10 @@ const handleData = async ({ dataOdds, account }) => {
   if (isAccountActive(account.id)) {
     Account.updateMany(
       {
-        status: STATUS_ACCOUNT.LOGOUT,
-        statusLogin: STATUS_LOGIN.SUCCESS,
         platformName: PLATFORM['3IN1BET'],
-        statusDelete: 0
+        status: STATUS_ACCOUNT.LOGOUT,
+        statusDelete: 0,
+        statusLogin: STATUS_LOGIN.SUCCESS
       },
       {
         textLog: `Get Soccer ${gameType}...`
@@ -318,10 +321,10 @@ const handleData = async ({ dataOdds, account }) => {
     if (isAccountActive(account.id)) {
       Account.updateMany(
         {
+          platformName: PLATFORM['3IN1BET'],
           status: STATUS_ACCOUNT.LOGOUT,
           statusDelete: 0,
-          statusLogin: STATUS_LOGIN.SUCCESS,
-          platformName: PLATFORM['3IN1BET']
+          statusLogin: STATUS_LOGIN.SUCCESS
         },
         {
           textLog: `Soccer ${gameType}: No data.`
@@ -374,48 +377,48 @@ const handleData = async ({ dataOdds, account }) => {
     // Cấu hình các loại kèo
     const configs = [
       {
-        number: 0,
-        score: GAME_TYPES.RUNNING == gameType && `${dataOdd[7]} - ${dataOdd[8]}`,
-        stat: GAME_TYPES.RUNNING == gameType && dataOdd[53],
+        HDP: CONVERT_HDP[dataOdd[10]],
+        away_under: dataOdd[41],
         hdp_point: indexCheck === 0 ? dataOdd[10] : dataOdd[10] * -1,
         home_over: dataOdd[40],
-        away_under: dataOdd[41],
-        type: TYPE_ODD.HDP,
-        typeOdd: TYPE_ODD_DETAIL.HDP,
-        HDP: CONVERT_HDP[dataOdd[10]]
-      },
-      {
         number: 0,
         score: GAME_TYPES.RUNNING == gameType && `${dataOdd[7]} - ${dataOdd[8]}`,
         stat: GAME_TYPES.RUNNING == gameType && dataOdd[53],
+        type: TYPE_ODD.HDP,
+        typeOdd: TYPE_ODD_DETAIL.HDP
+      },
+      {
+        HDP: CONVERT_HDP[dataOdd[12]],
+        away_under: dataOdd[43],
         hdp_point: dataOdd[12],
         home_over: dataOdd[42],
-        away_under: dataOdd[43],
-        type: TYPE_ODD.OU,
-        typeOdd: TYPE_ODD_DETAIL.OU,
-        HDP: CONVERT_HDP[dataOdd[12]]
-      },
-      {
-        number: 1,
+        number: 0,
         score: GAME_TYPES.RUNNING == gameType && `${dataOdd[7]} - ${dataOdd[8]}`,
         stat: GAME_TYPES.RUNNING == gameType && dataOdd[53],
+        type: TYPE_ODD.OU,
+        typeOdd: TYPE_ODD_DETAIL.OU
+      },
+      {
+        HDP: CONVERT_HDP[dataOdd[14]],
+        away_under: dataOdd[45],
         hdp_point: indexCheck === 0 ? dataOdd[14] : dataOdd[14] * -1,
         home_over: dataOdd[44],
-        away_under: dataOdd[45],
-        type: TYPE_ODD.HDP,
-        typeOdd: TYPE_ODD_DETAIL.HDP,
-        HDP: CONVERT_HDP[dataOdd[14]]
-      },
-      {
         number: 1,
         score: GAME_TYPES.RUNNING == gameType && `${dataOdd[7]} - ${dataOdd[8]}`,
         stat: GAME_TYPES.RUNNING == gameType && dataOdd[53],
+        type: TYPE_ODD.HDP,
+        typeOdd: TYPE_ODD_DETAIL.HDP
+      },
+      {
+        HDP: CONVERT_HDP[dataOdd[16]],
+        away_under: dataOdd[47],
         hdp_point: dataOdd[16],
         home_over: dataOdd[46],
-        away_under: dataOdd[47],
+        number: 1,
+        score: GAME_TYPES.RUNNING == gameType && `${dataOdd[7]} - ${dataOdd[8]}`,
+        stat: GAME_TYPES.RUNNING == gameType && dataOdd[53],
         type: TYPE_ODD.OU,
-        typeOdd: TYPE_ODD_DETAIL.OU,
-        HDP: CONVERT_HDP[dataOdd[16]]
+        typeOdd: TYPE_ODD_DETAIL.OU
       }
     ]
 
@@ -426,26 +429,26 @@ const handleData = async ({ dataOdds, account }) => {
 
     // Map ra dữ liệu insert
     const records = validConfigs.map((cfg) => ({
-      platform: PLATFORM['3IN1BET'],
-      idLeague,
-      uuidLeague,
-      nameLeague,
-      idEvent,
-      isHomeStrong: indexCheck,
-      nameHome,
-      nameAway,
-      league: league_3in1Bet.league,
-      home: nameHome.toUpperCase(),
+      HDP: cfg.HDP,
       away: nameAway.toUpperCase(),
+      away_under: cfg.away_under,
+      hdp_point: cfg.hdp_point,
+      home: nameHome.toUpperCase(),
+      home_over: cfg.home_over,
+      idEvent,
+      idLeague,
+      isHomeStrong: indexCheck,
+      league: league_3in1Bet.league,
+      nameAway,
+      nameHome,
+      nameLeague,
+      number: cfg.number,
+      platform: PLATFORM['3IN1BET'],
       score: cfg?.score || null,
       stat: cfg?.stat || null,
-      number: cfg.number,
-      hdp_point: cfg.hdp_point,
-      home_over: cfg.home_over,
-      away_under: cfg.away_under,
       type: cfg.type,
       typeOdd: cfg.typeOdd,
-      HDP: cfg.HDP
+      uuidLeague
     }))
 
     if (records.length !== 0) {
@@ -463,10 +466,10 @@ const handleData = async ({ dataOdds, account }) => {
   if (isAccountActive(account.id)) {
     Account.updateMany(
       {
+        platformName: PLATFORM['3IN1BET'],
         status: STATUS_ACCOUNT.LOGOUT,
         statusDelete: 0,
-        statusLogin: STATUS_LOGIN.SUCCESS,
-        platformName: PLATFORM['3IN1BET']
+        statusLogin: STATUS_LOGIN.SUCCESS
       },
       {
         textLog: `Handle Data Odds Done All. (${eventsLength}, ${timeEnd - timeStart}ms)`

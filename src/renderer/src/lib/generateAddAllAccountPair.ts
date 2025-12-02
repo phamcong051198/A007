@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { v4 as uuidv4 } from 'uuid'
-import { AccountType } from '@shared/common/types'
+
 import { generateAccountData } from '@renderer/lib/generateAccountData'
+
+import { AccountType } from '@shared/common/types'
 
 export function generateAddAllAccountPair(listAccount: AccountType[]) {
   const result: any[] = []
@@ -15,11 +17,11 @@ export function generateAddAllAccountPair(listAccount: AccountType[]) {
       if (acc1Data.platform === acc2Data.platform) return
 
       result.push({
+        account1: acc1Data,
+        account2: acc2Data,
         id: uuidv4(),
         isValid: 1,
-        key: `${acc1Data.platform}_${acc2Data.platform}`,
-        account1: acc1Data,
-        account2: acc2Data
+        key: `${acc1Data.platform}_${acc2Data.platform}`
       })
     })
   })

@@ -1,3 +1,5 @@
+import AlertOctagon from '@renderer/icons/alert-octagon'
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -7,7 +9,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
-import AlertOctagon from '@renderer/icons/alert-octagon'
 
 export function ConfirmLogOut({ openConfirmLogOut, setOpenConfirmLogOut }) {
   const quitApp = () => {

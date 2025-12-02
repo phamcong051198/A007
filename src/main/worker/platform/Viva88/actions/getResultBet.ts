@@ -1,8 +1,10 @@
-import fetch from 'node-fetch'
-import { HttpsProxyAgent } from 'https-proxy-agent'
-import { AccountType, WaitingSuccessContraDBType } from '@shared/common/types'
-import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
 import { SuccessList } from '@db/model'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+import fetch from 'node-fetch'
+
+import { AccountType, WaitingSuccessContraDBType } from '@shared/common/types'
+
+import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
 
 export const getResultBet_Viva88 = async (
   account: AccountType,
@@ -24,6 +26,7 @@ export const getResultBet_Viva88 = async (
     accept: 'application/json, text/javascript, */*; q=0.01',
     'accept-language': 'vi,en-US;q=0.9,en;q=0.8,ko;q=0.7',
     'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+    cookie: account.cookie,
     devicetype: '1',
     origin: 'https://d.viva88.net',
     priority: 'u=1, i',
@@ -37,7 +40,6 @@ export const getResultBet_Viva88 = async (
     'user-agent':
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
     'x-requested-with': 'XMLHttpRequest',
-    cookie: account.cookie,
     ...(account?.customIP ? { 'X-Forwarded-For': account.customIP } : {})
   }
 
@@ -64,19 +66,19 @@ export const getResultBet_Viva88 = async (
     for (const date of dates) {
       for (const dataType of dataTypes) {
         const body = new URLSearchParams({
-          date,
-          sportType: 'SB',
-          dataType,
-          matchId: '',
+          GMT: '7',
           betType: '',
+          dataType,
+          date,
+          matchId: '',
           resourceId: '',
-          transType: '',
-          GMT: '7'
+          sportType: 'SB',
+          transType: ''
         })
 
         const res = await fetch(url, {
-          method: 'POST',
           headers,
+          method: 'POST',
           ...(proxyAgent && { agent: proxyAgent }),
           body
         })

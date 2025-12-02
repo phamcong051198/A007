@@ -1,7 +1,9 @@
-import { BrowserWindow } from 'electron'
-import { sendCount } from '@/worker/lib/sendCount'
 import { BetListResult, clearTable, SettingTableView } from '@db/model'
+import { BrowserWindow } from 'electron'
+
 import { SettingTableViewType } from '@shared/common/types'
+
+import { sendCount } from '@/worker/lib/sendCount'
 
 async function handleBetList(recordDB, mainWindow: BrowserWindow): Promise<void> {
   const SettingTableViewBetList = SettingTableView.findOne({

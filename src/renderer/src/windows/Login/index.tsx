@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import LoadingLogin from '@renderer/windows/Login/LoadingLogin'
+
+import { Checkbox } from '@renderer/components/ui/checkbox'
 import Eye from '@renderer/icons/eye'
 import EyeSlash from '@renderer/icons/eye-slash'
-import { Checkbox } from '@renderer/components/ui/checkbox'
-import LoadingLogin from '@renderer/windows/Login/LoadingLogin'
 
 export default function Login() {
   const isAttemptingLogin = useRef(false)
@@ -59,7 +60,7 @@ export default function Login() {
     }
     setLoadingLogin(true)
     isAttemptingLogin.current = true
-    window.electron.ipcRenderer.send('AttemptLogin', { username, password })
+    window.electron.ipcRenderer.send('AttemptLogin', { password, username })
 
     window.electron.ipcRenderer.once('LoginResult', (_event, { success }) => {
       setLoadingLogin(false)

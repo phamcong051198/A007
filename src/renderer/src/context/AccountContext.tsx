@@ -1,5 +1,6 @@
-import { AccountType } from '@shared/common/types'
 import React, { createContext, useContext, useEffect, useState } from 'react'
+
+import { AccountType } from '@shared/common/types'
 
 const AccountContext = createContext<AccountType | null>(null)
 

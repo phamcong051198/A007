@@ -1,8 +1,10 @@
 import { BrowserWindow } from 'electron'
-import { handleGetAccountBySportsBook } from '@/browserWindows/service/handleGetAccountBySportsBook'
-import { handleLogoutAccount } from '@/browserWindows/service/handleLoginLogoutAccount'
-import { handleGetDataSportsBook } from '@/browserWindows/service/handleGetDataSportsBook'
+
 import { AccountType } from '@shared/common/types'
+
+import { handleGetAccountBySportsBook } from '@/browserWindows/service/handleGetAccountBySportsBook'
+import { handleGetDataSportsBook } from '@/browserWindows/service/handleGetDataSportsBook'
+import { handleLogoutAccount } from '@/browserWindows/service/handleLoginLogoutAccount'
 
 export function handleLogoutAll(mainWindow: BrowserWindow, activeSportsBook: string) {
   const listAccount = handleGetAccountBySportsBook(activeSportsBook)

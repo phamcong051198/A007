@@ -1,6 +1,8 @@
-import fetch from 'node-fetch'
 import { HttpsProxyAgent } from 'https-proxy-agent'
+import fetch from 'node-fetch'
+
 import { AccountType } from '@shared/common/types'
+
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 
 export const getBalanceViva88bet = async (account: AccountType) => {
@@ -14,7 +16,7 @@ export const getBalanceViva88bet = async (account: AccountType) => {
   const { ErrorCode, Data } = await loginCheckin(account, proxyAgent)
 
   if (ErrorCode === 106 || ErrorCode === -1 || ErrorCode === 210) {
-    return { ErrorCode, Data }
+    return { Data, ErrorCode }
   }
 
   const dataBalance = await balance(account, proxyAgent, Data)
@@ -31,24 +33,24 @@ async function loginCheckin(account: AccountType, proxyAgent: HttpsProxyAgent<st
       const urlLoginCheckin = `${account.host}/LoginCheckin/Index`
 
       const headerLoginCheckin = {
-        Referer: `${account.host}/sports`,
+        Accept: 'application/json, text/javascript, */*; q=0.01',
+        'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language':
           'en-US,en;q=0.9,th;q=0.8,zh-CN;q=0.7,zh;q=0.6,ja;q=0.5,cs;q=0.4,zh-TW;q=0.3',
-        'Accept-Encoding': 'gzip, deflate, br',
-        Username: account.loginID,
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        Cookie: account.cookie,
         Devicetype: '1',
-        Uid: account.loginID,
         Origin: account.host,
+        Referer: `${account.host}/sports`,
         'Sec-Ch-Ua-Mobile': '?0',
         'Sec-Fetch-Dest': 'empty',
         'Sec-Fetch-Mode': 'cors',
         'Sec-Fetch-Site': 'same-origin',
-        'X-Requested-With': 'XMLHttpRequest',
-        Accept: 'application/json, text/javascript, */*; q=0.01',
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        Cookie: account.cookie,
+        Uid: account.loginID,
         'User-Agent':
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        Username: account.loginID,
+        'X-Requested-With': 'XMLHttpRequest',
         ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
       }
 
@@ -56,8 +58,8 @@ async function loginCheckin(account: AccountType, proxyAgent: HttpsProxyAgent<st
       const timeoutId = setTimeout(() => controller.abort(), 30000)
 
       const resLoginCheckin = await fetch(urlLoginCheckin, {
-        method: 'POST',
         headers: headerLoginCheckin,
+        method: 'POST',
         signal: controller.signal,
         ...(proxyAgent && { agent: proxyAgent })
       })
@@ -74,16 +76,16 @@ async function loginCheckin(account: AccountType, proxyAgent: HttpsProxyAgent<st
       )
 
       if (resDataLoginCheckin.ErrorCode == 106) {
-        return { ErrorCode: 106, Data: 'Another session logged in. Forced to logout.' }
+        return { Data: 'Another session logged in. Forced to logout.', ErrorCode: 106 }
       } else if (resDataLoginCheckin.ErrorCode == 210) {
-        return { ErrorCode: 210, Data: 'Error: Authentication failed.' }
+        return { Data: 'Error: Authentication failed.', ErrorCode: 210 }
       } else if (resDataLoginCheckin.ErrorCode !== 0) {
-        return { ErrorCode: -1, Data: 'Error: Get Access token Viva88Bet Fail...' }
+        return { Data: 'Error: Get Access token Viva88Bet Fail...', ErrorCode: -1 }
       }
 
       return {
-        ErrorCode: 0,
-        Data: resDataLoginCheckin.Data.at
+        Data: resDataLoginCheckin.Data.at,
+        ErrorCode: 0
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
@@ -103,15 +105,15 @@ async function loginCheckin(account: AccountType, proxyAgent: HttpsProxyAgent<st
       }
 
       return {
-        ErrorCode: -1,
-        Data: `Error: ${errorMessage}`
+        Data: `Error: ${errorMessage}`,
+        ErrorCode: -1
       }
     }
   }
 
   return {
-    ErrorCode: -1,
-    Data: 'Error: Max retries reached due to persistent ETIMEDOUT.'
+    Data: 'Error: Max retries reached due to persistent ETIMEDOUT.',
+    ErrorCode: -1
   }
 }
 
@@ -123,31 +125,31 @@ async function balance(
   try {
     const urlBalance = `https://api.viva88.net/api/Customer/Balance`
     const headerBalance = {
-      Referer: `${account.host}/sports`,
+      Accept: 'application/json, text/javascript, */*; q=0.01',
+      'Accept-Encoding': 'gzip, deflate, br',
       'Accept-Language':
         'en-US,en;q=0.9,th;q=0.8,zh-CN;q=0.7,zh;q=0.6,ja;q=0.5,cs;q=0.4,zh-TW;q=0.3',
-      'Accept-Encoding': 'gzip, deflate, br',
-      Username: account.loginID,
+      Authorization: `bearer ${at}`,
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      Cookie: account.cookie,
       Devicetype: '1',
-      Uid: account.loginID,
       Origin: account.host,
+      Referer: `${account.host}/sports`,
       'Sec-Ch-Ua-Mobile': '?0',
       'Sec-Fetch-Dest': 'empty',
       'Sec-Fetch-Mode': 'cors',
       'Sec-Fetch-Site': 'same-origin',
-      'X-Requested-With': 'XMLHttpRequest',
-      Accept: 'application/json, text/javascript, */*; q=0.01',
-      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-      Authorization: `bearer ${at}`,
-      Cookie: account.cookie,
+      Uid: account.loginID,
       'User-Agent':
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+      Username: account.loginID,
+      'X-Requested-With': 'XMLHttpRequest',
       ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
     }
 
     const resBalance = await fetch(urlBalance, {
-      method: 'POST',
       headers: headerBalance,
+      method: 'POST',
       ...(proxyAgent && { agent: proxyAgent })
     })
     const resData = (await resBalance.json()) as {
@@ -162,7 +164,7 @@ async function balance(
       'Program'
     )
 
-    return { ErrorCode: 0, Data: resData.Data.BCredit }
+    return { Data: resData.Data.BCredit, ErrorCode: 0 }
   } catch (error) {
     console.log(
       'Error fetching account-balance Viva88:',
@@ -176,8 +178,8 @@ async function balance(
     )
 
     return {
-      ErrorCode: -1,
-      Data: `Error:   ${error instanceof Error ? error.message : 'Unstable network, proxy or server-side issue.'} `
+      Data: `Error:   ${error instanceof Error ? error.message : 'Unstable network, proxy or server-side issue.'} `,
+      ErrorCode: -1
     }
   }
 }

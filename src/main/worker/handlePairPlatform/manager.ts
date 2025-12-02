@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BrowserWindow } from 'electron'
-import { PlatformPairType } from '@db/schema/platformPair'
-import createWorker from './worker?nodeWorker'
 import { PlatformPair } from '@db/model'
+import { PlatformPairType } from '@db/schema/platformPair'
+import { BrowserWindow } from 'electron'
+
+import createWorker from './worker?nodeWorker'
+
 import handleBetList from '@/worker/lib/handleBetList'
 
 const activeWorkers = new Map()

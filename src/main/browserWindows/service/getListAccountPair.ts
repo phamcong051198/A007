@@ -1,4 +1,5 @@
 import { Account, AccountPair } from '@db/model'
+
 import { AccountPairType, AccountType } from '@shared/common/types'
 
 export function GetListAccountPair(): AccountPairType[] {
@@ -9,11 +10,11 @@ export function GetListAccountPair(): AccountPairType[] {
   const listAccount = Account.findAll() as AccountType[]
   const listAccountPair = accountPair.map((item) => {
     return {
+      account1: item.account1 ? JSON.parse(String(item.account1)) : {},
+      account2: item.account2 ? JSON.parse(String(item.account2)) : {},
       id: item.id,
       isValid: item.isValid,
-      key: item.key,
-      account1: item.account1 ? JSON.parse(String(item.account1)) : {},
-      account2: item.account2 ? JSON.parse(String(item.account2)) : {}
+      key: item.key
     }
   }) as AccountPairType[]
 

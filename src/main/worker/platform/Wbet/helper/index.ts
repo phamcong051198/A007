@@ -1,7 +1,11 @@
-import fetch from 'node-fetch'
 import zlib from 'zlib'
 
+import fetch from 'node-fetch'
+
+import { GAME_TYPES } from '@shared/common/constants'
 import { AccountType, LeagueType } from '@shared/common/types'
+import { PLATFORM, TYPE_ODD, TYPE_ODD_DETAIL } from '@shared/main/constants'
+
 import {
   ARGUMENTS_UX_MARKET,
   ARGUMENTS_UX_MATCH,
@@ -9,8 +13,6 @@ import {
   TYPE_ODD_HDP,
   TYPE_ODD_OU
 } from '@/worker/platform/Wbet/common/constants'
-import { GAME_TYPES } from '@shared/common/constants'
-import { PLATFORM, TYPE_ODD, TYPE_ODD_DETAIL } from '@shared/main/constants'
 
 export const buildBodyBalance = (account: AccountType) => {
   return {
@@ -22,18 +24,18 @@ export const buildBodyBalance = (account: AccountType) => {
 export const buildBodyMarket = (gameType: string, account: AccountType) => {
   return {
     account_id: account.loginID,
-    session_token: account.cookie,
-    arguments: ARGUMENTS_UX_MARKET[gameType]
+    arguments: ARGUMENTS_UX_MARKET[gameType],
+    session_token: account.cookie
   }
 }
 
 export const buildBodyMatch = (gameType: string, account: AccountType, matchs) => {
   return {
     account_id: account.loginID,
-    session_token: account.cookie,
     arguments: ARGUMENTS_UX_MATCH[gameType],
     ids: matchs.map((match) => match[0]).join('|'),
-    mmo: 'ODDS'
+    mmo: 'ODDS',
+    session_token: account.cookie
   }
 }
 
@@ -127,8 +129,8 @@ export async function handleDataOdds_HDP(
         if (!league_WBet) {
           const newLeague: Partial<LeagueType> = {
             idLeague,
-            nameLeague,
-            league: nameLeague.toUpperCase()
+            league: nameLeague.toUpperCase(),
+            nameLeague
           }
 
           League_WBet.create(newLeague)
@@ -143,29 +145,29 @@ export async function handleDataOdds_HDP(
         const marketSelectionId_away_under = match[23]
 
         WBet.create({
-          platform: PLATFORM.WBET,
-          idLeague,
-          nameLeague,
-          idEvent,
-          nameHome,
-          nameAway,
-          league: league_WBet?.league || '',
-          home: nameHome.toUpperCase(),
-          away: nameAway.toUpperCase(),
-          number: TYPE_ODD_HDP[time_odd],
-          score,
-          stat,
-          hdp_point: Number(odd),
-          home_over: price_home,
-          away_under: price_away,
-          type: TYPE_ODD.HDP,
-          typeOdd: TYPE_ODD_DETAIL.HDP,
           HDP: item[8],
-          marketSelectionId_home_over,
-          marketSelectionId_away_under,
           altLineId,
+          away: nameAway.toUpperCase(),
+          away_under: price_away,
+          hdp_point: Number(odd),
+          home: nameHome.toUpperCase(),
+          home_over: price_home,
+          idEvent,
+          idLeague,
+          league: league_WBet?.league || '',
+          marketSelectionId_away_under,
+          marketSelectionId_home_over,
+          nameAway,
+          nameHome,
+          nameLeague,
+          number: TYPE_ODD_HDP[time_odd],
+          platform: PLATFORM.WBET,
+          score,
+          specialOdd: 5,
+          stat,
           submatch_id,
-          specialOdd: 5
+          type: TYPE_ODD.HDP,
+          typeOdd: TYPE_ODD_DETAIL.HDP
         })
       })
     )
@@ -203,8 +205,8 @@ export async function handleDataOdds_OU(League_WBet, dataOdds_OU, leagues, match
         if (!league_WBet) {
           const newLeague: Partial<LeagueType> = {
             idLeague,
-            nameLeague,
-            league: nameLeague.toUpperCase()
+            league: nameLeague.toUpperCase(),
+            nameLeague
           }
 
           League_WBet.create(newLeague)
@@ -219,29 +221,29 @@ export async function handleDataOdds_OU(League_WBet, dataOdds_OU, leagues, match
         const marketSelectionId_away_under = match[23]
 
         WBet.create({
-          platform: PLATFORM.WBET,
-          idLeague,
-          nameLeague,
-          idEvent,
-          nameHome,
-          nameAway,
-          league: league_WBet?.league || '',
-          home: nameHome.toUpperCase(),
-          away: nameAway.toUpperCase(),
-          number: TYPE_ODD_OU[time_odd],
-          score,
-          stat,
-          hdp_point: Number(odd),
-          home_over: price_home,
-          away_under: price_away,
-          type: TYPE_ODD.OU,
-          typeOdd: TYPE_ODD_DETAIL.OU,
           HDP: item[8],
-          marketSelectionId_home_over,
-          marketSelectionId_away_under,
           altLineId,
+          away: nameAway.toUpperCase(),
+          away_under: price_away,
+          hdp_point: Number(odd),
+          home: nameHome.toUpperCase(),
+          home_over: price_home,
+          idEvent,
+          idLeague,
+          league: league_WBet?.league || '',
+          marketSelectionId_away_under,
+          marketSelectionId_home_over,
+          nameAway,
+          nameHome,
+          nameLeague,
+          number: TYPE_ODD_OU[time_odd],
+          platform: PLATFORM.WBET,
+          score,
+          specialOdd: 7,
+          stat,
           submatch_id,
-          specialOdd: 7
+          type: TYPE_ODD.OU,
+          typeOdd: TYPE_ODD_DETAIL.OU
         })
       })
     )

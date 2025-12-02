@@ -1,4 +1,5 @@
 import { Account } from '@db/model'
+
 import { TicketInfoDataBetType } from '@shared/common/types'
 
 export const checkAccountContinues = (ticketPair: TicketInfoDataBetType[]) => {
@@ -6,12 +7,12 @@ export const checkAccountContinues = (ticketPair: TicketInfoDataBetType[]) => {
 
   const checkAccount = (ticket: TicketInfoDataBetType) =>
     Account.findOne({
+      checkBoxBet: 1,
       id: ticket.idAccount,
       status: 'Logout',
-      checkBoxBet: 1,
+      statusDelete: 0,
       statusLogin: 'Success',
-      statusPair: 1,
-      statusDelete: 0
+      statusPair: 1
     })
 
   const accountInfoI = checkAccount(ticketI)

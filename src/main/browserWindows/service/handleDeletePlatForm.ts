@@ -1,7 +1,9 @@
-import { checkQueuePlatform } from '@/worker'
 import { Account, SettingPerMatchLimit, SportsBook } from '@db/model'
-import { AccountType, SportsBookType } from '@shared/common/types'
 import { BrowserWindow } from 'electron'
+
+import { AccountType, SportsBookType } from '@shared/common/types'
+
+import { checkQueuePlatform } from '@/worker'
 
 export function handleDeletePlatForm(
   mainWindow: BrowserWindow,

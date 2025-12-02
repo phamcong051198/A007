@@ -2,12 +2,13 @@ import React from 'react'
 import { useEffect, useState } from 'react'
 
 import SettingCheckBox from '@renderer/components/BetListContraListSuccessList/SettingCheckBox'
-import { SettingTableViewType, TicketInfoDataBetType } from '@shared/common/types'
-import { ROW_SIZE } from '@shared/common/constants'
 import TableData from '@renderer/components/BetListContraListSuccessList/TableData'
 import { addEmptyRows } from '@renderer/lib/addEmptyRows'
-import DownloadCloudIcon from '@renderer/icons/download-cloud-icon'
 import { handleSaveReport } from '@renderer/lib/handleSaveReport'
+import DownloadCloudIcon from '@renderer/icons/download-cloud-icon'
+
+import { ROW_SIZE } from '@shared/common/constants'
+import { SettingTableViewType, TicketInfoDataBetType } from '@shared/common/types'
 
 const ListEventWaitingList = () => {
   const [settings, setSettings] = useState({ clearWhenOver100: 0, enableScroll: 0 })
@@ -42,11 +43,11 @@ const ListEventWaitingList = () => {
 
   useEffect(() => {
     window.electron.ipcRenderer.send('UpdateSettingViewTable', {
-      tab: 'WaitingList',
       data: {
         clear: settings.clearWhenOver100,
         scroll: settings.enableScroll
-      }
+      },
+      tab: 'WaitingList'
     })
   }, [settings])
 

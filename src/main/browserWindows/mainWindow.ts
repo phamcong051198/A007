@@ -1,5 +1,5 @@
-import { is } from '@electron-toolkit/utils'
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { join } from 'path'
+
 import {
   Account,
   BetListResult,
@@ -13,22 +13,33 @@ import {
   SuccessList,
   WaitingList
 } from '@db/model'
-import { join } from 'path'
+import { is } from '@electron-toolkit/utils'
+import { app, BrowserWindow, ipcMain } from 'electron'
+
+import { LeagueType, PlatformType, SettingType, SportsBookType } from '@shared/common/types'
+import {
+  BetListDBType,
+  SettingTableViewType,
+  WaitingSuccessContraDBType
+} from '@shared/common/types'
+import { DEFAULT_SPORTS_BOOK_CONFIG, DEFAULT_TEAM_NAME_LIMIT } from '@shared/main/constants'
+import { DataBetSettingPayload } from '@shared/main/types'
+
+import { GetAccount1Account2 } from '@/browserWindows/service/getAccount1Account2'
+import { getLeagueModelByPlatform } from '@/browserWindows/service/getLeagueModelByPlatform'
+import { GetListAccountPair } from '@/browserWindows/service/getListAccountPair'
 import { handleAddAccountPlatForm } from '@/browserWindows/service/handleAddAccountPlatForm'
+import { handleAddControls } from '@/browserWindows/service/handleAddControls'
 import { handleDeleteAccount } from '@/browserWindows/service/handleDeleteAccount'
 import { handleDeletePlatForm } from '@/browserWindows/service/handleDeletePlatForm'
 import { handleGetDataSportsBook } from '@/browserWindows/service/handleGetDataSportsBook'
+import { handleListReportFile } from '@/browserWindows/service/handleListReportFile'
+import { handleLoginAll } from '@/browserWindows/service/handleLoginAll'
+import { handleLoginAll_Platform } from '@/browserWindows/service/handleLoginAll_Platform'
 import {
   handleLoginAccount,
   handleLogoutAccount
 } from '@/browserWindows/service/handleLoginLogoutAccount'
-import { LeagueType, PlatformType, SettingType, SportsBookType } from '@shared/common/types'
-import { GetAccount1Account2 } from '@/browserWindows/service/getAccount1Account2'
-import { GetListAccountPair } from '@/browserWindows/service/getListAccountPair'
-import { handleAddControls } from '@/browserWindows/service/handleAddControls'
-import { handleListReportFile } from '@/browserWindows/service/handleListReportFile'
-import { handleLoginAll } from '@/browserWindows/service/handleLoginAll'
-import { handleLoginAll_Platform } from '@/browserWindows/service/handleLoginAll_Platform'
 import { handleLogoutAll } from '@/browserWindows/service/handleLogoutAll'
 import { handleLogoutAll_Platform } from '@/browserWindows/service/handleLogoutAll_Platform'
 import {
@@ -38,35 +49,27 @@ import {
 import { updateDataAccount } from '@/browserWindows/service/updateDataAccount'
 import { updateDataListAccount } from '@/browserWindows/service/updateDataListAccount'
 import { systemLogToFile } from '@/worker/lib/systemLogToFile'
-import {
-  BetListDBType,
-  SettingTableViewType,
-  WaitingSuccessContraDBType
-} from '@shared/common/types'
-import { DEFAULT_SPORTS_BOOK_CONFIG, DEFAULT_TEAM_NAME_LIMIT } from '@shared/main/constants'
-import { DataBetSettingPayload } from '@shared/main/types'
-import { getLeagueModelByPlatform } from '@/browserWindows/service/getLeagueModelByPlatform'
 
 export async function createMainWindow() {
   const mainWindow = new BrowserWindow({
-    width: 1440,
-    height: 960,
-    minWidth: 177,
-    minHeight: 100,
-    show: false,
     autoHideMenuBar: true,
     center: true,
     frame: false,
+    height: 960,
+    icon: 'build/icon.png',
+    minHeight: 100,
+    minWidth: 177,
+    show: false,
     titleBarOverlay: false,
+    trafficLightPosition: { x: 15, y: 10 },
     vibrancy: 'under-window',
     visualEffectState: 'active',
-    trafficLightPosition: { x: 15, y: 10 },
-    icon: 'build/icon.png',
     webPreferences: {
+      contextIsolation: true,
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
-      contextIsolation: true
-    }
+      sandbox: false
+    },
+    width: 1440
   })
 
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
@@ -137,11 +140,11 @@ export async function createMainWindow() {
     Setting.update(
       { id: otherSetting.id },
       {
-        isOther: otherSetting.isOther,
-        isBetUnderSelected: otherSetting.isBetUnderSelected,
+        isBetEatSelected: otherSetting.isBetEatSelected,
         isBetOverSelected: otherSetting.isBetOverSelected,
         isBetPutSelected: otherSetting.isBetPutSelected,
-        isBetEatSelected: otherSetting.isBetEatSelected
+        isBetUnderSelected: otherSetting.isBetUnderSelected,
+        isOther: otherSetting.isOther
       }
     )
   })
@@ -358,7 +361,7 @@ export async function createMainWindow() {
   )
 
   ipcMain.handle('GetBetListResult', () => {
-    const data = BetListResult.findAll({}, { orderBy: 'id', desc: true }) as BetListDBType[]
+    const data = BetListResult.findAll({}, { desc: true, orderBy: 'id' }) as BetListDBType[]
     return data.flatMap((item: BetListDBType) => JSON.parse(item.dataPair))
   })
 
@@ -370,7 +373,7 @@ export async function createMainWindow() {
   ipcMain.handle('GetContraList', () => {
     const data = ContraList.findAll(
       {},
-      { orderBy: 'id', desc: true }
+      { desc: true, orderBy: 'id' }
     ) as WaitingSuccessContraDBType[]
     return data.flatMap((item: WaitingSuccessContraDBType) => JSON.parse(item.dataPair))
   })
@@ -378,7 +381,7 @@ export async function createMainWindow() {
   ipcMain.handle('GetSuccessList', () => {
     const data = SuccessList.findAll(
       {},
-      { orderBy: 'id', desc: true }
+      { desc: true, orderBy: 'id' }
     ) as WaitingSuccessContraDBType[]
     return data.flatMap((item: WaitingSuccessContraDBType) => JSON.parse(item.dataPair))
   })
@@ -407,9 +410,9 @@ export async function createMainWindow() {
       { platformName },
       {
         proxyIP: formData.ipAddress || null,
+        proxyPassword: formData.password || null,
         proxyPort: cleanPort,
-        proxyUsername: formData.username || null,
-        proxyPassword: formData.password || null
+        proxyUsername: formData.username || null
       }
     )
   })

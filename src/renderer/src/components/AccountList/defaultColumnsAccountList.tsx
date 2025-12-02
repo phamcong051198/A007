@@ -1,6 +1,6 @@
-import { ColumnDef } from '@tanstack/react-table'
-import { AccountType } from '@shared/common/types'
 import { useState } from 'react'
+import { ColumnDef } from '@tanstack/react-table'
+
 import {
   Select,
   SelectContent,
@@ -8,6 +8,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@renderer/components/ui/select'
+
+import { AccountType } from '@shared/common/types'
 
 export function createColumnsAccountList({
   onMoveUp,
@@ -18,8 +20,6 @@ export function createColumnsAccountList({
 }): ColumnDef<AccountType>[] {
   return [
     {
-      id: 'no',
-      header: 'No',
       cell: ({ row }) => {
         return (
           <span className="outline-none rounded-none flex items-center justify-center leading-none">
@@ -27,70 +27,68 @@ export function createColumnsAccountList({
           </span>
         )
       },
+      header: 'No',
+      id: 'no',
       size: 30
     },
     {
-      id: 'loginID',
       accessorKey: 'loginID',
+      footer: (props) => props.column.id,
       header: () => <span>Login ID</span>,
-      footer: (props) => props.column.id,
+      id: 'loginID',
       size: 120
     },
     {
-      id: 'password',
       accessorKey: 'password',
-      header: () => <span>Password</span>,
       footer: (props) => props.column.id,
+      header: () => <span>Password</span>,
+      id: 'password',
       size: 120
     },
     {
-      id: 'loginURL',
       accessorKey: 'loginURL',
-      header: () => <span>Login URL</span>,
       footer: (props) => props.column.id,
+      header: () => <span>Login URL</span>,
+      id: 'loginURL',
       size: 200
     },
     {
-      id: 'customIP',
       accessorKey: 'customIP',
+      footer: (props) => props.column.id,
       header: () => <span>Custom IP</span>,
-      footer: (props) => props.column.id,
+      id: 'customIP',
       size: 110
     },
     {
-      id: 'proxyIP',
       accessorKey: 'proxyIP',
+      footer: (props) => props.column.id,
       header: () => <span>Proxy IP</span>,
-      footer: (props) => props.column.id,
+      id: 'proxyIP',
       size: 110
     },
     {
-      id: 'proxyPort',
       accessorKey: 'proxyPort',
-      header: () => <span>Proxy Port</span>,
       footer: (props) => props.column.id,
+      header: () => <span>Proxy Port</span>,
+      id: 'proxyPort',
       size: 110
     },
     {
-      id: 'proxyUsername',
       accessorKey: 'proxyUsername',
+      footer: (props) => props.column.id,
       header: () => <span>ProxyUsername</span>,
-      footer: (props) => props.column.id,
+      id: 'proxyUsername',
       size: 120
     },
     {
-      id: 'proxyPassword',
       accessorKey: 'proxyPassword',
-      header: () => <span>ProxyPassword</span>,
       footer: (props) => props.column.id,
+      header: () => <span>ProxyPassword</span>,
+      id: 'proxyPassword',
       size: 120
     },
     {
-      id: 'proxyScope',
       accessorKey: 'proxyScope',
-      header: () => <span>ProxyScope</span>,
-      footer: (props) => props.column.id,
-      size: 100,
       cell: ({ getValue, row, column, table }) => {
         const [isSelectOpen, setIsSelectOpen] = useState(false)
         const handleChange = (value: string) => {
@@ -134,12 +132,13 @@ export function createColumnsAccountList({
             </Select>
           </div>
         )
-      }
+      },
+      footer: (props) => props.column.id,
+      header: () => <span>ProxyScope</span>,
+      id: 'proxyScope',
+      size: 100
     },
     {
-      id: 'actions',
-      header: 'Actions',
-      size: 150,
       cell: ({ row }) => (
         <div className="flex gap-1">
           <button
@@ -155,7 +154,10 @@ export function createColumnsAccountList({
             ⬇ Down
           </button>
         </div>
-      )
+      ),
+      header: 'Actions',
+      id: 'actions',
+      size: 150
     }
   ]
 }

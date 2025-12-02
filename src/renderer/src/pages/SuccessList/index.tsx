@@ -1,6 +1,7 @@
 import clsx from 'clsx'
-import { useSidebar } from '@renderer/context/SidebarContext'
+
 import ListEventSuccessList from '@renderer/components/SuccessList/ListEventSuccessList'
+import { useSidebar } from '@renderer/context/SidebarContext'
 
 function SuccessList() {
   const { collapsed } = useSidebar()

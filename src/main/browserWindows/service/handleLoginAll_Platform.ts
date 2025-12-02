@@ -1,10 +1,12 @@
+import { setTimeout } from 'timers/promises'
+
 import { BrowserWindow } from 'electron'
 
-import { setTimeout } from 'timers/promises'
+import { AccountType } from '@shared/common/types'
+
 import { handleGetAccountBySportsBook } from '@/browserWindows/service/handleGetAccountBySportsBook'
 import { handleLoginAccount } from '@/browserWindows/service/handleLoginLogoutAccount'
 import { platformPairStatusManager } from '@/worker/handlePairPlatform/manager'
-import { AccountType } from '@shared/common/types'
 
 export async function handleLoginAll_Platform(
   mainWindow: BrowserWindow,

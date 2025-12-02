@@ -2,6 +2,17 @@
 /* eslint-disable no-constant-condition */
 const { parentPort, workerData } = require('worker_threads')
 
+import { setTimeout } from 'timers/promises'
+
+import { AccountPair, createModel, DataBet, PlatformPair, Setting } from '@db/model'
+import { AccountPairDBType } from '@db/schema/accountPair'
+import dataCrawlByPlatformSchema from '@db/schema/dataCrawlByPlatform'
+import { PlatformPairType } from '@db/schema/platformPair'
+
+import { GAME_TYPES } from '@shared/common/constants'
+import { OVER, SPREAD, UNDER } from '@shared/common/constants'
+import { DataCrawlType, SettingType } from '@shared/common/types'
+
 import { checkArbitrageMy } from '@/worker/handlePairPlatform/helper/scanArbitrage'
 import { checkOddsSetting } from '@/worker/lib/checkOddsSetting'
 import { clearTablesForGameType } from '@/worker/lib/clearTablesForGameType'
@@ -9,14 +20,6 @@ import { findMatchingData } from '@/worker/lib/findMatchingData'
 import { generateTicketUpdate } from '@/worker/lib/generateTicketUpdate'
 import { handleCombinationWithDataTicket } from '@/worker/lib/handleCombinationWithDataTicket'
 import { isValidData } from '@/worker/lib/isValidData'
-import { AccountPair, createModel, DataBet, PlatformPair, Setting } from '@db/model'
-import { AccountPairDBType } from '@db/schema/accountPair'
-import dataCrawlByPlatformSchema from '@db/schema/dataCrawlByPlatform'
-import { PlatformPairType } from '@db/schema/platformPair'
-import { GAME_TYPES } from '@shared/common/constants'
-import { OVER, SPREAD, UNDER } from '@shared/common/constants'
-import { DataCrawlType, SettingType } from '@shared/common/types'
-import { setTimeout } from 'timers/promises'
 
 let gameType: string | null = null
 const key = workerData.pair as string
@@ -71,10 +74,10 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
     if (!league || !home || !away) continue
 
     const listDataCrawlPlatform2 = Platform2_Model.findAll({
-      league,
-      typeOdd,
       hdp_point,
-      number
+      league,
+      number,
+      typeOdd
     }) as DataCrawlType[]
 
     if (listDataCrawlPlatform2.length == 0) continue
@@ -89,16 +92,16 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
 
     const profitCombos = [
       {
-        odd1: dataCrawlPlatform1.home_over,
-        odd2: dataCrawlPlatform2.away_under,
         bet1: dataCrawlPlatform1.typeOdd === SPREAD ? dataCrawlPlatform1.nameHome : OVER,
-        bet2: dataCrawlPlatform2.typeOdd === SPREAD ? dataCrawlPlatform2.nameAway : UNDER
+        bet2: dataCrawlPlatform2.typeOdd === SPREAD ? dataCrawlPlatform2.nameAway : UNDER,
+        odd1: dataCrawlPlatform1.home_over,
+        odd2: dataCrawlPlatform2.away_under
       },
       {
-        odd1: dataCrawlPlatform1.away_under,
-        odd2: dataCrawlPlatform2.home_over,
         bet1: dataCrawlPlatform1.typeOdd === SPREAD ? dataCrawlPlatform1.nameAway : UNDER,
-        bet2: dataCrawlPlatform2.typeOdd === SPREAD ? dataCrawlPlatform2.nameHome : OVER
+        bet2: dataCrawlPlatform2.typeOdd === SPREAD ? dataCrawlPlatform2.nameHome : OVER,
+        odd1: dataCrawlPlatform1.away_under,
+        odd2: dataCrawlPlatform2.home_over
       }
     ]
 
@@ -129,19 +132,19 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
           ? (dataCrawlPlatform1.redCard ?? dataCrawlPlatform2.redCard)
           : ''
 
-      const commonData = { score, redCard, stat, type }
+      const commonData = { redCard, score, stat, type }
 
       const dataTicketI = {
         ...dataCrawlPlatform1,
         ...commonData,
-        stake: arbitrage.stakeA,
-        profit: arbitrage.profitIfAWin
+        profit: arbitrage.profitIfAWin,
+        stake: arbitrage.stakeA
       }
       const dataTicketII = {
         ...dataCrawlPlatform2,
         ...commonData,
-        stake: arbitrage.stakeB,
-        profit: arbitrage.profitIfBWin
+        profit: arbitrage.profitIfBWin,
+        stake: arbitrage.stakeB
       }
 
       const ticketUpdate = generateTicketUpdate(

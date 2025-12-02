@@ -1,15 +1,17 @@
 import { useState } from 'react'
-import { DropdownMenuItem } from '@renderer/components/ui/dropdown-menu'
+
 import { AlertDialog, AlertDialogContent } from '@renderer/components/ui/alert-dialog'
+import { DropdownMenuItem } from '@renderer/components/ui/dropdown-menu'
 import CheckCircle from '@renderer/icons/check-circle'
+
 import { SportsBookType } from '@shared/common/types'
 
 function ProxySetting({ sportsBook }: { sportsBook: SportsBookType }) {
   const [formData, setFormData] = useState({
     ipAddress: '',
+    password: '',
     port: '',
-    username: '',
-    password: ''
+    username: ''
   })
 
   const [openModalSetting, setOpenModalSetting] = useState(false)
@@ -18,15 +20,15 @@ function ProxySetting({ sportsBook }: { sportsBook: SportsBookType }) {
     setOpenModalSetting(false)
     setFormData({
       ipAddress: '',
+      password: '',
       port: '0',
-      username: '',
-      password: ''
+      username: ''
     })
   }
   const save = () => {
     window.electron.ipcRenderer.send('Data_ProxyServerSetting_Platform', {
-      platformName: sportsBook.platform,
-      formData
+      formData,
+      platformName: sportsBook.platform
     })
     closeModal()
   }

@@ -1,14 +1,17 @@
-import { HttpsProxyAgent } from 'https-proxy-agent'
-import { Account, Setting } from '@db/model'
 import { parentPort } from 'worker_threads'
+
+import { Account, Setting } from '@db/model'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+
 import { AccountType, SettingType } from '@shared/common/types'
-import { accountLogToFile } from '@/worker/lib/accountLogToFile'
-import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
 import { OPTIONS_PROXY, STATUS_ACCOUNT, STATUS_LOGIN } from '@shared/main/constants'
-import { UserInfoResponse } from '@/worker/platform/3In1bet/common/types'
-import { API_BASE_URL, API_ENDPOINTS } from '@/worker/platform/3In1bet/common/constants'
+
+import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { exitWithLog } from '@/worker/lib/exitWithLog'
+import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
 import { mergeCookies } from '@/worker/lib/mergeCookies'
+import { API_BASE_URL, API_ENDPOINTS } from '@/worker/platform/3In1bet/common/constants'
+import { UserInfoResponse } from '@/worker/platform/3In1bet/common/types'
 
 const LOGIN_TIMEOUT = 80_000 // 80s
 
@@ -37,11 +40,11 @@ export async function loginToPlatform(
 ) {
   const updateLog = (textLog: string, statusLogin?, status?) => {
     port.postMessage({
-      type: 'DataUpdateAccount',
       data: Account.update(
         { id: account.id },
         { textLog, ...(statusLogin && { statusLogin }), ...(status && { status }) }
-      )
+      ),
+      type: 'DataUpdateAccount'
     })
   }
 
@@ -77,10 +80,10 @@ export async function loginToPlatform(
     // Step 0.1: check.aspx
     const checkRes = await fetch(API_ENDPOINTS.CHECK, {
       headers: {
-        'User-Agent': 'Mozilla/5.0',
-        Referer: API_BASE_URL,
-        Cookie: cookieHeader,
         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        Cookie: cookieHeader,
+        Referer: API_BASE_URL,
+        'User-Agent': 'Mozilla/5.0',
         ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
       },
       redirect: 'manual',
@@ -91,21 +94,21 @@ export async function loginToPlatform(
 
     // Step 1: login
     const loginRes = await fetch(API_ENDPOINTS.PROCESSLOGIN, {
-      method: 'POST',
+      body: new URLSearchParams({
+        Password: account.password,
+        UserName: account.loginID,
+        button: 'Login',
+        isEncrypt: '0'
+      }).toString(),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'Mozilla/5.0',
+        Cookie: cookieHeader,
         Origin: API_BASE_URL,
         Referer: API_BASE_URL,
-        Cookie: cookieHeader,
+        'User-Agent': 'Mozilla/5.0',
         ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
       },
-      body: new URLSearchParams({
-        isEncrypt: '0',
-        button: 'Login',
-        UserName: account.loginID,
-        Password: account.password
-      }).toString(),
+      method: 'POST',
       redirect: 'manual',
       ...(proxyAgent && { agent: proxyAgent })
     })
@@ -150,16 +153,16 @@ export async function loginToPlatform(
     // Step 4: UserInfo
     cookieHeader += (cookieHeader.endsWith(';') ? ' ' : '; ') + `DefaultOddsType=MY`
     const userInfoRes = await fetch(API_ENDPOINTS.USER_INFO_PANEL_HOST, {
-      method: 'POST',
       headers: {
-        'User-Agent': 'Mozilla/5.0',
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'X-Requested-With': 'XMLHttpRequest',
+        Cookie: cookieHeader,
         Origin: API_BASE_URL,
         Referer: API_BASE_URL + '/main/index.aspx',
-        Cookie: cookieHeader,
+        'User-Agent': 'Mozilla/5.0',
+        'X-Requested-With': 'XMLHttpRequest',
         ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
       },
+      method: 'POST',
       ...(proxyAgent && { agent: proxyAgent })
     })
 
@@ -176,21 +179,21 @@ export async function loginToPlatform(
 
     const setting = Setting.findAll()[0] as SettingType
     port.postMessage({
-      type: 'DataUpdateAccount',
       data: Account.update(
         { id: account.id },
         {
+          checkBoxAutoLogin: 1,
           checkBoxBet: 1,
           checkBoxRefresh: 1,
-          checkBoxAutoLogin: 1,
           cookie: cookieHeader,
-          typeCrawl: setting.gameType,
           credit: String(userInfo.BetCredit ?? '0'),
           status: STATUS_ACCOUNT.LOGOUT,
           statusLogin: STATUS_LOGIN.SUCCESS,
-          textLog: `Login ${account.loginID} successfully!`
+          textLog: `Login ${account.loginID} successfully!`,
+          typeCrawl: setting.gameType
         }
-      )
+      ),
+      type: 'DataUpdateAccount'
     })
 
     await accountLogToFile(

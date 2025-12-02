@@ -1,9 +1,11 @@
-import { checkBetLimit } from '@/worker/lib/checkBetLimit'
-import { formatTime } from '@/worker/lib/formatTime'
 import { Account, BetListResult } from '@db/model'
+import type { MessagePort } from 'worker_threads'
+
 import { AccountSettingType, TicketInfoDataBetType } from '@shared/common/types'
 import { AccountType, DataPairPlatformType } from '@shared/common/types'
-import type { MessagePort } from 'worker_threads'
+
+import { checkBetLimit } from '@/worker/lib/checkBetLimit'
+import { formatTime } from '@/worker/lib/formatTime'
 
 type AccountInfo = {
   info: AccountType
@@ -27,8 +29,8 @@ export async function validateSettingAccountPairBeforeBet(
 > {
   const baseQuery = {
     status: 'Logout',
-    statusLogin: 'Success',
     statusDelete: 0,
+    statusLogin: 'Success',
     statusPair: 1
   }
 
@@ -37,7 +39,7 @@ export async function validateSettingAccountPairBeforeBet(
     Account.findOne({ ...baseQuery, id: parsedAccount2.id }) as AccountType
   ])
 
-  if (!account1Info || !account2Info) return { valid: false, fieldError: 'ErrAccNotExist' }
+  if (!account1Info || !account2Info) return { fieldError: 'ErrAccNotExist', valid: false }
 
   const [TicketI, TicketII] = dataTicket
   const accounts = [
@@ -51,13 +53,13 @@ export async function validateSettingAccountPairBeforeBet(
       company: `${info.platformName}-${info.loginID}`,
       coverage: ticket.number === 0 ? 'FT' : 'FirstHalf',
       gameType,
-      time: formatTime(),
       info: messageFn({ info, setting, ticket }),
       receiptID: '',
-      receiptStatus: ''
+      receiptStatus: '',
+      time: formatTime()
     }))
     const recordDB = BetListResult.create({ dataPair: JSON.stringify(ticketUpdate) })
-    port?.postMessage({ type: 'BetList', recordDB })
+    port?.postMessage({ recordDB, type: 'BetList' })
   }
 
   if (accounts.some((acc) => acc.info.checkBoxBet == 0)) {
@@ -66,14 +68,14 @@ export async function validateSettingAccountPairBeforeBet(
         ? `Get Ticket Failed: Account ${acc.info.platformName}-${acc.info.loginID} setting input checkbox not Bet!`
         : 'Get Ticket Failed: Stop ticketing!'
     )
-    return { valid: false, fieldError: 'Checkbox account not bet' }
+    return { fieldError: 'Checkbox account not bet', valid: false }
   }
 
   if (accounts.some((acc) => acc.setting.bet === 0))
-    return { valid: false, fieldError: 'Checkbox setting not bet' }
+    return { fieldError: 'Checkbox setting not bet', valid: false }
 
   if (!(await checkBetLimit(dataTicket, [account1Info, account2Info], port)))
-    return { valid: false, fieldError: 'Bet Limit' }
+    return { fieldError: 'Bet Limit', valid: false }
 
   const isBetAmountExceedsCredit = accounts.some(
     (acc) => Number(acc.ticket.stake) > Number(acc.info.credit)
@@ -84,14 +86,14 @@ export async function validateSettingAccountPairBeforeBet(
         ? `Get Ticket Failed: Account ${acc.info.platformName}-${acc.info.loginID} insufficient credit (${acc.setting.betAmount} > ${acc.info.credit})!`
         : 'Get Ticket Failed: Do not have any available account for betting!'
     )
-    return { valid: false, fieldError: 'Insufficient credit' }
+    return { fieldError: 'Insufficient credit', valid: false }
   }
 
   const isTicketBetFlags: [number, number] = [1, 1]
 
   return {
-    valid: true,
     accounts,
-    isTicketBetFlags
+    isTicketBetFlags,
+    valid: true
   }
 }

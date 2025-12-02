@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { logTime } from '@/worker/lib/logTime'
-import { setTimeout as delay } from 'timers/promises'
 import fsPromises from 'fs/promises'
 import path from 'path'
+import { setTimeout as delay } from 'timers/promises'
+
+import { logTime } from '@/worker/lib/logTime'
 
 const MAX_FILE_SIZE = 1 * 1024 * 1024 // 1MB
 const MAX_BACKUP_FILES = 5

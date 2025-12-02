@@ -1,21 +1,24 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import fetch from 'node-fetch'
+import { setTimeout } from 'timers/promises'
+import { parentPort } from 'worker_threads'
+
+import Model, { Account, clearTable, createModel, EventSbobet, Setting } from '@db/model'
+import dataCrawlByPlatformSchema from '@db/schema/dataCrawlByPlatform'
+import { EventSbobetType } from '@db/schema/eventSbobet'
 import { HttpsProxyAgent } from 'https-proxy-agent'
+import fetch from 'node-fetch'
+
+import { CONVERT_HDP, SPREAD, TOTAL } from '@shared/common/constants'
+import { AccountType, DataCrawlType, SettingType } from '@shared/common/types'
+
+import { getBalanceSbobet } from './actions/getBalance'
 
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { isAccountActive } from '@/worker/lib/checkAccount'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
-import { toPositiveNumber } from '@/worker/lib/toPositiveNumber'
-import Model, { Account, clearTable, createModel, EventSbobet, Setting } from '@db/model'
-import dataCrawlByPlatformSchema from '@db/schema/dataCrawlByPlatform'
-import { EventSbobetType } from '@db/schema/eventSbobet'
-import { CONVERT_HDP, SPREAD, TOTAL } from '@shared/common/constants'
-import { setTimeout } from 'timers/promises'
-import { parentPort } from 'worker_threads'
-import { getBalanceSbobet } from './actions/getBalance'
 import { systemLogToFile } from '@/worker/lib/systemLogToFile'
-import { AccountType, DataCrawlType, SettingType } from '@shared/common/types'
+import { toPositiveNumber } from '@/worker/lib/toPositiveNumber'
 import { SBO_CONFIG, SBO_CONFIG_TYPE_ODD } from '@/worker/platform/Sbobet/common/constants'
 
 let gameType: string | null = null
@@ -42,8 +45,8 @@ const handleCrawlData = async () => {
     const listAccount = Account.findAll({
       platformName: 'Sbobet',
       status: 'Logout',
-      statusLogin: 'Success',
-      statusDelete: 0
+      statusDelete: 0,
+      statusLogin: 'Success'
     }) as AccountType[]
 
     if (!listAccount.length) {
@@ -65,7 +68,7 @@ const fnCrawlData = async (account: AccountType) => {
     'Program'
   )
   Account.updateMany(
-    { status: 'Logout', statusDelete: 0, statusLogin: 'Success', platformName: 'Sbobet' },
+    { platformName: 'Sbobet', status: 'Logout', statusDelete: 0, statusLogin: 'Success' },
     {
       textLog: 'Data Scraping In Progress...'
     }
@@ -80,8 +83,8 @@ const fnCrawlData = async (account: AccountType) => {
 
   const accountRefresh = Account.findOne({
     id: account.id,
-    statusDelete: 0,
     status: 'Logout',
+    statusDelete: 0,
     statusLogin: 'Success'
   }) as AccountType
   if (!accountRefresh) return
@@ -103,8 +106,8 @@ const fnCrawlData = async (account: AccountType) => {
         }
       ) &&
       port.postMessage({
-        type: 'DataUpdateAccount',
-        idAccount: account.id
+        idAccount: account.id,
+        type: 'DataUpdateAccount'
       })
 
     return
@@ -134,8 +137,8 @@ const fnCrawlData = async (account: AccountType) => {
           }
         ) &&
         port.postMessage({
-          type: 'DataUpdateAccount',
-          idAccount: account.id
+          idAccount: account.id,
+          type: 'DataUpdateAccount'
         })
       return
     }
@@ -143,8 +146,8 @@ const fnCrawlData = async (account: AccountType) => {
     const dataAccount = Account.findOne({
       id: account.id,
       status: 'Logout',
-      statusLogin: 'Success',
-      statusDelete: 0
+      statusDelete: 0,
+      statusLogin: 'Success'
     }) as AccountType
     if (!dataAccount) return
 
@@ -153,17 +156,17 @@ const fnCrawlData = async (account: AccountType) => {
         Account.update(
           { id: account.id },
           {
-            statusLogin: 'Fail',
-            textLog: 'Logged Again ...',
-            credit: '0',
             cookie: null,
+            credit: '0',
             host: null,
-            socketUrl: null
+            socketUrl: null,
+            statusLogin: 'Fail',
+            textLog: 'Logged Again ...'
           }
         ) &&
         port.postMessage({
-          type: 'LoggedAgain',
-          idAccount: account.id
+          idAccount: account.id,
+          type: 'LoggedAgain'
         })
     } else {
       isAccountActive(account.id) &&
@@ -175,8 +178,8 @@ const fnCrawlData = async (account: AccountType) => {
           }
         ) &&
         port.postMessage({
-          type: 'DataUpdateAccount',
-          idAccount: account.id
+          idAccount: account.id,
+          type: 'DataUpdateAccount'
         })
     }
 
@@ -185,8 +188,8 @@ const fnCrawlData = async (account: AccountType) => {
   isAccountActive(account.id) &&
     Account.update({ id: account.id }, { credit: Data }) &&
     port.postMessage({
-      type: 'DataUpdateAccount',
-      idAccount: account.id
+      idAccount: account.id,
+      type: 'DataUpdateAccount'
     })
 
   try {
@@ -199,7 +202,7 @@ const fnCrawlData = async (account: AccountType) => {
     )
     if (isAccountActive(account.id)) {
       Account.updateMany(
-        { status: 'Logout', statusDelete: 0, statusLogin: 'Success', platformName: 'Sbobet' },
+        { platformName: 'Sbobet', status: 'Logout', statusDelete: 0, statusLogin: 'Success' },
         {
           textLog: `Get Soccer ${gameType}...`
         }
@@ -209,15 +212,15 @@ const fnCrawlData = async (account: AccountType) => {
 
     const extensions = {
       persistedQuery: {
-        version: 1,
-        sha256Hash: SBO_CONFIG.SHA256_HASH
+        sha256Hash: SBO_CONFIG.SHA256_HASH,
+        version: 1
       }
     }
 
     const extensionsQuery = {
       persistedQuery: {
-        version: 1,
-        sha256Hash: SBO_CONFIG.SHA256_HASH_QUERY
+        sha256Hash: SBO_CONFIG.SHA256_HASH_QUERY,
+        version: 1
       }
     }
     const fetchTokenUrl = `${account.host}${SBO_CONFIG.FETCH_TOKEN}`
@@ -226,6 +229,7 @@ const fnCrawlData = async (account: AccountType) => {
       'Accept-Language': 'en-US,en;q=0.9,vi;q=0.8',
       Connection: 'keep-alive',
       'Content-Length': '0',
+      Cookie: account.cookie,
       Referer: account.host,
       'Sec-Fetch-Dest': 'empty',
       'Sec-Fetch-Mode': 'cors',
@@ -235,13 +239,12 @@ const fnCrawlData = async (account: AccountType) => {
       'sec-ch-ua': '"Chromium";v="136", "Google Chrome";v="136", "Not.A/Brand";v="99"',
       'sec-ch-ua-mobile': '?0',
       'sec-ch-ua-platform': '"Windows"',
-      Cookie: account.cookie,
       ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
     }
 
     const resToken = await fetch(fetchTokenUrl, {
-      method: 'GET',
       headers: headersGetToken,
+      method: 'GET',
       ...(proxyAgent && { agent: proxyAgent })
     })
 
@@ -268,27 +271,27 @@ const fnCrawlData = async (account: AccountType) => {
     let DataPreset = {}
 
     if (gameType === 'Early') {
-      DataPreset = { presetFilter: 'NonLive', date: 'EarlyMarket' }
+      DataPreset = { date: 'EarlyMarket', presetFilter: 'NonLive' }
     }
 
     if (gameType === 'Running') {
-      DataPreset = { presetFilter: 'Live', date: 'All' }
+      DataPreset = { date: 'All', presetFilter: 'Live' }
     }
 
     if (gameType === 'Today') {
-      DataPreset = { presetFilter: 'NonLive', date: 'Today' }
+      DataPreset = { date: 'Today', presetFilter: 'NonLive' }
     }
 
     const variablesString = encodeURIComponent(
       JSON.stringify({
         query: {
-          sport: 'Soccer',
+          eventIds: [],
           filter: DataPreset,
           oddsCategory: 'All',
-          eventIds: [],
+          sport: 'Soccer',
+          timeZone: 'UTC__4',
           tournamentIds: [],
-          tournamentNames: [],
-          timeZone: 'UTC__4'
+          tournamentNames: []
         }
       })
     )
@@ -297,8 +300,8 @@ const fnCrawlData = async (account: AccountType) => {
 
     try {
       const resEventsQuery = await fetch(fetchTeamUrl, {
-        method: 'GET',
         headers,
+        method: 'GET',
         ...(proxyAgent && { agent: proxyAgent })
       })
       const contentTypeEventsQuery = resEventsQuery.headers.get('content-type')
@@ -315,8 +318,8 @@ const fnCrawlData = async (account: AccountType) => {
       }
 
       const resEventResultsQuery = await fetch(fetchResultUrl, {
-        method: 'GET',
         headers,
+        method: 'GET',
         ...(proxyAgent && { agent: proxyAgent })
       })
       const contentTypeEventResultsQuery = resEventResultsQuery.headers.get('content-type')
@@ -338,9 +341,9 @@ const fnCrawlData = async (account: AccountType) => {
       const dataSbobet = await resEventsQuery.json()
       const dataSbobetEvent = await resEventResultsQuery.json()
 
-      await handleDataLeague({ dataSbobet, account })
-      await handleDataSbobetEvent({ dataSbobetEvent, account })
-      await handleDataSbobetOdds({ dataSbobetEvent, account, oddsToken, authToken, proxyAgent })
+      await handleDataLeague({ account, dataSbobet })
+      await handleDataSbobetEvent({ account, dataSbobetEvent })
+      await handleDataSbobetOdds({ account, authToken, dataSbobetEvent, oddsToken, proxyAgent })
 
       const settings = Setting.findAll() as SettingType[]
       if (gameType != settings[0].gameType) return
@@ -355,7 +358,7 @@ const fnCrawlData = async (account: AccountType) => {
 
       isAccountActive(account.id) &&
         Account.updateMany(
-          { status: 'Logout', statusDelete: 0, statusLogin: 'Success', platformName: 'Sbobet' },
+          { platformName: 'Sbobet', status: 'Logout', statusDelete: 0, statusLogin: 'Success' },
           {
             textLog: `Handle Data Sbobet Done. (${timeEnd - timeStart}ms)`
           }
@@ -377,17 +380,17 @@ const fnCrawlData = async (account: AccountType) => {
             Account.update(
               { id: account.id },
               {
-                statusLogin: 'Fail',
-                textLog: 'Logged Again ...',
-                credit: '0',
                 cookie: null,
+                credit: '0',
                 host: null,
-                socketUrl: null
+                socketUrl: null,
+                statusLogin: 'Fail',
+                textLog: 'Logged Again ...'
               }
             )
             port.postMessage({
-              type: 'LoggedAgain',
-              idAccount: account.id
+              idAccount: account.id,
+              type: 'LoggedAgain'
             })
           }
           return
@@ -398,14 +401,14 @@ const fnCrawlData = async (account: AccountType) => {
         Account.update(
           { id: account.id },
           {
-            status: 'Exit',
             checkBoxAutoLogin: 0,
+            status: 'Exit',
             textLog: message
           }
         )
         port.postMessage({
-          type: 'DataUpdateAccount',
-          idAccount: account.id
+          idAccount: account.id,
+          type: 'DataUpdateAccount'
         })
       }
       return
@@ -430,8 +433,8 @@ const fnCrawlData = async (account: AccountType) => {
         }
       ) &&
       port.postMessage({
-        type: 'DataUpdateAccount',
-        idAccount: account.id
+        idAccount: account.id,
+        type: 'DataUpdateAccount'
       })
 
     clearTable('Sbobet')
@@ -460,7 +463,7 @@ const insertRecords = (records: any, Sbobet: Model) => {
 const handleDataLeague = async ({ dataSbobet, account }) => {
   if (isAccountActive(account.id)) {
     Account.updateMany(
-      { status: 'Logout', statusDelete: 0, statusLogin: 'Success', platformName: 'Sbobet' },
+      { platformName: 'Sbobet', status: 'Logout', statusDelete: 0, statusLogin: 'Success' },
       {
         textLog: `Start Handle Data League...`
       }
@@ -495,7 +498,7 @@ const handleDataLeague = async ({ dataSbobet, account }) => {
   )
 
   Account.updateMany(
-    { status: 'Logout', statusDelete: 0, statusLogin: 'Success', platformName: 'Sbobet' },
+    { platformName: 'Sbobet', status: 'Logout', statusDelete: 0, statusLogin: 'Success' },
     {
       textLog: `Handle Data League Done. (${eventsLength}, ${timeEnd - timeStart}ms)`
     }
@@ -506,7 +509,7 @@ const handleDataLeague = async ({ dataSbobet, account }) => {
 const handleDataSbobetEvent = async ({ dataSbobetEvent, account }) => {
   if (isAccountActive(account.id)) {
     Account.updateMany(
-      { status: 'Logout', statusDelete: 0, statusLogin: 'Success', platformName: 'Sbobet' },
+      { platformName: 'Sbobet', status: 'Logout', statusDelete: 0, statusLogin: 'Success' },
       {
         textLog: `Start Handle Data Events...`
       }
@@ -569,7 +572,7 @@ const handleDataSbobetEvent = async ({ dataSbobetEvent, account }) => {
   )
 
   Account.updateMany(
-    { status: 'Logout', statusDelete: 0, statusLogin: 'Success', platformName: 'Sbobet' },
+    { platformName: 'Sbobet', status: 'Logout', statusDelete: 0, statusLogin: 'Success' },
     {
       textLog: `Handle Data League Done. (${eventsLength}, ${timeEnd - timeStart}ms)`
     }
@@ -586,7 +589,7 @@ const handleDataSbobetOdds = async ({
 }) => {
   if (isAccountActive(account.id)) {
     Account.updateMany(
-      { status: 'Logout', statusDelete: 0, statusLogin: 'Success', platformName: 'Sbobet' },
+      { platformName: 'Sbobet', status: 'Logout', statusDelete: 0, statusLogin: 'Success' },
       {
         textLog: `Start Handle Data Odds...`
       }
@@ -600,8 +603,8 @@ const handleDataSbobetOdds = async ({
 
   const extensionsQuery = {
     persistedQuery: {
-      version: 1,
-      sha256Hash: SBO_CONFIG.SHA256_HASH_ODDS
+      sha256Hash: SBO_CONFIG.SHA256_HASH_ODDS,
+      version: 1
     }
   }
 
@@ -621,17 +624,18 @@ const handleDataSbobetOdds = async ({
     const variablesString = encodeURIComponent(
       JSON.stringify({
         query: {
-          id: event.id,
-          filter: presetFilter,
-          marketGroupIds: SBO_CONFIG.MARKET_GROUP_IDS,
           excludeMarketGroupIds: null,
+          filter: presetFilter,
+          id: event.id,
+          marketGroupIds: SBO_CONFIG.MARKET_GROUP_IDS,
           oddsCategory: 'All',
-          priceStyle: 'Malay',
-          oddsToken: oddsToken
+          oddsToken: oddsToken,
+          priceStyle: 'Malay'
         }
       })
     )
     const headers = {
+      Cookie: account.cookie,
       accept: '*/*',
       'accept-language': 'en-US,en;q=0.9,vi;q=0.8',
       authorization: authToken,
@@ -642,14 +646,13 @@ const handleDataSbobetOdds = async ({
       'sec-ch-ua-platform': '"Windows"',
       'user-agent':
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36',
-      Cookie: account.cookie,
       ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
     }
     const fetchResultUrl = `${new URL(SBO_CONFIG.FETCH_EVENT)}?operationName=OddsQuery&variables=${variablesString}&extensions=${extensionsStringQuery}`
 
     const resOddsQuery = await fetch(fetchResultUrl, {
-      method: 'GET',
       headers,
+      method: 'GET',
       ...(proxyAgent && { agent: proxyAgent })
     })
 
@@ -671,8 +674,8 @@ const handleDataSbobetOdds = async ({
       const dataAccount = Account.findOne({
         id: account.id,
         status: 'Logout',
-        statusLogin: 'Success',
-        statusDelete: 0
+        statusDelete: 0,
+        statusLogin: 'Success'
       }) as AccountType
       if (!dataAccount) return
 
@@ -681,17 +684,17 @@ const handleDataSbobetOdds = async ({
           Account.update(
             { id: account.id },
             {
-              statusLogin: 'Fail',
-              textLog: 'Logged Again ...',
-              credit: '0',
               cookie: null,
+              credit: '0',
               host: null,
-              socketUrl: null
+              socketUrl: null,
+              statusLogin: 'Fail',
+              textLog: 'Logged Again ...'
             }
           ) &&
           port.postMessage({
-            type: 'LoggedAgain',
-            idAccount: account.id
+            idAccount: account.id,
+            type: 'LoggedAgain'
           })
       } else {
         isAccountActive(account.id) &&
@@ -703,8 +706,8 @@ const handleDataSbobetOdds = async ({
             }
           ) &&
           port.postMessage({
-            type: 'DataUpdateAccount',
-            idAccount: account.id
+            idAccount: account.id,
+            type: 'DataUpdateAccount'
           })
       }
 
@@ -744,28 +747,28 @@ const handleDataSbobetOdds = async ({
 
       if (!findTicket) {
         const dataSave = {
-          platform: 'Sbobet',
-          idLeague: matchInfo?.idLeague ?? '',
-          nameLeague: matchInfo?.nameLeague ?? '',
-          idEvent: event?.id,
-          nameHome: matchInfo?.nameHome,
-          nameAway: matchInfo?.nameAway,
-          number: oddsEvent.marketType.includes('FH') ? 1 : 0,
+          HDP: CONVERT_HDP[toPositiveNumber(Math.abs(oddsEvent.point))],
           altLineId: oddsEvent.id,
-          hdp_point: oddsEvent.marketType.includes('Handicap') ? hdp_point : Math.abs(hdp_point),
-          home_over: oddsEvent.prices[0].price,
+          away: matchInfo.away,
           away_under: oddsEvent.prices[1].price,
+          bettype: oddsEvent.isLive ? 1 : 0,
+          hdp_point: oddsEvent.marketType.includes('Handicap') ? hdp_point : Math.abs(hdp_point),
+          home: matchInfo.home,
+          home_over: oddsEvent.prices[0].price,
+          idEvent: event?.id,
+          idLeague: matchInfo?.idLeague ?? '',
+          league: matchInfo.league,
+          nameAway: matchInfo?.nameAway,
+          nameHome: matchInfo?.nameHome,
+          nameLeague: matchInfo?.nameLeague ?? '',
+          number: oddsEvent.marketType.includes('FH') ? 1 : 0,
+          platform: 'Sbobet',
           redCard: `${matchInfo?.homered ?? 0}-${matchInfo?.awayred ?? 0}`,
           score: `${matchInfo?.livehomescore ?? 0}-${matchInfo?.liveawayscore ?? 0}`,
-          stat: matchInfo.livetimer ?? '',
-          typeOdd: oddsEvent.marketType.includes('Handicap') ? SPREAD : TOTAL,
-          type: oddsEvent.marketType.includes('Handicap') ? 'HDP' : 'OU',
-          bettype: oddsEvent.isLive ? 1 : 0,
-          HDP: CONVERT_HDP[toPositiveNumber(Math.abs(oddsEvent.point))],
           specialOdd: SBO_CONFIG_TYPE_ODD[oddsEvent.marketType],
-          league: matchInfo.league,
-          home: matchInfo.home,
-          away: matchInfo.away
+          stat: matchInfo.livetimer ?? '',
+          type: oddsEvent.marketType.includes('Handicap') ? 'HDP' : 'OU',
+          typeOdd: oddsEvent.marketType.includes('Handicap') ? SPREAD : TOTAL
         }
 
         records.push(dataSave)
@@ -780,7 +783,7 @@ const handleDataSbobetOdds = async ({
     }
     const timeEnd = new Date().getTime()
     Account.updateMany(
-      { status: 'Logout', statusDelete: 0, statusLogin: 'Success', platformName: 'Sbobet' },
+      { platformName: 'Sbobet', status: 'Logout', statusDelete: 0, statusLogin: 'Success' },
       {
         textLog: `Handle Data Odds Event Done. (${eventsLength}, ${timeEnd - timeStart}ms)`
       }
@@ -798,7 +801,7 @@ const handleDataSbobetOdds = async ({
   )
 
   Account.updateMany(
-    { status: 'Logout', statusDelete: 0, statusLogin: 'Success', platformName: 'Sbobet' },
+    { platformName: 'Sbobet', status: 'Logout', statusDelete: 0, statusLogin: 'Success' },
     {
       textLog: `Handle Data Odds Event Done All. (${dataSbobetEvent.data.events.length}, ${timeEnd - timeStart}ms)`
     }

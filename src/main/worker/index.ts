@@ -1,22 +1,23 @@
 import { Worker } from 'worker_threads'
+
+import { Account, ContraList, SuccessList, WaitingList } from '@db/model'
 import { BrowserWindow } from 'electron'
 
+import { AccountType } from '@shared/common/types'
+import { PLATFORM } from '@shared/main/constants'
+import { QueueHandler } from '@shared/main/types'
+
+import createWorkerCrawl3IN1Bet from './platform/3In1bet/workerCrawl?nodeWorker'
+import createWorkerLogin3IN1Bet from './platform/3In1bet/workerLogin?nodeWorker'
 import createWorkerCrawlP88 from './platform/P88/workerCrawl?nodeWorker'
 import createWorkerLoginP88 from './platform/P88/workerLogin?nodeWorker'
-
-import createWorkerLoginSbobet from './platform/Sbobet/workerLogin?nodeWorker'
 import createWorkerCrawlSbobet from './platform/Sbobet/workerCrawl?nodeWorker'
-
+import createWorkerLoginSbobet from './platform/Sbobet/workerLogin?nodeWorker'
 import createWorkerCrawlViva88 from './platform/Viva88/workerCrawl?nodeWorker'
 import createWorkerHandleDataViva88 from './platform/Viva88/workerHandleData?nodeWorker'
 import createWorkerLoginViva88 from './platform/Viva88/workerLogin?nodeWorker'
-
-import createWorkerLoginWbet from './platform/Wbet/workerLogin?nodeWorker'
 import createWorkerCrawlWbet from './platform/Wbet/workerCrawl?nodeWorker'
-
-import createWorkerLogin3IN1Bet from './platform/3In1bet/workerLogin?nodeWorker'
-import createWorkerCrawl3IN1Bet from './platform/3In1bet/workerCrawl?nodeWorker'
-
+import createWorkerLoginWbet from './platform/Wbet/workerLogin?nodeWorker'
 import createWorkerAutoLogin from './workerAutoLogin?nodeWorker'
 import createWorkerGetResultBet from './workerGetResultBet?nodeWorker'
 import createWorkerPlaceBet from './workerPlaceBet?nodeWorker'
@@ -24,14 +25,9 @@ import createWorkerPlaceBet from './workerPlaceBet?nodeWorker'
 import handleBetList from '@/worker/lib/handleBetList'
 import handleContraList from '@/worker/lib/handleContraList'
 import handleSuccessList from '@/worker/lib/handleSuccessList'
-
 import { sendAccountUpdate } from '@/worker/lib/sendAccountUpdate'
 import { sendCount } from '@/worker/lib/sendCount'
-import { Account, ContraList, SuccessList, WaitingList } from '@db/model'
 import { sendPlatformUpdate } from '@/worker/lib/sendPlatformUpdate'
-import { QueueHandler } from '@shared/main/types'
-import { PLATFORM } from '@shared/main/constants'
-import { AccountType } from '@shared/common/types'
 
 let workerCrawlP88: Worker | null = null
 let workerCrawlWbet: Worker | null = null
@@ -45,108 +41,10 @@ let workerAutoLogin: Worker | null = null
 let workerGetResultBet: Worker | null = null
 
 const platformHandlers: Record<string, QueueHandler> = {
-  P88Bet: {
-    queue: [],
-    isProcessing: false,
-    createWorkerLogin: createWorkerLoginP88,
-    createWorkerCrawl: createWorkerCrawlP88,
-
-    processor(mainWindow: BrowserWindow) {
-      const handler = platformHandlers[PLATFORM.P88BET]
-      if (handler.isProcessing || handler.queue.length === 0) return
-
-      const account = handler.queue.shift()
-      if (!account) return
-
-      const accountInfo = Account.findOne({
-        id: account.id,
-        platformName: PLATFORM.P88BET,
-        statusDelete: 0
-      }) as AccountType
-      if (!accountInfo) return
-
-      handler.isProcessing = true
-      startWorker(accountInfo, mainWindow)
-    }
-  },
-  Viva88Bet: {
-    queue: [],
-    isProcessing: false,
-    createWorkerLogin: createWorkerLoginViva88,
-    createWorkerCrawl: createWorkerCrawlViva88,
-
-    processor(mainWindow: BrowserWindow) {
-      const handler = platformHandlers[PLATFORM.VIVA88BET]
-      if (handler.isProcessing || handler.queue.length === 0) return
-
-      const account = handler.queue.shift()
-      if (!account) return
-
-      const accountInfo = Account.findOne({
-        id: account.id,
-        platformName: PLATFORM.VIVA88BET,
-        statusDelete: 0
-      }) as AccountType
-      if (!accountInfo) return
-
-      handler.isProcessing = true
-      startWorker(accountInfo, mainWindow)
-    }
-  },
-  Sbobet: {
-    queue: [],
-    isProcessing: false,
-    createWorkerLogin: createWorkerLoginSbobet,
-    createWorkerCrawl: createWorkerCrawlSbobet,
-
-    processor(mainWindow: BrowserWindow) {
-      const handler = platformHandlers[PLATFORM.SBOBET]
-      if (handler.isProcessing || handler.queue.length === 0) return
-
-      const account = handler.queue.shift()
-      if (!account) return
-
-      const accountInfo = Account.findOne({
-        id: account.id,
-        platformName: PLATFORM.SBOBET,
-        statusDelete: 0
-      }) as AccountType
-      if (!accountInfo) return
-
-      handler.isProcessing = true
-      startWorker(accountInfo, mainWindow)
-    }
-  },
-  WBet: {
-    queue: [],
-    isProcessing: false,
-    createWorkerLogin: createWorkerLoginWbet,
-    createWorkerCrawl: createWorkerCrawlWbet,
-
-    processor(mainWindow: BrowserWindow) {
-      const handler = platformHandlers[PLATFORM.WBET]
-      if (handler.isProcessing || handler.queue.length === 0) return
-
-      const account = handler.queue.shift()
-      if (!account) return
-
-      const accountInfo = Account.findOne({
-        id: account.id,
-        platformName: PLATFORM.WBET,
-        statusDelete: 0
-      }) as AccountType
-      if (!accountInfo) return
-
-      handler.isProcessing = true
-      startWorker(accountInfo, mainWindow)
-    }
-  },
   '3in1Bet': {
-    queue: [],
-    isProcessing: false,
-    createWorkerLogin: createWorkerLogin3IN1Bet,
     createWorkerCrawl: createWorkerCrawl3IN1Bet,
-
+    createWorkerLogin: createWorkerLogin3IN1Bet,
+    isProcessing: false,
     processor(mainWindow: BrowserWindow) {
       const handler = platformHandlers[PLATFORM['3IN1BET']]
       if (handler.isProcessing || handler.queue.length === 0) return
@@ -163,7 +61,105 @@ const platformHandlers: Record<string, QueueHandler> = {
 
       handler.isProcessing = true
       startWorker(accountInfo, mainWindow)
-    }
+    },
+
+    queue: []
+  },
+  P88Bet: {
+    createWorkerCrawl: createWorkerCrawlP88,
+    createWorkerLogin: createWorkerLoginP88,
+    isProcessing: false,
+    processor(mainWindow: BrowserWindow) {
+      const handler = platformHandlers[PLATFORM.P88BET]
+      if (handler.isProcessing || handler.queue.length === 0) return
+
+      const account = handler.queue.shift()
+      if (!account) return
+
+      const accountInfo = Account.findOne({
+        id: account.id,
+        platformName: PLATFORM.P88BET,
+        statusDelete: 0
+      }) as AccountType
+      if (!accountInfo) return
+
+      handler.isProcessing = true
+      startWorker(accountInfo, mainWindow)
+    },
+
+    queue: []
+  },
+  Sbobet: {
+    createWorkerCrawl: createWorkerCrawlSbobet,
+    createWorkerLogin: createWorkerLoginSbobet,
+    isProcessing: false,
+    processor(mainWindow: BrowserWindow) {
+      const handler = platformHandlers[PLATFORM.SBOBET]
+      if (handler.isProcessing || handler.queue.length === 0) return
+
+      const account = handler.queue.shift()
+      if (!account) return
+
+      const accountInfo = Account.findOne({
+        id: account.id,
+        platformName: PLATFORM.SBOBET,
+        statusDelete: 0
+      }) as AccountType
+      if (!accountInfo) return
+
+      handler.isProcessing = true
+      startWorker(accountInfo, mainWindow)
+    },
+
+    queue: []
+  },
+  Viva88Bet: {
+    createWorkerCrawl: createWorkerCrawlViva88,
+    createWorkerLogin: createWorkerLoginViva88,
+    isProcessing: false,
+    processor(mainWindow: BrowserWindow) {
+      const handler = platformHandlers[PLATFORM.VIVA88BET]
+      if (handler.isProcessing || handler.queue.length === 0) return
+
+      const account = handler.queue.shift()
+      if (!account) return
+
+      const accountInfo = Account.findOne({
+        id: account.id,
+        platformName: PLATFORM.VIVA88BET,
+        statusDelete: 0
+      }) as AccountType
+      if (!accountInfo) return
+
+      handler.isProcessing = true
+      startWorker(accountInfo, mainWindow)
+    },
+
+    queue: []
+  },
+  WBet: {
+    createWorkerCrawl: createWorkerCrawlWbet,
+    createWorkerLogin: createWorkerLoginWbet,
+    isProcessing: false,
+    processor(mainWindow: BrowserWindow) {
+      const handler = platformHandlers[PLATFORM.WBET]
+      if (handler.isProcessing || handler.queue.length === 0) return
+
+      const account = handler.queue.shift()
+      if (!account) return
+
+      const accountInfo = Account.findOne({
+        id: account.id,
+        platformName: PLATFORM.WBET,
+        statusDelete: 0
+      }) as AccountType
+      if (!accountInfo) return
+
+      handler.isProcessing = true
+      startWorker(accountInfo, mainWindow)
+    },
+
+    queue: []
   }
 }
 

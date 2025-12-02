@@ -1,6 +1,7 @@
 import clsx from 'clsx'
-import { useSidebar } from '@renderer/context/SidebarContext'
+
 import ListEventContraList from '@renderer/components/ContraList/ListEventContraList'
+import { useSidebar } from '@renderer/context/SidebarContext'
 
 function ContraList() {
   const { collapsed } = useSidebar()

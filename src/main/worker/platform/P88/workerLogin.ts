@@ -1,13 +1,16 @@
-import fetch from 'node-fetch'
-import { HttpsProxyAgent } from 'https-proxy-agent'
-
 import { setTimeout as delay } from 'timers/promises'
-import { parentPort, MessagePort } from 'worker_threads'
-import { accountLogToFile } from '@/worker/lib/accountLogToFile'
+import { MessagePort, parentPort } from 'worker_threads'
+
 import { Account, Setting } from '@db/model'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+import fetch from 'node-fetch'
+
 import { AccountType, SettingType } from '@shared/common/types'
-import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
 import { OPTIONS_PROXY, STATUS_ACCOUNT, STATUS_LOGIN } from '@shared/main/constants'
+
+import { accountLogToFile } from '@/worker/lib/accountLogToFile'
+import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
+import { getBalanceP88bet } from '@/worker/platform/P88/actions/getBalance'
 import { API_ENDPOINTS, buildHeadersLogin } from '@/worker/platform/P88/common/contants'
 import {
   extractCookie,
@@ -15,7 +18,6 @@ import {
   parseLoginResponse,
   updateAccountStatus
 } from '@/worker/platform/P88/helper'
-import { getBalanceP88bet } from '@/worker/platform/P88/actions/getBalance'
 
 const port = parentPort
 if (!port) throw new Error('IllegalState')
@@ -61,8 +63,8 @@ async function loginToP88Bet(port: MessagePort, account: AccountType) {
 
     // call API
     const res = await fetch(API_ENDPOINTS.AUTH, {
-      method: 'POST',
       headers: buildHeadersLogin(account),
+      method: 'POST',
       ...(proxyAgent && { agent: proxyAgent }),
       body: new URLSearchParams({
         captcha: '',
@@ -91,20 +93,20 @@ async function loginToP88Bet(port: MessagePort, account: AccountType) {
       if (ErrorCode == 0 && !Number.isNaN(credit)) {
         const setting = Setting.findAll()[0] as SettingType
         port.postMessage({
-          type: 'DataUpdateAccount',
           data: Account.update(
             { id: account.id },
             {
+              checkBoxAutoLogin: 1,
               checkBoxBet: 1,
               checkBoxRefresh: 1,
-              checkBoxAutoLogin: 1,
-              typeCrawl: setting.gameType,
               credit: Data,
               status: STATUS_ACCOUNT.LOGOUT,
               statusLogin: STATUS_LOGIN.SUCCESS,
-              textLog: `Login ${account.loginID} successfully!`
+              textLog: `Login ${account.loginID} successfully!`,
+              typeCrawl: setting.gameType
             }
-          )
+          ),
+          type: 'DataUpdateAccount'
         })
         await delay(2000)
         process.exit(0)
@@ -118,7 +120,6 @@ async function loginToP88Bet(port: MessagePort, account: AccountType) {
       'Program'
     )
     port.postMessage({
-      type: 'DataUpdateAccount',
       data: Account.update(
         { id: account.id },
         {
@@ -126,7 +127,8 @@ async function loginToP88Bet(port: MessagePort, account: AccountType) {
           statusLogin: STATUS_LOGIN.FAIL,
           textLog: `Login failed: ${message}`
         }
-      )
+      ),
+      type: 'DataUpdateAccount'
     })
 
     process.exit(0)

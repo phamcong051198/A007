@@ -3,17 +3,17 @@ import { AccountType } from '@shared/common/types'
 
 const generateDetailSetting = () => {
   return {
-    generalSetting: 'BetAll',
-    FT_PK: 0,
-    FT_Put: 0,
     FT_Eat: 0,
     FT_Over: 0,
+    FT_PK: 0,
+    FT_Put: 0,
     FT_Under: 0,
-    Half_PK: 0,
-    Half_Put: 0,
     Half_Eat: 0,
     Half_Over: 0,
-    Half_Under: 0
+    Half_PK: 0,
+    Half_Put: 0,
+    Half_Under: 0,
+    generalSetting: 'BetAll'
   }
 }
 
@@ -31,47 +31,38 @@ const generateBetTo = () => {
 
 const generateGameRange = () => {
   return {
-    betAll: 1,
-    today: 1,
-    early: 1,
-    running: 1,
     allMinutes: 1,
     arrayMinutes: [],
+    betAll: 1,
     checkOdd: 0,
+    early: 1,
     oddFrom: '0.70',
-    oddTo: '-0.01'
+    oddTo: '-0.01',
+    running: 1,
+    today: 1
   }
 }
 
 export function generateAccountData(account: AccountType) {
   return {
-    id: account.id,
-    loginID: account.loginID,
-    platform: account.platformName,
-
+    amountRounderSetting: {
+      roundType: 'auto',
+      roundValue: '2',
+      rounder: 0
+    },
+    bet: 1,
     betAmount: '100',
 
     checkOdd: 0,
+
+    contra: 1,
+    id: account.id,
+    loginID: account.loginID,
     oddFrom: '0.01',
     oddTo: '-0.01',
-    bet: 1,
-    contra: 1,
 
-    amountRounderSetting: {
-      rounder: 0,
-      roundType: 'auto',
-      roundValue: '2'
-    },
+    platform: account.platformName,
     ...generateDetailSetting(),
-
-    FT_PK_Detail: {
-      range: generateGameRange()
-    },
-
-    FT_Put_Detail: {
-      betTo: generateBetTo(),
-      range: generateGameRange()
-    },
 
     FT_Eat_Detail: {
       betTo: generateBetTo(),
@@ -83,16 +74,16 @@ export function generateAccountData(account: AccountType) {
       range: generateGameRange()
     },
 
-    FT_Under_Detail: {
+    FT_PK_Detail: {
+      range: generateGameRange()
+    },
+
+    FT_Put_Detail: {
       betTo: generateBetTo(),
       range: generateGameRange()
     },
 
-    Half_PK_Detail: {
-      range: generateGameRange()
-    },
-
-    Half_Put_Detail: {
+    FT_Under_Detail: {
       betTo: generateBetTo(),
       range: generateGameRange()
     },
@@ -103,6 +94,15 @@ export function generateAccountData(account: AccountType) {
     },
 
     Half_Over_Detail: {
+      betTo: generateBetTo(),
+      range: generateGameRange()
+    },
+
+    Half_PK_Detail: {
+      range: generateGameRange()
+    },
+
+    Half_Put_Detail: {
       betTo: generateBetTo(),
       range: generateGameRange()
     },

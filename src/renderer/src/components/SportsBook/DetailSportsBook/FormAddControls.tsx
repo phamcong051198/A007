@@ -1,6 +1,7 @@
-import Xmark from '@renderer/icons/x-mark'
 import React, { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
+
+import Xmark from '@renderer/icons/x-mark'
 
 const FormAddControls = ({ setIsShowFormAddControls, platform }) => {
   const { id: activeId } = useParams()
@@ -33,9 +34,9 @@ const FormAddControls = ({ setIsShowFormAddControls, platform }) => {
     setIsShowFormAddControls(false)
     window.electron.ipcRenderer.send('AddControls', {
       activeId,
+      numberAccount: +parsedValue,
       platformName: platform.platform,
-      platformURL: platform.url,
-      numberAccount: +parsedValue
+      platformURL: platform.url
     })
   }
 

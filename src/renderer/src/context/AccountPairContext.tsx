@@ -1,6 +1,7 @@
+import { createContext, useEffect, useState } from 'react'
+
 import { AccountPairType } from '@shared/common/types'
 import { AccountType } from '@shared/common/types'
-import { createContext, useEffect, useState } from 'react'
 interface ContextType {
   ListAccount: {
     listAccount: AccountType[]
@@ -19,20 +20,20 @@ interface ContextType {
   }
 }
 export const AccountPairContext = createContext<ContextType>({
-  ListAccount: {
-    listAccount: [],
-    setListAccount: () => {}
-  },
-  Combination: {
-    listAccountPair: [],
-    setListAccountPair: () => {},
-
-    currentAccountPair: {} as AccountPairType,
-    setCurrentAccountPair: () => {}
-  },
   ClearInvalidAccount: {
     isClearInvalidAccount: false,
     setIsClearInvalidAccount: () => {}
+  },
+  Combination: {
+    currentAccountPair: {} as AccountPairType,
+    listAccountPair: [],
+
+    setCurrentAccountPair: () => {},
+    setListAccountPair: () => {}
+  },
+  ListAccount: {
+    listAccount: [],
+    setListAccount: () => {}
   }
 })
 
@@ -104,21 +105,21 @@ export const AccountPairProvider = ({ children }) => {
   }, [listAccountPair])
 
   const contextValue: ContextType = {
-    ListAccount: {
-      listAccount,
-      setListAccount: (value) => setListAccount(value)
-    },
-    Combination: {
-      listAccountPair,
-      setListAccountPair: (value) => setListAccountPair(value),
-      currentAccountPair,
-      setCurrentAccountPair: (value) => setCurrentAccountPair(value)
-    },
     ClearInvalidAccount: {
       isClearInvalidAccount,
       setIsClearInvalidAccount: () => {
         setIsClearInvalidAccount(true)
       }
+    },
+    Combination: {
+      currentAccountPair,
+      listAccountPair,
+      setCurrentAccountPair: (value) => setCurrentAccountPair(value),
+      setListAccountPair: (value) => setListAccountPair(value)
+    },
+    ListAccount: {
+      listAccount,
+      setListAccount: (value) => setListAccount(value)
     }
   }
   return <AccountPairContext.Provider value={contextValue}>{children}</AccountPairContext.Provider>

@@ -2,11 +2,11 @@ import { useContext, useState } from 'react'
 import { CheckCircle } from 'lucide-react'
 
 import { SettingContext } from '@renderer/context/SettingContext'
+
+import { Button } from '../ui/button'
+import { Label } from '../ui/label'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { InputNumber } from '../ui/input-number'
-import { Label } from '../ui/label'
-import { Button } from '../ui/button'
 
 export default function GeneralSetting() {
   const context = useContext(SettingContext)
@@ -18,17 +18,17 @@ export default function GeneralSetting() {
 
   const handleSaveSetting = () => {
     window.electron.ipcRenderer.send('SaveSettingWindow', {
-      profitMin:
-        isNaN(parseFloat(context.oddsTypeSetting.profitMin as string)) ||
-        parseFloat(context.oddsTypeSetting.profitMin as string) < -1
-          ? '-1'
-          : context.oddsTypeSetting.profitMin,
+      gameType: context.gameType.gameType,
       profitMax:
         isNaN(parseFloat(context.oddsTypeSetting.profitMax as string)) ||
         parseFloat(context.oddsTypeSetting.profitMax as string) > 1
           ? '1'
           : context.oddsTypeSetting.profitMax,
-      gameType: context.gameType.gameType
+      profitMin:
+        isNaN(parseFloat(context.oddsTypeSetting.profitMin as string)) ||
+        parseFloat(context.oddsTypeSetting.profitMin as string) < -1
+          ? '-1'
+          : context.oddsTypeSetting.profitMin
     })
 
     setShowSaveSuccess(true)

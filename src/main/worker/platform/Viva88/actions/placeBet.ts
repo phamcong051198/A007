@@ -1,12 +1,14 @@
-import fetch from 'node-fetch'
 import { HttpsProxyAgent } from 'https-proxy-agent'
-import { accountLogToFile } from '@/worker/lib/accountLogToFile'
-import { toQueryString } from '@/worker/lib/toQueryString'
+import fetch from 'node-fetch'
+
 import { AccountType } from '@shared/common/types'
-import { handleBetError, handleBetSuccess } from '@/worker/lib/handleLogBet'
-import { DataTypeGetTickets_Viva88, TypeGetBetListApi } from '@/worker/platform/Viva88/common/types'
 import { TicketInfoDataBetType } from '@shared/common/types'
+
+import { accountLogToFile } from '@/worker/lib/accountLogToFile'
+import { handleBetError, handleBetSuccess } from '@/worker/lib/handleLogBet'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
+import { toQueryString } from '@/worker/lib/toQueryString'
+import { DataTypeGetTickets_Viva88, TypeGetBetListApi } from '@/worker/platform/Viva88/common/types'
 import { configHeaders } from '@/worker/platform/Viva88/helper'
 
 export const placeBet_Viva88Bet = async (
@@ -25,12 +27,12 @@ export const placeBet_Viva88Bet = async (
       'BetList'
     )
     return {
-      ErrorCode: 400,
       Data: {
         info: ticket.betRejectionReason,
         receiptID: '',
         receiptStatus: ''
-      }
+      },
+      ErrorCode: 400
     }
   }
 
@@ -38,42 +40,42 @@ export const placeBet_Viva88Bet = async (
   const stake = Number(ticket.betAmount_Standard)
   const itemListProcessBet = [
     {
-      Type: dataGetTicketInfo.TicketType,
+      AcceptBetterOdds: true,
+      Ascore: dataGetTicketInfo.LiveAwayScore,
+      Away: dataGetTicketInfo.AwayName,
+      Betteam: dataGetTicketInfo.Betteam,
       Bettype: dataGetTicketInfo.Bettype,
-      Oddsid: dataGetTicketInfo.OddsID,
-      Odds: dataGetTicketInfo.SrcOdds,
-      Line: dataGetTicketInfo.Line,
+      ChoiceValue: dataGetTicketInfo.ChoiceValue,
+      ErrorCode: dataGetTicketInfo.ErrorCode,
+      Gameid: 1,
+      Guid: dataGetTicketInfo.Guid,
       Hdp1: dataGetTicketInfo.Hdp1,
       Hdp2: dataGetTicketInfo.Hdp2,
+      Home: dataGetTicketInfo.HomeName,
       Hscore: dataGetTicketInfo.LiveHomeScore,
-      Ascore: dataGetTicketInfo.LiveAwayScore,
-      Betteam: dataGetTicketInfo.Betteam,
+      IsInPlay: dataGetTicketInfo.IsInPlay,
+      Line: dataGetTicketInfo.Line,
+      LuckyDrawMinBet: dataGetTicketInfo.LuckyDrawMinBet,
+      MMR: '',
+      MRPercentage: dataGetTicketInfo.MRPercentage,
+      Matchid: dataGetTicketInfo.Matchid,
+      Odds: dataGetTicketInfo.SrcOdds,
+      Oddsid: dataGetTicketInfo.OddsID,
+      ProgramID: '',
+      RaceNum: 0,
+      RecommendType: dataGetTicketInfo.RecommendType,
+      Runner: 0,
+      SrcOddsInfo: dataGetTicketInfo.SrcOddsInfo,
       Stake:
         stake > parseFloat(dataGetTicketInfo.Maxbet.replace(/,/g, ''))
           ? dataGetTicketInfo.Maxbet
           : stake,
-      Matchid: dataGetTicketInfo.Matchid,
-      ChoiceValue: dataGetTicketInfo.ChoiceValue,
-      SrcOddsInfo: dataGetTicketInfo.SrcOddsInfo,
-      ErrorCode: dataGetTicketInfo.ErrorCode,
-      Home: dataGetTicketInfo.HomeName,
-      Away: dataGetTicketInfo.AwayName,
-      Gameid: 1,
-      ProgramID: '',
-      RaceNum: 0,
-      Runner: 0,
-      MRPercentage: dataGetTicketInfo.MRPercentage,
-      AcceptBetterOdds: true,
+      TicketTime: dataGetTicketInfo.TicketTime,
+      Type: dataGetTicketInfo.TicketType,
       isQuickBet: true,
       isTablet: false,
-      IsInPlay: dataGetTicketInfo.IsInPlay,
-      sinfo: dataGetTicketInfo.sinfo,
       parentMatchId: dataGetTicketInfo.ParentMatchid,
-      RecommendType: dataGetTicketInfo.RecommendType,
-      Guid: dataGetTicketInfo.Guid,
-      TicketTime: dataGetTicketInfo.TicketTime,
-      MMR: '',
-      LuckyDrawMinBet: dataGetTicketInfo.LuckyDrawMinBet
+      sinfo: dataGetTicketInfo.sinfo
     }
   ]
   await accountLogToFile(
@@ -89,12 +91,13 @@ export const placeBet_Viva88Bet = async (
   } = await bettingProcessBet__Viva88Bet(accountInfo, authorization, itemListProcessBet)
 
   return {
-    ErrorCode: ErrorCode_ProcessBet, // 0: Success, 1: Fail, 2: Retry
+    // 0: Success, 1: Fail, 2: Retry
     Data: {
       info: Info,
       receiptID,
       receiptStatus: ErrorCode_ProcessBet == 0 ? 'Success' : 'Fail'
-    }
+    },
+    ErrorCode: ErrorCode_ProcessBet
   }
 }
 
@@ -117,9 +120,9 @@ async function bettingProcessBet__Viva88Bet(
 
     const urlProcessBet = `${host}/Betting/ProcessBet`
     const paramsProcessBet = {
+      LicUserName: '',
       OddsType: 4,
-      WebSkinType: 3,
-      LicUserName: ''
+      WebSkinType: 3
     }
 
     const body = toQueryString(itemListProcessBet, paramsProcessBet)
@@ -131,8 +134,8 @@ async function bettingProcessBet__Viva88Bet(
     )
     const fetchProcessBet = async () => {
       const resProcessBet = await fetch(urlProcessBet, {
-        method: 'POST',
         headers: { ...configHeaders(accountInfo), Authorization: `bearer ${authorization}` },
+        method: 'POST',
         ...(proxyAgent && { agent: proxyAgent }),
         body
       })

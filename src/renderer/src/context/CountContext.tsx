@@ -28,14 +28,14 @@ export const CountProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <CountContext.Provider
       value={{
+        setTotalBetList,
+        setTotalContraList,
+        setTotalSuccessList,
+        setTotalWaitingList,
         totalBetList,
-        totalWaitingList,
         totalContraList,
         totalSuccessList,
-        setTotalBetList,
-        setTotalWaitingList,
-        setTotalContraList,
-        setTotalSuccessList
+        totalWaitingList
       }}
     >
       {children}

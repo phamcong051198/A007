@@ -1,16 +1,17 @@
 import React from 'react'
 import { useEffect, useRef, useState } from 'react'
 import {
-  useReactTable,
-  ColumnResizeMode,
-  getCoreRowModel,
-  flexRender,
   ColumnResizeDirection,
-  RowData
+  ColumnResizeMode,
+  flexRender,
+  getCoreRowModel,
+  RowData,
+  useReactTable
 } from '@tanstack/react-table'
+import clsx from 'clsx'
 
 import { defaultColumns } from '@renderer/components/BetListContraListSuccessList/defaultColumns'
-import clsx from 'clsx'
+
 import { TicketInfoDataBetType } from '@shared/common/types'
 
 declare module '@tanstack/react-table' {
@@ -41,12 +42,15 @@ const TableData = ({ dataTable, enableScroll }) => {
   }, [data, enableScroll])
 
   const table = useReactTable({
-    data,
-    columns,
-    columnResizeMode,
     columnResizeDirection,
+    columnResizeMode,
+    columns,
+    data,
     getCoreRowModel: getCoreRowModel(),
     meta: {
+      setHasError: (hasError: boolean) => {
+        console.error('An error occurred:', hasError)
+      },
       updateData: (rowIndex, columnId, value) => {
         setData((old) =>
           old.map((row, index) => {
@@ -59,9 +63,6 @@ const TableData = ({ dataTable, enableScroll }) => {
             return row
           })
         )
-      },
-      setHasError: (hasError: boolean) => {
-        console.error('An error occurred:', hasError)
       }
     }
   })
@@ -86,11 +87,11 @@ const TableData = ({ dataTable, enableScroll }) => {
                     key={header.id}
                     colSpan={header.colSpan}
                     style={{
-                      width: header.getSize(),
                       maxWidth: header.getSize(),
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
+                      whiteSpace: 'nowrap',
+                      width: header.getSize()
                     }}
                     className="sticky top-[-1px] z-10 truncate border border-border-default text-start pl-1 text-sm bg-bg-gray"
                   >
@@ -138,11 +139,11 @@ const TableData = ({ dataTable, enableScroll }) => {
                     <td
                       key={cell.id}
                       style={{
-                        width: cell.column.getSize(),
                         maxWidth: cell.column.getSize(),
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
+                        whiteSpace: 'nowrap',
+                        width: cell.column.getSize()
                       }}
                       className="shadow-none"
                     >

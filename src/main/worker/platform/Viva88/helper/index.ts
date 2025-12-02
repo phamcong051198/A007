@@ -1,23 +1,23 @@
 import { AccountType } from '@shared/common/types'
 
 export const configHeaders = (accountInfo: AccountType) => ({
-  Referer: `${accountInfo.host}/sports`,
-  'Accept-Language': 'en-US,en;q=0.9,th;q=0.8,zh-CN;q=0.7,zh;q=0.6,ja;q=0.5,cs;q=0.4,zh-TW;q=0.3',
+  Accept: 'application/json, text/javascript, */*; q=0.01',
   'Accept-Encoding': 'gzip, deflate, br',
-  Username: accountInfo.loginID,
+  'Accept-Language': 'en-US,en;q=0.9,th;q=0.8,zh-CN;q=0.7,zh;q=0.6,ja;q=0.5,cs;q=0.4,zh-TW;q=0.3',
+  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+  Cookie: accountInfo.cookie,
   Devicetype: '1',
-  Uid: accountInfo.loginID,
   Origin: accountInfo.host,
+  Referer: `${accountInfo.host}/sports`,
   'Sec-Ch-Ua-Mobile': '?0',
   'Sec-Fetch-Dest': 'empty',
   'Sec-Fetch-Mode': 'cors',
   'Sec-Fetch-Site': 'same-origin',
-  'X-Requested-With': 'XMLHttpRequest',
-  Accept: 'application/json, text/javascript, */*; q=0.01',
-  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-  Cookie: accountInfo.cookie,
+  Uid: accountInfo.loginID,
   'User-Agent':
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+  Username: accountInfo.loginID,
+  'X-Requested-With': 'XMLHttpRequest',
   ...(accountInfo.customIP ? { 'X-Forwarded-For': accountInfo.customIP } : {})
 })
 
@@ -107,7 +107,7 @@ export async function extractTkAndId(html) {
       throw new Error('tk or ID not found in MS2.account')
     }
 
-    return { tk, ID: id }
+    return { ID: id, tk }
   } catch (error) {
     if (error instanceof Error) {
       console.error('Error extracting tk and ID:', error.message)

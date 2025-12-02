@@ -1,20 +1,20 @@
-import clsx from 'clsx'
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import clsx from 'clsx'
 
+import { useCount } from '@renderer/context/CountContext'
+import { useSidebar } from '@renderer/context/SidebarContext'
 import BookOpen from '@renderer/icons/book-open'
 import ChevronLeft from '@renderer/icons/chevron-left'
 import ChevronRight from '@renderer/icons/chevron-right'
-import File from '@renderer/icons/file'
-import SwitchHorizontal from '@renderer/icons/switch-horizontal'
 import ClipBoard from '@renderer/icons/clipboard'
+import DataFlow from '@renderer/icons/dataflow'
+import File from '@renderer/icons/file'
 import LineChartUp from '@renderer/icons/line-chart-up'
 import Settings from '@renderer/icons/settings'
-import Feature from '@renderer/icons/feature'
+import SwitchHorizontal from '@renderer/icons/switch-horizontal'
+
 import { getThemeClass } from '@shared/common/constants'
-import { useSidebar } from '@renderer/context/SidebarContext'
-import { useCount } from '@renderer/context/CountContext'
-import DataFlow from '@renderer/icons/dataflow'
 
 type NavItem = {
   name: string
@@ -26,18 +26,18 @@ type NavItem = {
 const navItems: NavItem[] = [
   { icon: <BookOpen />, name: 'SportsBook', path: 'sports-book' },
   { icon: <File />, name: 'Bet List', path: 'bet-list' },
-  { icon: <ClipBoard />, name: 'Waiting List', path: 'waiting-list', badgeKey: 'totalWaitingList' },
+  { badgeKey: 'totalWaitingList', icon: <ClipBoard />, name: 'Waiting List', path: 'waiting-list' },
   {
+    badgeKey: 'totalContraList',
     icon: <SwitchHorizontal />,
     name: 'Contra List',
-    path: 'contra-list',
-    badgeKey: 'totalContraList'
+    path: 'contra-list'
   },
   {
+    badgeKey: 'totalSuccessList',
     icon: <LineChartUp />,
     name: 'Success List',
-    path: 'success-list',
-    badgeKey: 'totalSuccessList'
+    path: 'success-list'
   },
   { icon: <DataFlow />, name: 'League Data', path: 'league-data' }
 ]
@@ -54,9 +54,9 @@ const NavItemComponent = ({
   const { totalBetList, totalWaitingList, totalContraList, totalSuccessList } = useCount()
   const badgeValueMap: Record<string, number> = {
     totalBetList,
-    totalWaitingList,
     totalContraList,
-    totalSuccessList
+    totalSuccessList,
+    totalWaitingList
   }
 
   const badgeValue = item.badgeKey ? badgeValueMap[item.badgeKey] : null
@@ -138,8 +138,8 @@ const AppSidebar: React.FC = () => {
         {/* Logo + Toggle */}
         <div
           className={clsx('flex items-center m-[20px]', {
-            'justify-center': collapsed,
-            'justify-between': !collapsed
+            'justify-between': !collapsed,
+            'justify-center': collapsed
           })}
         >
           {!collapsed && (

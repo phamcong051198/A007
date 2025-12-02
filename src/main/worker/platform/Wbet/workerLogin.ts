@@ -1,12 +1,14 @@
-import { HttpsProxyAgent } from 'https-proxy-agent'
+import { parentPort } from 'worker_threads'
 
 import { Account, Setting } from '@db/model'
-import { parentPort } from 'worker_threads'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+
 import { AccountType, SettingType } from '@shared/common/types'
-import { accountLogToFile } from '@/worker/lib/accountLogToFile'
-import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
-import { fetchWithRetry } from '@/worker/lib/fetchWithRetry'
 import { OPTIONS_PROXY, STATUS_ACCOUNT, STATUS_LOGIN } from '@shared/main/constants'
+
+import { accountLogToFile } from '@/worker/lib/accountLogToFile'
+import { fetchWithRetry } from '@/worker/lib/fetchWithRetry'
+import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
 import { API_ENDPOINTS } from '@/worker/platform/Wbet/common/constants'
 import { ResAuth_Wbet } from '@/worker/platform/Wbet/common/types'
 
@@ -21,16 +23,16 @@ port.on('message', async ({ account }: { account: AccountType }) => {
     if (!loginCompleted) {
       const textLog = 'Error: Login timeout after 10 seconds...'
       port.postMessage({
-        type: 'DataUpdateAccount',
         data: Account.update(
           { id: account.id },
           {
-            status: STATUS_ACCOUNT.EXIT,
             checkBoxAutoLogin: 1,
+            status: STATUS_ACCOUNT.EXIT,
             statusLogin: STATUS_LOGIN.FAIL,
             textLog
           }
-        )
+        ),
+        type: 'DataUpdateAccount'
       })
       await accountLogToFile(
         account.platformName,
@@ -58,13 +60,13 @@ async function loginToWbet(
     }
 
     port.postMessage({
-      type: 'DataUpdateAccount',
       data: Account.update(
         { id: account.id },
         {
           textLog: 'Checking Login Info...'
         }
-      )
+      ),
+      type: 'DataUpdateAccount'
     })
 
     await accountLogToFile(
@@ -85,7 +87,6 @@ async function loginToWbet(
       )
 
       port.postMessage({
-        type: 'DataUpdateAccount',
         data: Account.update(
           { id: account.id },
           {
@@ -93,7 +94,8 @@ async function loginToWbet(
             statusLogin: STATUS_LOGIN.FAIL,
             textLog: `Proxy Error: Invalid proxy address format – unable to determine valid URI.`
           }
-        )
+        ),
+        type: 'DataUpdateAccount'
       })
       process.exit(0)
     }
@@ -110,15 +112,15 @@ async function loginToWbet(
     const resAuth = await fetchWithRetry(
       API_ENDPOINTS.AUTH,
       {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
-        },
         body: JSON.stringify({
           account_id: account.loginID,
           password: account.password
         }),
+        headers: {
+          'Content-Type': 'application/json',
+          ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
+        },
+        method: 'POST',
         ...(proxyAgent && { agent: proxyAgent })
       },
       3,
@@ -128,7 +130,6 @@ async function loginToWbet(
     if (dataResAuth.status == -500) {
       const errorMsg = 'Incorrect account or password'
       port.postMessage({
-        type: 'DataUpdateAccount',
         data: Account.update(
           { id: account.id },
           {
@@ -136,7 +137,8 @@ async function loginToWbet(
             statusLogin: STATUS_LOGIN.FAIL,
             textLog: `Login Error: ${errorMsg}`
           }
-        )
+        ),
+        type: 'DataUpdateAccount'
       })
 
       await accountLogToFile(
@@ -151,23 +153,23 @@ async function loginToWbet(
     if (dataResAuth.status == 1 && dataResAuth.statusdesc == 'OK') {
       const setting = Setting.findAll()[0] as SettingType
       port.postMessage({
-        type: 'DataUpdateAccount',
         data: Account.update(
           { id: account.id },
           {
+            checkBoxAutoLogin: 1,
             checkBoxBet: 1,
             checkBoxRefresh: 1,
-            checkBoxAutoLogin: 1,
             cookie: dataResAuth.member_profile.player_info[0].session_token,
-            parent_id: dataResAuth.member_profile.player_info[0].parent_id,
-            typeCrawl: setting.gameType,
             credit: String(dataResAuth.member_profile.player_wallet[0].available_balance),
             host: account.loginURL,
+            parent_id: dataResAuth.member_profile.player_info[0].parent_id,
             status: STATUS_ACCOUNT.LOGOUT,
             statusLogin: STATUS_LOGIN.SUCCESS,
-            textLog: `Login ${account.loginID} successfully!`
+            textLog: `Login ${account.loginID} successfully!`,
+            typeCrawl: setting.gameType
           }
-        )
+        ),
+        type: 'DataUpdateAccount'
       })
 
       await accountLogToFile(
@@ -208,16 +210,16 @@ async function loginToWbet(
 
     if (Account.findOne({ id: account.id })) {
       port.postMessage({
-        type: 'DataUpdateAccount',
         data: Account.update(
           { id: account.id },
           {
+            checkBoxAutoLogin: 1,
             status: STATUS_ACCOUNT.EXIT,
             statusLogin: STATUS_LOGIN.FAIL,
-            checkBoxAutoLogin: 1,
             textLog
           }
-        )
+        ),
+        type: 'DataUpdateAccount'
       })
     }
 

@@ -1,7 +1,27 @@
 import { setTimeout } from 'timers/promises'
-import { v4 as uuidv4 } from 'uuid'
 import { MessagePort, parentPort } from 'worker_threads'
 
+import {
+  AccountPair,
+  BetListResult,
+  clearTable,
+  ContraList,
+  DataBet,
+  Setting,
+  SuccessList,
+  WaitingList
+} from '@db/model'
+import { AccountPairDBType } from '@db/schema/accountPair'
+import { v4 as uuidv4 } from 'uuid'
+
+import {
+  AccountSettingType,
+  TicketInfoDataBetType,
+  WaitingSuccessContraDBType
+} from '@shared/common/types'
+import { AccountType, DataBetType, SettingType } from '@shared/common/types'
+
+import { checkArbitrageMy } from '@/worker/handlePairPlatform/helper/scanArbitrage'
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { handleBetTicket, handleGetTicket, handleReBetTicket } from '@/worker/lib/betService'
 import { checkAccountContinues } from '@/worker/lib/checkAccountContinues'
@@ -16,26 +36,6 @@ import { saveOrUpdateBetRecordPerMatchDetail } from '@/worker/lib/saveOrUpdateBe
 import { UpdatePerMatchLimit } from '@/worker/lib/updatePerMatchLimit'
 import { UpsertTicketDelaySec } from '@/worker/lib/upsertTicketDelaySec'
 import { validateSettingAccountPairBeforeBet } from '@/worker/lib/validateSettingAccountPairBeforeBet'
-import {
-  AccountPair,
-  BetListResult,
-  clearTable,
-  ContraList,
-  DataBet,
-  Setting,
-  SettingTableView,
-  SuccessList,
-  WaitingList
-} from '@db/model'
-import { AccountPairDBType } from '@db/schema/accountPair'
-import {
-  AccountSettingType,
-  SettingTableViewType,
-  TicketInfoDataBetType,
-  WaitingSuccessContraDBType
-} from '@shared/common/types'
-import { AccountType, DataBetType, SettingType } from '@shared/common/types'
-import { checkArbitrageMy } from '@/worker/handlePairPlatform/helper/scanArbitrage'
 
 const port = parentPort
 if (!port) throw new Error('IllegalState')
@@ -56,7 +56,7 @@ async function handleData(port: MessagePort) {
     }
     const listDataBet = DataBet.findAll(
       {},
-      { orderBy: 'id', desc: true, limit: 50 }
+      { desc: true, limit: 50, orderBy: 'id' }
     ) as DataBetType[]
 
     if (!listDataBet.length) {
@@ -129,10 +129,10 @@ async function handleData(port: MessagePort) {
 
         return {
           ...account.ticket,
-          checkContra: setting.contra,
-          isBetAllowed,
+          betAmount_Standard: String(account.ticket.stake),
           betRejectionReason,
-          betAmount_Standard: String(account.ticket.stake)
+          checkContra: setting.contra,
+          isBetAllowed
         }
       }) as TicketInfoDataBetType[]
 
@@ -157,8 +157,8 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
   }
 
   const { uuid, dataPair } = WaitingList.create({
-    uuid: uuidv4(),
-    dataPair: JSON.stringify(ticketPair)
+    dataPair: JSON.stringify(ticketPair),
+    uuid: uuidv4()
   }) as WaitingSuccessContraDBType
 
   port.postMessage({ type: 'WaitingListDone' })
@@ -213,12 +213,12 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
     const recordDB = BetListResult.create({
       dataPair: JSON.stringify(ticketUpdate)
     })
-    port.postMessage({ type: 'BetList', recordDB })
+    port.postMessage({ recordDB, type: 'BetList' })
     return
   }
 
-  const ticketIUpdate = { ...ticketI, info: MessageI, hdp_point: Hdp_pointI, HDP: HDPI }
-  const ticketIIUpdate = { ...ticketII, info: MessageII, hdp_point: Hdp_pointII, HDP: HDPII }
+  const ticketIUpdate = { ...ticketI, HDP: HDPI, hdp_point: Hdp_pointI, info: MessageI }
+  const ticketIIUpdate = { ...ticketII, HDP: HDPII, hdp_point: Hdp_pointII, info: MessageII }
 
   const settingInfo = Setting.findAll() as SettingType[]
   const totalStake = settingInfo[0].credit || 40
@@ -294,13 +294,13 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
     UpsertTicketDelaySec(ticketIIUpdate)
 
     SuccessList.create({
-      uuid,
-      dataPair: JSON.stringify(ticketUpdate)
+      dataPair: JSON.stringify(ticketUpdate),
+      uuid
     }) as WaitingSuccessContraDBType
     const recordDB = BetListResult.create({
       dataPair: JSON.stringify(ticketUpdate)
     })
-    port.postMessage({ type: 'SuccessList', recordDB })
+    port.postMessage({ recordDB, type: 'SuccessList' })
 
     return
   }
@@ -312,7 +312,7 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
     const recordDB = BetListResult.create({
       dataPair: JSON.stringify(ticketUpdate)
     })
-    port.postMessage({ type: 'BetList', recordDB })
+    port.postMessage({ recordDB, type: 'BetList' })
     return
   }
 
@@ -350,12 +350,12 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
       {
         ...ticketUpdate[0],
         profit: isErrorI ? arbitrage.profitIfAWin : arbitrage.profitIfBWin,
-        ...(isErrorI ? { odd, info: info + '(ContraBet)', receiptID, receiptStatus } : {})
+        ...(isErrorI ? { info: info + '(ContraBet)', odd, receiptID, receiptStatus } : {})
       },
       {
         ...ticketUpdate[1],
         profit: isErrorII ? arbitrage.profitIfBWin : arbitrage.profitIfAWin,
-        ...(isErrorII ? { odd, info: info + '(ContraBet)', receiptID, receiptStatus } : {})
+        ...(isErrorII ? { info: info + '(ContraBet)', odd, receiptID, receiptStatus } : {})
       }
     ]
 
@@ -365,8 +365,8 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
 
     if (recordType === 'ContraList') {
       ContraList.create({
-        uuid,
-        dataPair: JSON.stringify(ticketUpdateNew)
+        dataPair: JSON.stringify(ticketUpdateNew),
+        uuid
       }) as WaitingSuccessContraDBType
       if (isErrorI) {
         saveOrUpdateBetRecordPerMatchDetail(ticketUpdateNew[0])
@@ -376,13 +376,13 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
       }
     } else {
       SuccessList.create({
-        uuid,
-        dataPair: JSON.stringify(ticketUpdateNew)
+        dataPair: JSON.stringify(ticketUpdateNew),
+        uuid
       }) as WaitingSuccessContraDBType
       UpdatePerMatchLimit(accountFailed, ticketFailed)
     }
 
-    port.postMessage({ type: recordType, recordDB })
+    port.postMessage({ recordDB, type: recordType })
     return
   }
 }

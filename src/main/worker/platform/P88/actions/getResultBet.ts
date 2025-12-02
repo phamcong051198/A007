@@ -1,9 +1,10 @@
-import fetch from 'node-fetch'
+import { SuccessList } from '@db/model'
 import { HttpsProxyAgent } from 'https-proxy-agent'
+import fetch from 'node-fetch'
+
 import { AccountType, WaitingSuccessContraDBType } from '@shared/common/types'
 
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
-import { SuccessList } from '@db/model'
 
 export const getResultBet_P88 = async (
   account: AccountType,
@@ -43,26 +44,26 @@ export const getResultBet_P88 = async (
   const f = past.toISOString().slice(0, 10) + ' 00:00:00'
 
   const body = new URLSearchParams({
-    f,
-    t,
     d: '0',
+    f,
+    leagueId: '',
+    product: 'SB',
     s: 'SETTLED',
     sd: 'true',
-    type: 'STATEMENT',
-    product: 'SB',
-    timezone: 'GMT-4',
     sportId: '',
-    leagueId: ''
+    t,
+    timezone: 'GMT-4',
+    type: 'STATEMENT'
   })
 
   try {
     const url = 'https://www.p88.bet/member-service/v2/wager-filter?locale=en_US'
     const res = await fetch(url, {
-      method: 'POST',
       headers: {
         accept: '*/*',
         'accept-language': 'vi,en-US;q=0.9,en;q=0.8,ko;q=0.7',
         'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        cookie: cookie,
         origin: 'https://www.p88.bet',
         priority: 'u=1, i',
         referer: 'https://www.p88.bet/en/account/my-bets-full',
@@ -74,15 +75,15 @@ export const getResultBet_P88 = async (
         'sec-fetch-site': 'same-origin',
         'user-agent':
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
-        'x-requested-with': 'XMLHttpRequest',
         'x-browser-session-id': objectCookie.BrowserSessionId,
         'x-custid': objectCookie.custid,
-        'x-u': objectCookie.u,
-        'x-slid': objectCookie.SLID,
         'x-lcu': objectCookie.lcu,
-        cookie: cookie,
+        'x-requested-with': 'XMLHttpRequest',
+        'x-slid': objectCookie.SLID,
+        'x-u': objectCookie.u,
         ...(account?.customIP ? { 'X-Forwarded-For': account.customIP } : {})
       },
+      method: 'POST',
       ...(proxyAgent && { agent: proxyAgent }),
       body
     })

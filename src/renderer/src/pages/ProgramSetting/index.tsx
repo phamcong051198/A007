@@ -1,6 +1,8 @@
-import { SettingProvider } from '@renderer/context/SettingContext'
-import { PROGRAM_SETTING_LIST } from '@shared/renderer/constants'
 import { NavLink, Outlet } from 'react-router-dom'
+
+import { SettingProvider } from '@renderer/context/SettingContext'
+
+import { PROGRAM_SETTING_LIST } from '@shared/renderer/constants'
 
 export default function ProgramSetting() {
   return (

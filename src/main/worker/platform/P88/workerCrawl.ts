@@ -1,25 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import fetch from 'node-fetch'
-import { parentPort } from 'worker_threads'
 import { setTimeout } from 'timers/promises'
-import { HttpsProxyAgent } from 'https-proxy-agent'
-import { FH, FT, HDP_FH, HDP_FT, OU_FH, OU_FT, SPREAD, TOTAL } from '@shared/common/constants'
-import { AccountType, LeagueType, SettingType } from '@shared/common/types'
+import { parentPort } from 'worker_threads'
+
 import { Account, clearTable, createModel, Setting } from '@db/model'
-import { accountLogToFile } from '@/worker/lib/accountLogToFile'
-import { toPositiveNumber } from '@/worker/lib/toPositiveNumber'
 import dataCrawlByPlatformSchema from '@db/schema/dataCrawlByPlatform'
-import { getBalanceP88bet } from '@/worker/platform/P88/actions/getBalance'
-import { isAccountActive } from '@/worker/lib/checkAccount'
-import { logTime } from '@/worker/lib/logTime'
+import rootLeagueSchema from '@db/schema/rootLeague'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+import fetch from 'node-fetch'
+
+import { FH, FT, HDP_FH, HDP_FT, OU_FH, OU_FT, SPREAD, TOTAL } from '@shared/common/constants'
 import { CONVERT_HDP } from '@shared/common/constants'
-import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
+import { AccountType, LeagueType, SettingType } from '@shared/common/types'
+import { PLATFORM, STATUS_ACCOUNT, STATUS_LOGIN } from '@shared/main/constants'
+
+import { accountLogToFile } from '@/worker/lib/accountLogToFile'
+import { isAccountActive } from '@/worker/lib/checkAccount'
 import { checkGameType } from '@/worker/lib/checkGameType'
 import { insertRecords } from '@/worker/lib/insertRecords'
+import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
+import { logTime } from '@/worker/lib/logTime'
 import { systemLogToFile } from '@/worker/lib/systemLogToFile'
+import { toPositiveNumber } from '@/worker/lib/toPositiveNumber'
+import { getBalanceP88bet } from '@/worker/platform/P88/actions/getBalance'
 import { buildHeadersP88Bet, gameTypeMapP88 } from '@/worker/platform/P88/common/contants'
-import { PLATFORM, STATUS_ACCOUNT, STATUS_LOGIN } from '@shared/main/constants'
-import rootLeagueSchema from '@db/schema/rootLeague'
 
 let gameType: string | null = null
 
@@ -42,8 +45,8 @@ const handleCrawlData = async () => {
     const listAccount = Account.findAll({
       platformName: 'P88Bet',
       status: 'Logout',
-      statusLogin: 'Success',
-      statusDelete: 0
+      statusDelete: 0,
+      statusLogin: 'Success'
     }) as AccountType[]
 
     if (!listAccount.length) {
@@ -66,8 +69,8 @@ const fnCrawlData = async (account: AccountType) => {
 
   const accountRefresh = Account.findOne({
     id: account.id,
-    statusDelete: 0,
     status: 'Logout',
+    statusDelete: 0,
     statusLogin: 'Success'
   }) as AccountType
   if (!accountRefresh) return
@@ -89,8 +92,8 @@ const fnCrawlData = async (account: AccountType) => {
         }
       ) &&
       port.postMessage({
-        type: 'DataUpdateAccount',
-        idAccount: account.id
+        idAccount: account.id,
+        type: 'DataUpdateAccount'
       })
 
     return
@@ -122,8 +125,8 @@ const fnCrawlData = async (account: AccountType) => {
           }
         ) &&
         port.postMessage({
-          type: 'DataUpdateAccount',
-          idAccount: account.id
+          idAccount: account.id,
+          type: 'DataUpdateAccount'
         })
       return
     }
@@ -131,8 +134,8 @@ const fnCrawlData = async (account: AccountType) => {
     const dataAccount = Account.findOne({
       id: account.id,
       status: 'Logout',
-      statusLogin: 'Success',
-      statusDelete: 0
+      statusDelete: 0,
+      statusLogin: 'Success'
     }) as AccountType
     if (!dataAccount) return
 
@@ -141,17 +144,17 @@ const fnCrawlData = async (account: AccountType) => {
         Account.update(
           { id: account.id },
           {
-            statusLogin: 'Fail',
-            textLog: 'Logged Again ...',
-            credit: '0',
             cookie: null,
+            credit: '0',
             host: null,
-            socketUrl: null
+            socketUrl: null,
+            statusLogin: 'Fail',
+            textLog: 'Logged Again ...'
           }
         ) &&
         port.postMessage({
-          type: 'LoggedAgain',
-          idAccount: account.id
+          idAccount: account.id,
+          type: 'LoggedAgain'
         })
     } else {
       isAccountActive(account.id) &&
@@ -163,8 +166,8 @@ const fnCrawlData = async (account: AccountType) => {
           }
         ) &&
         port.postMessage({
-          type: 'DataUpdateAccount',
-          idAccount: account.id
+          idAccount: account.id,
+          type: 'DataUpdateAccount'
         })
     }
 
@@ -174,8 +177,8 @@ const fnCrawlData = async (account: AccountType) => {
   isAccountActive(account.id) &&
     Account.update({ id: account.id }, { credit: Data }) &&
     port.postMessage({
-      type: 'DataUpdateAccount',
-      idAccount: account.id
+      idAccount: account.id,
+      type: 'DataUpdateAccount'
     })
 
   try {
@@ -190,10 +193,10 @@ const fnCrawlData = async (account: AccountType) => {
     if (isAccountActive(account.id)) {
       Account.updateMany(
         {
-          status: STATUS_ACCOUNT.LOGOUT,
-          statusLogin: STATUS_LOGIN.SUCCESS,
           platformName: PLATFORM.P88BET,
-          statusDelete: 0
+          status: STATUS_ACCOUNT.LOGOUT,
+          statusDelete: 0,
+          statusLogin: STATUS_LOGIN.SUCCESS
         },
         {
           textLog: `Get Soccer ${gameType}...`
@@ -204,11 +207,11 @@ const fnCrawlData = async (account: AccountType) => {
 
     const url = `https://www.p88.bet/sports-service/sv/odds/events?mk=${mk}&sp=29&ot=4&btg=1&o=1&lg=&ev=&d=&l=100&v=0&me=0&more=false&c=MY&tm=0&g=QQ%3D%3D&pa=0&cl=100&_g=0&wm=dz&_=${Date.now()}&locale=en_US`
     const res = await fetch(url, {
-      method: 'GET',
       headers: {
         ...buildHeadersP88Bet(account),
         Cookie: account.cookie
       },
+      method: 'GET',
       ...(proxyAgent && { agent: proxyAgent })
     })
 
@@ -238,10 +241,10 @@ const fnCrawlData = async (account: AccountType) => {
       if (isAccountActive(account.id)) {
         Account.updateMany(
           {
-            status: STATUS_ACCOUNT.LOGOUT,
-            statusLogin: STATUS_LOGIN.SUCCESS,
             platformName: PLATFORM.P88BET,
-            statusDelete: 0
+            status: STATUS_ACCOUNT.LOGOUT,
+            statusDelete: 0,
+            statusLogin: STATUS_LOGIN.SUCCESS
           },
           {
             textLog: `Soccer ${gameType}: No data.`
@@ -252,7 +255,7 @@ const fnCrawlData = async (account: AccountType) => {
       return
     }
 
-    await handleData({ dataP88, account })
+    await handleData({ account, dataP88 })
   } catch (error) {
     console.error(
       'Error Crawl Data P88Bet:',
@@ -273,8 +276,8 @@ const fnCrawlData = async (account: AccountType) => {
         }
       ) &&
       port.postMessage({
-        type: 'DataUpdateAccount',
-        idAccount: account.id
+        idAccount: account.id,
+        type: 'DataUpdateAccount'
       })
 
     clearTable('P88Bet')
@@ -334,28 +337,28 @@ const handleData = async ({ dataP88, account }) => {
             if (+periodFull[3] == 0 || +periodFull[4] == 0) continue
 
             records.push({
-              platform: 'P88Bet',
-              idLeague: id,
-              nameLeague: name,
+              HDP: CONVERT_HDP[toPositiveNumber(periodFull[1])],
+              altLineId: periodFull[7],
+              away: away.toUpperCase(),
+              away_under: +periodFull[4],
+              betType: HDP_FT,
+              hdp_point: periodFull[1],
+              home: home.toUpperCase(),
+              home_over: +periodFull[3],
               idEvent,
-              nameHome: home,
+              idLeague: id,
+              league: league_P88Bet.league,
               nameAway: away,
+              nameHome: home,
+              nameLeague: name,
               number: FT,
-              score: hasValidData ? `${event[9][0]}-${event[9][1]}` : '',
+              platform: 'P88Bet',
               redCard: hasValidData ? `${event[10][0]}-${event[10][1]}` : '',
+              score: hasValidData ? `${event[9][0]}-${event[9][1]}` : '',
+              specialOdd: periodFull[8],
               stat: hasValidData ? `${event[16] || ''} ${event[15] || ''}`.trim() : '',
               type: 'HDP',
-              altLineId: periodFull[7],
-              hdp_point: periodFull[1],
-              home_over: +periodFull[3],
-              away_under: +periodFull[4],
-              typeOdd: SPREAD,
-              league: league_P88Bet.league,
-              home: home.toUpperCase(),
-              away: away.toUpperCase(),
-              specialOdd: periodFull[8],
-              betType: HDP_FT,
-              HDP: CONVERT_HDP[toPositiveNumber(periodFull[1])]
+              typeOdd: SPREAD
             })
 
             insertRecords(records, P88Bet)
@@ -373,28 +376,28 @@ const handleData = async ({ dataP88, account }) => {
             if (+totalFull[2] == 0 || +totalFull[3] == 0) continue
 
             records.push({
-              platform: 'P88Bet',
-              idLeague: id,
-              nameLeague: name,
+              HDP: CONVERT_HDP[toPositiveNumber(totalFull[1])],
+              altLineId: totalFull[4],
+              away: away.toUpperCase(),
+              away_under: +totalFull[3],
+              betType: OU_FT,
+              hdp_point: totalFull[1],
+              home: home.toUpperCase(),
+              home_over: +totalFull[2],
               idEvent,
-              nameHome: home,
+              idLeague: id,
+              league: league_P88Bet.league,
               nameAway: away,
+              nameHome: home,
+              nameLeague: name,
               number: FT,
-              score: hasValidData ? `${event[9][0]}-${event[9][1]}` : '',
+              platform: 'P88Bet',
               redCard: hasValidData ? `${event[10][0]}-${event[10][1]}` : '',
+              score: hasValidData ? `${event[9][0]}-${event[9][1]}` : '',
+              specialOdd: totalFull[5],
               stat: hasValidData ? `${event[16] || ''} ${event[15] || ''}`.trim() : '',
               type: 'OU',
-              altLineId: totalFull[4],
-              hdp_point: totalFull[1],
-              home_over: +totalFull[2],
-              away_under: +totalFull[3],
-              typeOdd: TOTAL,
-              league: league_P88Bet.league,
-              home: home.toUpperCase(),
-              away: away.toUpperCase(),
-              specialOdd: totalFull[5],
-              betType: OU_FT,
-              HDP: CONVERT_HDP[toPositiveNumber(totalFull[1])]
+              typeOdd: TOTAL
             })
 
             insertRecords(records, P88Bet)
@@ -411,28 +414,28 @@ const handleData = async ({ dataP88, account }) => {
               return
 
             records.push({
-              platform: 'P88Bet',
-              idLeague: id,
-              nameLeague: name,
+              HDP: CONVERT_HDP[toPositiveNumber(periodHalf[1])],
+              altLineId: periodHalf[7],
+              away: away.toUpperCase(),
+              away_under: +periodHalf[4],
+              betType: HDP_FH,
+              hdp_point: periodHalf[1],
+              home: home.toUpperCase(),
+              home_over: +periodHalf[3],
               idEvent,
-              nameHome: home,
+              idLeague: id,
+              league: league_P88Bet.league,
               nameAway: away,
+              nameHome: home,
+              nameLeague: name,
               number: FH,
-              score: hasValidData ? `${event[9][0]}-${event[9][1]}` : '',
+              platform: 'P88Bet',
               redCard: hasValidData ? `${event[10][0]}-${event[10][1]}` : '',
+              score: hasValidData ? `${event[9][0]}-${event[9][1]}` : '',
+              specialOdd: periodHalf[8],
               stat: hasValidData ? `${event[16] || ''} ${event[15] || ''}`.trim() : '',
               type: 'HDP',
-              altLineId: periodHalf[7],
-              hdp_point: periodHalf[1],
-              home_over: +periodHalf[3],
-              away_under: +periodHalf[4],
-              typeOdd: SPREAD,
-              league: league_P88Bet.league,
-              home: home.toUpperCase(),
-              away: away.toUpperCase(),
-              specialOdd: periodHalf[8],
-              betType: HDP_FH,
-              HDP: CONVERT_HDP[toPositiveNumber(periodHalf[1])]
+              typeOdd: SPREAD
             })
 
             insertRecords(records, P88Bet)
@@ -449,28 +452,28 @@ const handleData = async ({ dataP88, account }) => {
               return
 
             records.push({
-              platform: 'P88Bet',
-              idLeague: id,
-              nameLeague: name,
+              HDP: CONVERT_HDP[toPositiveNumber(totalHalf[1])],
+              altLineId: totalHalf[4],
+              away: away.toUpperCase(),
+              away_under: +totalHalf[3],
+              betType: OU_FH,
+              hdp_point: totalHalf[1],
+              home: home.toUpperCase(),
+              home_over: +totalHalf[2],
               idEvent,
-              nameHome: home,
+              idLeague: id,
+              league: league_P88Bet.league,
               nameAway: away,
+              nameHome: home,
+              nameLeague: name,
               number: FH,
-              score: hasValidData ? `${event[9][0]}-${event[9][1]}` : '',
+              platform: 'P88Bet',
               redCard: hasValidData ? `${event[10][0]}-${event[10][1]}` : '',
+              score: hasValidData ? `${event[9][0]}-${event[9][1]}` : '',
+              specialOdd: totalHalf[5],
               stat: hasValidData ? `${event[16] || ''} ${event[15] || ''}`.trim() : '',
               type: 'OU',
-              altLineId: totalHalf[4],
-              hdp_point: totalHalf[1],
-              home_over: +totalHalf[2],
-              away_under: +totalHalf[3],
-              typeOdd: TOTAL,
-              league: league_P88Bet.league,
-              home: home.toUpperCase(),
-              away: away.toUpperCase(),
-              specialOdd: totalHalf[5],
-              betType: OU_FH,
-              HDP: CONVERT_HDP[toPositiveNumber(totalHalf[1])]
+              typeOdd: TOTAL
             })
 
             insertRecords(records, P88Bet)
@@ -499,10 +502,10 @@ const handleData = async ({ dataP88, account }) => {
   if (isAccountActive(account.id)) {
     Account.updateMany(
       {
-        status: STATUS_ACCOUNT.LOGOUT,
-        statusLogin: STATUS_LOGIN.SUCCESS,
         platformName: PLATFORM.P88BET,
-        statusDelete: 0
+        status: STATUS_ACCOUNT.LOGOUT,
+        statusDelete: 0,
+        statusLogin: STATUS_LOGIN.SUCCESS
       },
       {
         textLog: `Handle Data Event Done All. (${eventsLength}, ${timeEnd - timeStart}ms)`

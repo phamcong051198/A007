@@ -1,7 +1,9 @@
-import { BrowserWindow } from 'electron'
 import { Account, PerMatchLimit, SportsBook } from '@db/model'
-import { checkQueue } from '@/worker'
+import { BrowserWindow } from 'electron'
+
 import { AccountType, SportsBookType } from '@shared/common/types'
+
+import { checkQueue } from '@/worker'
 
 export function handleDeleteAccount(
   mainWindow: BrowserWindow,

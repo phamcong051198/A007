@@ -1,12 +1,10 @@
-import { cn } from '@renderer/lib/utils'
 import clsx from 'clsx'
+
+import { cn } from '@renderer/lib/utils'
 
 export const defaultColumns = [
   {
-    size: 160,
     accessorKey: 'company',
-    header: () => <span>Company</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
     cell: ({ getValue }) => {
       const text = getValue()
       return (
@@ -14,13 +12,13 @@ export const defaultColumns = [
           {text}
         </span>
       )
-    }
+    },
+    footer: (props: { column: { id: string } }) => props.column.id,
+    header: () => <span>Company</span>,
+    size: 160
   },
   {
     accessorKey: 'coverage',
-    header: () => <span>Coverage</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
-    size: 80,
     cell: ({ getValue }) => {
       const text = getValue()
       return (
@@ -28,13 +26,13 @@ export const defaultColumns = [
           {text}
         </span>
       )
-    }
+    },
+    footer: (props: { column: { id: string } }) => props.column.id,
+    header: () => <span>Coverage</span>,
+    size: 80
   },
   {
     accessorKey: 'gameType',
-    header: () => <span>GameType</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
-    size: 80,
     cell: ({ getValue }) => {
       const text = getValue()
       return (
@@ -42,13 +40,13 @@ export const defaultColumns = [
           {text}
         </span>
       )
-    }
+    },
+    footer: (props: { column: { id: string } }) => props.column.id,
+    header: () => <span>GameType</span>,
+    size: 80
   },
   {
     accessorKey: 'type',
-    header: () => <span>Type</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
-    size: 50,
     cell: ({ getValue }) => {
       const text = getValue()
       return (
@@ -56,13 +54,13 @@ export const defaultColumns = [
           {text}
         </span>
       )
-    }
+    },
+    footer: (props: { column: { id: string } }) => props.column.id,
+    header: () => <span>Type</span>,
+    size: 50
   },
   {
     accessorKey: 'stat',
-    header: () => <span>Stat</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
-    size: 60,
     cell: ({ getValue }) => {
       const text = getValue()
       return (
@@ -70,13 +68,13 @@ export const defaultColumns = [
           {text}
         </span>
       )
-    }
+    },
+    footer: (props: { column: { id: string } }) => props.column.id,
+    header: () => <span>Stat</span>,
+    size: 60
   },
   {
     accessorKey: 'nameLeague',
-    header: () => <span>League</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
-    size: 170,
     cell: ({ getValue }) => {
       const text = getValue()
       return (
@@ -84,34 +82,34 @@ export const defaultColumns = [
           {text}
         </span>
       )
-    }
+    },
+    footer: (props: { column: { id: string } }) => props.column.id,
+    header: () => <span>League</span>,
+    size: 170
   },
   {
     accessorKey: 'nameHome',
-    header: () => <span>Home</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
-    size: 170,
     cell: ({ row }) => {
       const { hdp_point, nameHome } = row.original
 
       return (
         <span
           className={clsx('px-2', {
-            'text-red-color': Number(hdp_point) < 0,
-            'text-blue-color': Number(hdp_point) >= 0
+            'text-blue-color': Number(hdp_point) >= 0,
+            'text-red-color': Number(hdp_point) < 0
           })}
           style={{ whiteSpace: 'nowrap' }}
         >
           {nameHome}
         </span>
       )
-    }
+    },
+    footer: (props: { column: { id: string } }) => props.column.id,
+    header: () => <span>Home</span>,
+    size: 170
   },
   {
     accessorKey: 'nameAway',
-    header: () => <span>Away</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
-    size: 170,
     cell: ({ row }) => {
       const { hdp_point, nameAway } = row.original
       return (
@@ -125,39 +123,39 @@ export const defaultColumns = [
           {nameAway}
         </span>
       )
-    }
+    },
+    footer: (props: { column: { id: string } }) => props.column.id,
+    header: () => <span>Away</span>,
+    size: 170
   },
   {
     accessorKey: 'bet',
-    header: () => <span>Bet</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
-    size: 170,
     cell: ({ getValue }) => {
       return (
         <span className="text-green-400 px-2" style={{ whiteSpace: 'nowrap' }}>
           {getValue()}
         </span>
       )
-    }
+    },
+    footer: (props: { column: { id: string } }) => props.column.id,
+    header: () => <span>Bet</span>,
+    size: 170
   },
   {
     accessorKey: 'HDP',
-    header: () => <span>HDP</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
-    size: 60,
     cell: ({ getValue }) => {
       return (
         <span className={`px-2`} style={{ whiteSpace: 'nowrap' }}>
           {getValue()}
         </span>
       )
-    }
+    },
+    footer: (props: { column: { id: string } }) => props.column.id,
+    header: () => <span>HDP</span>,
+    size: 60
   },
   {
     accessorKey: 'odd',
-    header: () => <span>Odds</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
-    size: 70,
     cell: ({ row }) => {
       const company = row.original.company
       const odd = Number(row.original.odd).toFixed(3)
@@ -166,23 +164,23 @@ export const defaultColumns = [
           {company === '' ? '' : odd}
         </span>
       )
-    }
+    },
+    footer: (props: { column: { id: string } }) => props.column.id,
+    header: () => <span>Odds</span>,
+    size: 70
   },
   {
     accessorKey: 'betAmount_Standard',
-    header: () => <span>Amount</span>,
-    footer: ({ column }) => column.id,
-    size: 60,
     cell: ({ row: { original } }) => {
       const { company, betAmount_Standard } = original
       return <span className="px-2">{company ? betAmount_Standard || '0' : ''}</span>
-    }
+    },
+    footer: ({ column }) => column.id,
+    header: () => <span>Amount</span>,
+    size: 60
   },
   {
     accessorKey: 'time',
-    header: () => <span>Time</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
-    size: 150,
     cell: ({ row }) => {
       const company = row.original.company
       const fullDateTime = row.original.time
@@ -192,12 +190,13 @@ export const defaultColumns = [
           {company === '' ? '' : fullDateTime}
         </span>
       )
-    }
+    },
+    footer: (props: { column: { id: string } }) => props.column.id,
+    header: () => <span>Time</span>,
+    size: 150
   },
   {
     accessorKey: 'info',
-    header: () => <span>Info</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
     cell: ({ getValue }) => {
       const text = getValue() as string
       const getTextClass = (text: string) => {
@@ -220,13 +219,12 @@ export const defaultColumns = [
           {text}
         </span>
       )
-    }
+    },
+    footer: (props: { column: { id: string } }) => props.column.id,
+    header: () => <span>Info</span>
   },
   {
     accessorKey: 'profit',
-    header: () => <span>Profit</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
-    size: 65,
     cell: ({ row }) => {
       const company = row.original.company
       const profit = row.original.profit
@@ -237,24 +235,24 @@ export const defaultColumns = [
           {company === '' ? '' : profit}
         </span>
       )
-    }
+    },
+    footer: (props: { column: { id: string } }) => props.column.id,
+    header: () => <span>Profit</span>,
+    size: 65
   },
   {
     accessorKey: 'receiptID',
-    header: () => <span>ReceiptID</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
-    size: 180,
     cell: ({ row }) => {
       const company = row.original.company
       const receiptID = row.original.receiptID || '-'
       return <span className="px-2"> {company === '' ? '' : receiptID}</span>
-    }
+    },
+    footer: (props: { column: { id: string } }) => props.column.id,
+    header: () => <span>ReceiptID</span>,
+    size: 180
   },
   {
     accessorKey: 'resultBet',
-    header: () => <span>ResultBet</span>,
-    footer: (props: { column: { id: string } }) => props.column.id,
-    size: 180,
     cell: ({ row }) => {
       const resultBetRaw = row?.original?.resultBet || ''
       const resultBet = resultBetRaw.toUpperCase()
@@ -266,6 +264,9 @@ export const defaultColumns = [
           {resultBet}
         </span>
       )
-    }
+    },
+    footer: (props: { column: { id: string } }) => props.column.id,
+    header: () => <span>ResultBet</span>,
+    size: 180
   }
 ]

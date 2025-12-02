@@ -1,16 +1,18 @@
-import WebSocket from 'ws'
-import { HttpsProxyAgent } from 'https-proxy-agent'
 import crypto from 'crypto'
-import { parentPort } from 'worker_threads'
 import { setTimeout as delay } from 'timers/promises'
+import { setTimeout } from 'timers/promises'
+import { parentPort } from 'worker_threads'
 
 import { Account, clearTable, Setting } from '@db/model'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+import WebSocket from 'ws'
+
 import { AccountType, SettingType } from '@shared/common/types'
+
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
-import { getBalanceViva88bet } from '@/worker/platform/Viva88/actions/getBalance'
 import { isAccountActive } from '@/worker/lib/checkAccount'
-import { setTimeout } from 'timers/promises'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
+import { getBalanceViva88bet } from '@/worker/platform/Viva88/actions/getBalance'
 import { gameTypeMapViva88 } from '@/worker/platform/Viva88/common/constants'
 
 let pingIntervalId: NodeJS.Timeout | null = null
@@ -44,8 +46,8 @@ const handleCrawlData = async (accountInfo: AccountType) => {
     const checkAccount = Account.findOne({
       id: accountInfo.id,
       status: 'Logout',
-      statusLogin: 'Success',
-      statusDelete: 0
+      statusDelete: 0,
+      statusLogin: 'Success'
     }) as AccountType
 
     if (!checkAccount) process.exit(0)
@@ -60,14 +62,14 @@ const handleCrawlData = async (accountInfo: AccountType) => {
 
       isAccountActive(checkAccount.id) &&
         port?.postMessage({
-          type: 'DataUpdateAccount',
           data: Account.update(
             { id: checkAccount.id },
             {
               status: 'Exit',
               textLog: 'GameType changed, check box refresh to sync.'
             }
-          )
+          ),
+          type: 'DataUpdateAccount'
         })
       await setTimeout(1000)
       continue
@@ -102,19 +104,19 @@ async function initializeWebSocket(account: AccountType) {
   ws = new WebSocket(socketUrl, {
     agent: proxyAgent,
     headers: {
-      Host: 'agnj3.viva88.net',
-      Connection: 'Upgrade',
-      Pragma: 'no-cache',
-      'Cache-Control': 'no-cache',
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-      Upgrade: 'websocket',
-      Origin: 'https://d.viva88.net',
-      'Sec-WebSocket-Version': 13,
       'Accept-Encoding': 'gzip, deflate, br, zstd',
       'Accept-Language': 'en-US,en;q=0.9,ko;q=0.8,vi;q=0.7',
-      'Sec-WebSocket-Key': `${crypto.randomBytes(16).toString('base64')}`,
+      'Cache-Control': 'no-cache',
+      Connection: 'Upgrade',
+      Host: 'agnj3.viva88.net',
+      Origin: 'https://d.viva88.net',
+      Pragma: 'no-cache',
       'Sec-WebSocket-Extensions': 'permessage-deflate; client_max_window_bits',
+      'Sec-WebSocket-Key': `${crypto.randomBytes(16).toString('base64')}`,
+      'Sec-WebSocket-Version': 13,
+      Upgrade: 'websocket',
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
       ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
     }
   })
@@ -131,9 +133,9 @@ async function initializeWebSocket(account: AccountType) {
         'init',
         {
           gid,
-          token,
           id,
           rid,
+          token,
           v: 2
         }
       ])
@@ -150,15 +152,15 @@ async function initializeWebSocket(account: AccountType) {
             'odds',
             [
               {
-                id: 'c3',
-                rev: null,
-                sorting: 't',
                 condition: {
-                  sporttype: 1,
+                  bettype: [1, 3, 7, 8],
                   marketid,
                   no_stream: true,
-                  bettype: [1, 3, 7, 8]
-                }
+                  sporttype: 1
+                },
+                id: 'c3',
+                rev: null,
+                sorting: 't'
               }
             ]
           ]
@@ -187,9 +189,9 @@ async function initializeWebSocket(account: AccountType) {
         )
         const dataAccount = Account.findOne({
           id: account.id,
-          statusLogin: 'Success',
           status: 'Logout',
-          statusDelete: 0
+          statusDelete: 0,
+          statusLogin: 'Success'
         }) as AccountType
         if (!dataAccount) {
           ws?.close()
@@ -197,22 +199,21 @@ async function initializeWebSocket(account: AccountType) {
         }
         if (dataAccount.checkBoxAutoLogin == 1) {
           port?.postMessage({
-            type: 'LoggedAgain',
             data: Account.update(
               { id: account.id },
               {
-                statusLogin: 'Fail',
-                textLog: 'Logged Again ...',
-                credit: '0',
                 cookie: null,
+                credit: '0',
                 host: null,
-                socketUrl: null
+                socketUrl: null,
+                statusLogin: 'Fail',
+                textLog: 'Logged Again ...'
               }
-            )
+            ),
+            type: 'LoggedAgain'
           })
         } else {
           port?.postMessage({
-            type: 'DataUpdateAccount',
             data: Account.update(
               { id: account.id },
               {
@@ -220,7 +221,8 @@ async function initializeWebSocket(account: AccountType) {
                 statusLogin: 'Fail',
                 textLog: String(data)
               }
-            )
+            ),
+            type: 'DataUpdateAccount'
           })
         }
         ws?.close()
@@ -235,9 +237,9 @@ async function initializeWebSocket(account: AccountType) {
         )
         const dataAccount = Account.findOne({
           id: account.id,
-          statusLogin: 'Success',
           status: 'Logout',
-          statusDelete: 0
+          statusDelete: 0,
+          statusLogin: 'Success'
         }) as AccountType
         if (!dataAccount) {
           ws?.close()
@@ -245,16 +247,16 @@ async function initializeWebSocket(account: AccountType) {
         }
 
         port?.postMessage({
-          type: 'DataUpdateAccount',
           data: Account.update(
             { id: account.id },
             {
+              checkBoxAutoLogin: 0,
               status: 'Exit',
               statusLogin: 'Fail',
-              checkBoxAutoLogin: 0,
               textLog: `Login Status: (ERROR) - Failed to connect Socket.Try another account!`
             }
-          )
+          ),
+          type: 'DataUpdateAccount'
         })
 
         ws?.close()
@@ -266,7 +268,6 @@ async function initializeWebSocket(account: AccountType) {
       }
       isAccountActive(account.id) &&
         port?.postMessage({
-          type: 'DataUpdateAccount',
           data: Account.update(
             { id: account.id },
             {
@@ -274,7 +275,8 @@ async function initializeWebSocket(account: AccountType) {
               statusLogin: 'Success',
               textLog: `Data Received: ${dataLength} / Soccer ${gameType}`
             }
-          )
+          ),
+          type: 'DataUpdateAccount'
         })
 
       await accountLogToFile(
@@ -287,8 +289,8 @@ async function initializeWebSocket(account: AccountType) {
       if (settingInfo[0].gameType === gameType) {
         isAccountActive(account.id) &&
           port?.postMessage({
-            type: 'DataViva88',
-            data
+            data,
+            type: 'DataViva88'
           })
       }
     }
@@ -302,8 +304,8 @@ async function initializeWebSocket(account: AccountType) {
     const checkAccount = Account.findOne({
       id: account.id,
       status: 'Logout',
-      statusLogin: 'Success',
-      statusDelete: 0
+      statusDelete: 0,
+      statusLogin: 'Success'
     }) as AccountType
 
     if (!checkAccount) process.exit(0)
@@ -334,8 +336,8 @@ async function sendPing(account: AccountType) {
     const dataAccount = Account.findOne({
       id: account.id,
       status: 'Logout',
-      statusLogin: 'Success',
-      statusDelete: 0
+      statusDelete: 0,
+      statusLogin: 'Success'
     }) as AccountType
     if (!dataAccount) {
       ws.close()
@@ -343,7 +345,6 @@ async function sendPing(account: AccountType) {
     }
     if (ErrorCode == 210) {
       port?.postMessage({
-        type: 'DataUpdateAccount',
         data: Account.update(
           { id: account.id },
           {
@@ -351,26 +352,26 @@ async function sendPing(account: AccountType) {
             statusLogin: 'Fail',
             textLog: Data
           }
-        )
+        ),
+        type: 'DataUpdateAccount'
       })
     } else if (dataAccount.checkBoxAutoLogin == 1) {
       port?.postMessage({
-        type: 'LoggedAgain',
         data: Account.update(
           { id: account.id },
           {
-            statusLogin: 'Fail',
-            textLog: 'Logged Again ...',
-            credit: '0',
             cookie: null,
+            credit: '0',
             host: null,
-            socketUrl: null
+            socketUrl: null,
+            statusLogin: 'Fail',
+            textLog: 'Logged Again ...'
           }
-        )
+        ),
+        type: 'LoggedAgain'
       })
     } else {
       port?.postMessage({
-        type: 'DataUpdateAccount',
         data: Account.update(
           { id: account.id },
           {
@@ -378,7 +379,8 @@ async function sendPing(account: AccountType) {
             statusLogin: 'Fail',
             textLog: Data
           }
-        )
+        ),
+        type: 'DataUpdateAccount'
       })
     }
     ws.close()
@@ -388,8 +390,8 @@ async function sendPing(account: AccountType) {
   const checkAccount = Account.findOne({
     id: account.id,
     status: 'Logout',
-    statusLogin: 'Success',
-    statusDelete: 0
+    statusDelete: 0,
+    statusLogin: 'Success'
   }) as AccountType
 
   if (!checkAccount) {
@@ -410,8 +412,8 @@ async function sendPing(account: AccountType) {
 
   isAccountActive(account.id) &&
     port?.postMessage({
-      type: 'DataUpdateAccount',
-      data: Account.update({ id: account.id }, { credit: Data })
+      data: Account.update({ id: account.id }, { credit: Data }),
+      type: 'DataUpdateAccount'
     })
 
   if (ws.readyState === WebSocket.OPEN) {
@@ -432,18 +434,18 @@ async function startTimer(account: AccountType) {
   await delay(ms)
 
   port?.postMessage({
-    type: 'LoggedAgain',
     data: Account.update(
       { id: account.id },
       {
-        statusLogin: 'Fail',
-        textLog: 'Logged Again ...',
-        credit: '0',
         cookie: null,
+        credit: '0',
         host: null,
-        socketUrl: null
+        socketUrl: null,
+        statusLogin: 'Fail',
+        textLog: 'Logged Again ...'
       }
-    )
+    ),
+    type: 'LoggedAgain'
   })
   process.exit(0)
 }

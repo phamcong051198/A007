@@ -1,12 +1,12 @@
 import { HttpsProxyAgent } from 'https-proxy-agent'
 
-import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { AccountType, TicketInfoDataBetType } from '@shared/common/types'
+
+import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { handleBetError, handleBetSuccess } from '@/worker/lib/handleLogBet'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
-
-import { BetNowResponse, SetDataResponse } from '@/worker/platform/3In1bet/common/types'
 import { API_ENDPOINTS } from '@/worker/platform/3In1bet/common/constants'
+import { BetNowResponse, SetDataResponse } from '@/worker/platform/3In1bet/common/types'
 
 export const placeBet_3in1Bet = async (
   ticket: TicketInfoDataBetType,
@@ -21,12 +21,12 @@ export const placeBet_3in1Bet = async (
       'BetList'
     )
     return {
-      ErrorCode: 400,
       Data: {
         info: ticket.betRejectionReason,
         receiptID: '',
         receiptStatus: ''
-      }
+      },
+      ErrorCode: 400
     }
   }
 
@@ -37,12 +37,13 @@ export const placeBet_3in1Bet = async (
   } = await bettingProcessBet__3in1Bet(accountInfo, ticket, dataGetTicketInfo)
 
   return {
-    ErrorCode: ErrorCode_ProcessBet, // 0: Success, 1: Fail, 2: Retry
+    // 0: Success, 1: Fail, 2: Retry
     Data: {
       info: String(Info),
       receiptID,
       receiptStatus: ErrorCode_ProcessBet == 0 ? 'Success' : 'Fail'
-    }
+    },
+    ErrorCode: ErrorCode_ProcessBet
   }
 }
 
@@ -99,11 +100,11 @@ async function bettingProcessBet__3in1Bet(
     ].join(',')
 
     const body = JSON.stringify({
+      bo: '0',
+      cb: 0,
       data: dataPayload,
       isAuto: true,
-      s: '0',
-      cb: 0,
-      bo: '0'
+      s: '0'
     })
 
     await accountLogToFile(
@@ -116,14 +117,14 @@ async function bettingProcessBet__3in1Bet(
     await accountLogToFile(platformName, loginID, `Payload Bet: ${body}`, 'BetList')
 
     const betNowRes = await fetch(API_ENDPOINTS.BET_NOW, {
-      method: 'POST',
       headers: {
-        'User-Agent': 'Mozilla/5.0',
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'X-Requested-With': 'XMLHttpRequest',
         Cookie: accountInfo.cookie,
+        'User-Agent': 'Mozilla/5.0',
+        'X-Requested-With': 'XMLHttpRequest',
         ...(accountInfo.customIP ? { 'X-Forwarded-For': accountInfo.customIP } : {})
       },
+      method: 'POST',
       ...(proxyAgent && { agent: proxyAgent }),
       body
     })

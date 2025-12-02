@@ -1,9 +1,11 @@
-import { BrowserWindow } from 'electron'
-import { AccountType } from '@shared/common/types'
-import { enqueueWorker } from '@/worker'
 import { Account, clearTable, PerMatchLimit } from '@db/model'
-import { platformPairStatusManager } from '@/worker/handlePairPlatform/manager'
+import { BrowserWindow } from 'electron'
+
+import { AccountType } from '@shared/common/types'
 import { STATUS_ACCOUNT } from '@shared/main/constants'
+
+import { enqueueWorker } from '@/worker'
+import { platformPairStatusManager } from '@/worker/handlePairPlatform/manager'
 
 export function handleLoginAccount(account: AccountType, mainWindow: BrowserWindow) {
   mainWindow.webContents.send(
@@ -28,15 +30,15 @@ export function handleLogoutAccount(account: AccountType, mainWindow: BrowserWin
         id: account.id
       },
       {
-        credit: '0',
         checkBoxAutoLogin: 0,
-        textLog: null,
-        statusLogin: null,
-        status: STATUS_ACCOUNT.LOGIN,
         cookie: null,
-        socketUrl: null,
+        credit: '0',
         host: null,
-        parent_id: null
+        parent_id: null,
+        socketUrl: null,
+        status: STATUS_ACCOUNT.LOGIN,
+        statusLogin: null,
+        textLog: null
       }
     )
   )

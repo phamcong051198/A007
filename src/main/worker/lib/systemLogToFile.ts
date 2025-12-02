@@ -1,7 +1,8 @@
-import { logTime } from '@/worker/lib/logTime'
 import fs from 'fs'
 import fsPromises from 'fs/promises'
 import path from 'path'
+
+import { logTime } from '@/worker/lib/logTime'
 
 const MAX_FILE_SIZE = 1 * 1024 * 1024 // 1MB in bytes
 //const MAX_FILE_SIZE = 500 * 1024 // 500KB in bytes

@@ -1,35 +1,37 @@
-import { getTicket_P88Bet } from '@/worker/platform/P88/actions/getTicket'
-import { getTicket_Viva88Bet } from '@/worker/platform/Viva88/actions/getTicket'
-import { placeBet_P88Bet } from '@/worker/platform/P88/actions/placeBet'
-import { placeBet_Viva88Bet } from '@/worker/platform/Viva88/actions/placeBet'
-import { TicketInfoDataBetType, AccountType } from '@shared/common/types'
+import { AccountType, TicketInfoDataBetType } from '@shared/common/types'
+
 import { getTicket_Sbobet } from '../platform/Sbobet/actions/getTicket'
 import { placeBet_Sbobet } from '../platform/Sbobet/actions/placeBet'
-import { getTicket_WBet } from '@/worker/platform/Wbet/actions/getTicket'
-import { placeBet_WBet } from '@/worker/platform/Wbet/actions/placeBet'
+
 import { getTicket_3in1Bet } from '@/worker/platform/3In1bet/actions/getTicket'
 import { placeBet_3in1Bet } from '@/worker/platform/3In1bet/actions/placeBet'
+import { getTicket_P88Bet } from '@/worker/platform/P88/actions/getTicket'
+import { placeBet_P88Bet } from '@/worker/platform/P88/actions/placeBet'
+import { getTicket_Viva88Bet } from '@/worker/platform/Viva88/actions/getTicket'
+import { placeBet_Viva88Bet } from '@/worker/platform/Viva88/actions/placeBet'
+import { getTicket_WBet } from '@/worker/platform/Wbet/actions/getTicket'
+import { placeBet_WBet } from '@/worker/platform/Wbet/actions/placeBet'
 
 const BetPlatformServices = {
+  '3in1Bet': {
+    getTicket: getTicket_3in1Bet,
+    placeBet: placeBet_3in1Bet
+  },
   P88Bet: {
     getTicket: getTicket_P88Bet,
     placeBet: placeBet_P88Bet
-  },
-  Viva88Bet: {
-    getTicket: getTicket_Viva88Bet,
-    placeBet: placeBet_Viva88Bet
   },
   Sbobet: {
     getTicket: getTicket_Sbobet,
     placeBet: placeBet_Sbobet
   },
+  Viva88Bet: {
+    getTicket: getTicket_Viva88Bet,
+    placeBet: placeBet_Viva88Bet
+  },
   WBet: {
     getTicket: getTicket_WBet,
     placeBet: placeBet_WBet
-  },
-  '3in1Bet': {
-    getTicket: getTicket_3in1Bet,
-    placeBet: placeBet_3in1Bet
   }
 } as const
 
@@ -84,18 +86,18 @@ export const handleReBetTicket = async (
       // }
     }
 
-    const ticketUpdate = { ...ticket, hdp_point: Hdp_point, HDP, odd: Odds }
+    const ticketUpdate = { ...ticket, HDP, hdp_point: Hdp_point, odd: Odds }
     const { ErrorCode, Data } = await placeBet(ticketUpdate, accountInfo, dataGetTicket)
 
     if (ErrorCode == 0) {
-      return { ErrorCode, Data: { ...Data, odd: Odds } }
+      return { Data: { ...Data, odd: Odds }, ErrorCode }
     }
 
     messageError = Data.info
   }
 
   return {
-    ErrorCode: 1,
-    Data: { info: messageError, receiptID: '', receiptStatus: 'Fail', odd: ticket.odd }
+    Data: { info: messageError, odd: ticket.odd, receiptID: '', receiptStatus: 'Fail' },
+    ErrorCode: 1
   }
 }

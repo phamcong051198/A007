@@ -1,8 +1,10 @@
-import { useParams } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
-import { useReactTable, ColumnResizeMode, getCoreRowModel, flexRender } from '@tanstack/react-table'
-import { AccountType } from '@shared/common/types'
+import { useParams } from 'react-router-dom'
+import { ColumnResizeMode, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+
 import { createColumnsAccountList } from '@renderer/components/AccountList/defaultColumnsAccountList'
+
+import { AccountType } from '@shared/common/types'
 
 const cellKey = (rowIndex: number, columnId: string) => `${rowIndex}-${columnId}`
 interface CellPosition {
@@ -14,7 +16,7 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
   const { id: sportsBookId } = useParams()
 
   const [data, setData] = useState<AccountType[]>([])
-  const [contextMenu, setContextMenu] = useState({ x: 0, y: 0, visible: false })
+  const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0 })
 
   const handleMoveUp = (index: number) => {
     if (index <= 0) return
@@ -48,8 +50,8 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
 
   const [columns] = useState(() =>
     createColumnsAccountList({
-      onMoveUp: handleMoveUp,
-      onMoveDown: handleMoveDown
+      onMoveDown: handleMoveDown,
+      onMoveUp: handleMoveUp
     })
   )
   const [columnResizeMode] = useState<ColumnResizeMode>('onChange')
@@ -65,9 +67,9 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
   const handleRightClick = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault()
     setContextMenu({
+      visible: true,
       x: e.clientX,
-      y: e.clientY,
-      visible: true
+      y: e.clientY
     })
   }
 
@@ -88,10 +90,10 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
         const firstColumnId = table.getAllLeafColumns()[0]?.id || 'no'
 
         handleSelection(0, firstColumnId, {
-          preventDefault: () => {},
-          stopPropagation: () => {},
+          nativeEvent: new MouseEvent('mousedown', { bubbles: true }),
           persist: () => {},
-          nativeEvent: new MouseEvent('mousedown', { bubbles: true })
+          preventDefault: () => {},
+          stopPropagation: () => {}
         } as unknown as React.MouseEvent)
       }
     }
@@ -104,11 +106,12 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
   }
 
   const table = useReactTable({
-    data,
-    columns,
     columnResizeMode,
+    columns,
+    data,
     getCoreRowModel: getCoreRowModel(),
     meta: {
+      setHasError: () => {},
       updateData: (rowIndex: number, columnId: string, value: unknown) => {
         setData((old) =>
           old.map((row, index) => {
@@ -121,8 +124,7 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
             return row
           })
         )
-      },
-      setHasError: () => {}
+      }
     }
   })
 
@@ -136,12 +138,12 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
         newSet.has(key) ? newSet.delete(key) : newSet.add(key)
         return newSet
       })
-      setLastSelected({ rowIndex, columnId })
+      setLastSelected({ columnId, rowIndex })
     } else if (event.shiftKey && lastSelected) {
       selectRange(rowIndex, columnId, columnIds)
     } else {
       setSelection(new Set([key]))
-      setLastSelected({ rowIndex, columnId })
+      setLastSelected({ columnId, rowIndex })
     }
   }
 
@@ -170,7 +172,7 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
     if (event.button !== 0 || columnId === 'actions') return
 
     handleSelection(rowIndex, columnId, event)
-    setDragStart({ rowIndex, columnId })
+    setDragStart({ columnId, rowIndex })
     isDraggingRef.current = true
   }
 
@@ -252,7 +254,7 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
 
     const selected = Array.from(selection).map((key) => {
       const [rowIndex, colId] = key.split('-')
-      return { rowIndex: parseInt(rowIndex), colId }
+      return { colId, rowIndex: parseInt(rowIndex) }
     })
 
     const columnIds = table.getAllLeafColumns().map((col) => col.id)
@@ -401,7 +403,7 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
 
   const startEditing = (rowIndex: number, columnId: string) => {
     if (columnId === 'no' || columnId === 'actions') return
-    setEditingCell({ rowIndex, columnId })
+    setEditingCell({ columnId, rowIndex })
     setEditingValue(String(data[rowIndex][columnId as keyof AccountType] ?? ''))
 
     setLoginIDErrors({})
@@ -474,7 +476,7 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
       return trimmedOriginal
     })
 
-    window.electron.ipcRenderer.send('SaveAccountListWindow', { sportsBookId, dataAccountNew })
+    window.electron.ipcRenderer.send('SaveAccountListWindow', { dataAccountNew, sportsBookId })
     setOpenModalSetting(false)
   }
 
@@ -500,11 +502,11 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
                           key={header.id}
                           colSpan={header.colSpan}
                           style={{
-                            width: header.getSize(),
                             maxWidth: header.getSize(),
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
+                            whiteSpace: 'nowrap',
+                            width: header.getSize()
                           }}
                           className="sticky top-[-1px] z-10 truncate border border-border-default text-start pl-1 text-sm bg-bg-gray"
                         >
@@ -547,8 +549,8 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
                           <td
                             key={cell.id}
                             style={{
-                              width: cell.column.getSize(),
-                              maxWidth: cell.column.getSize()
+                              maxWidth: cell.column.getSize(),
+                              width: cell.column.getSize()
                             }}
                             className={`border border-border-default p-0 h-3 truncate cursor-pointer text-sm ${
                               isSelected ? 'bg-blue-200 text-black' : ''
@@ -599,15 +601,15 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
               <div
                 className="absolute z-[1000] w-32 bg-black text-sm"
                 style={{
-                  top: contextMenu.y - 90,
                   left: contextMenu.x - 4,
+                  top: contextMenu.y - 90,
                   transform: 'translate(-7px, -18px)'
                 }}
               >
                 <div
                   className="pl-8 cursor-pointer border border-gray-700 hover:border-gray-300"
                   onClick={() =>
-                    handleCut(new KeyboardEvent('keydown', { key: 'x', ctrlKey: true }))
+                    handleCut(new KeyboardEvent('keydown', { ctrlKey: true, key: 'x' }))
                   }
                 >
                   Cut

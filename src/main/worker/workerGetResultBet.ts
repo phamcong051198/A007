@@ -1,10 +1,13 @@
+import { parentPort } from 'worker_threads'
+
+import { Account, SuccessList } from '@db/model'
+
+import { AccountType, WaitingSuccessContraDBType } from '@shared/common/types'
+
 import { getResultBet_3in1Bet } from '@/worker/platform/3In1bet/actions/getResultBet'
 import { getResultBet_P88 } from '@/worker/platform/P88/actions/getResultBet'
 import { getResultBet_Viva88 } from '@/worker/platform/Viva88/actions/getResultBet'
 import { getResultBet_WBet } from '@/worker/platform/Wbet/actions/getResultBet'
-import { Account, SuccessList } from '@db/model'
-import { AccountType, WaitingSuccessContraDBType } from '@shared/common/types'
-import { parentPort } from 'worker_threads'
 
 const port = parentPort
 if (!port) throw new Error('IllegalState')

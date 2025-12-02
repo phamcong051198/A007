@@ -1,6 +1,7 @@
 import clsx from 'clsx'
-import { useSidebar } from '@renderer/context/SidebarContext'
+
 import ListEventWaitingList from '@renderer/components/WaitingList/ListEventWaitingList'
+import { useSidebar } from '@renderer/context/SidebarContext'
 
 function WaitingList() {
   const { collapsed } = useSidebar()

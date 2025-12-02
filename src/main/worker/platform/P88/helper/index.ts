@@ -1,9 +1,11 @@
+import { MessagePort } from 'worker_threads'
+
+import { Account } from '@db/model'
 import fetch from 'node-fetch'
 
-import { accountLogToFile } from '@/worker/lib/accountLogToFile'
-import { Account } from '@db/model'
 import { AccountType } from '@shared/common/types'
-import { MessagePort } from 'worker_threads'
+
+import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 
 export async function parseLoginResponse(res: fetch.Response): Promise<{
   status: 'success' | 'fail' | 'blocked' | 'unknown'
@@ -19,15 +21,15 @@ export async function parseLoginResponse(res: fetch.Response): Promise<{
   }
 
   if (typeof parsed === 'object' && parsed?.code === 1 && parsed.tokens) {
-    return { status: 'success', message: 'Login success' }
+    return { message: 'Login success', status: 'success' }
   }
   if (parsed === 0 || parsed === '0') {
-    return { status: 'fail', message: 'Invalid loginId or password' }
+    return { message: 'Invalid loginId or password', status: 'fail' }
   }
   if (typeof parsed === 'string' && parsed.includes('Cloudflare')) {
-    return { status: 'blocked', message: 'Blocked by Cloudflare (Error 1015)' }
+    return { message: 'Blocked by Cloudflare (Error 1015)', status: 'blocked' }
   }
-  return { status: 'unknown', message: 'Unknown response format' }
+  return { message: 'Unknown response format', status: 'unknown' }
 }
 
 export function extractCookie(setCookieHeader: string | null): string {
@@ -44,14 +46,13 @@ export async function updateAccountStatus(
   textLog: string
 ) {
   port.postMessage({
-    type: 'DataUpdateAccount',
-    data: Account.update({ id: account.id }, { textLog })
+    data: Account.update({ id: account.id }, { textLog }),
+    type: 'DataUpdateAccount'
   })
 }
 
 export async function handleLoginFail(port: MessagePort, account: AccountType, textLog: string) {
   port.postMessage({
-    type: 'DataUpdateAccount',
     data: Account.update(
       { id: account.id },
       {
@@ -59,7 +60,8 @@ export async function handleLoginFail(port: MessagePort, account: AccountType, t
         statusLogin: 'Fail',
         textLog
       }
-    )
+    ),
+    type: 'DataUpdateAccount'
   })
   await accountLogToFile(account.platformName, account.loginID, `Error: ${textLog}`, 'Program')
 }

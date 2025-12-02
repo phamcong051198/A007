@@ -9,8 +9,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@renderer/components/ui/alert-dialog'
-import TrashIcon from '@renderer/icons/trash'
 import QuestionMarkCircle from '@renderer/icons/question-mark-circle'
+import TrashIcon from '@renderer/icons/trash'
 
 function DeleteAccount({ deleteAccount }) {
   return (

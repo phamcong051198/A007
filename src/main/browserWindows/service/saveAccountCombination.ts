@@ -1,7 +1,9 @@
-import { BrowserWindow } from 'electron'
 import { Account, AccountPair, clearTable, PlatformPair, SportsBook } from '@db/model'
-import { AccountPairType, AccountType, SportsBookType } from '@shared/common/types'
 import { PlatformPairType } from '@db/schema/platformPair'
+import { BrowserWindow } from 'electron'
+
+import { AccountPairType, AccountType, SportsBookType } from '@shared/common/types'
+
 import { platformPairStatusManager } from '@/worker/handlePairPlatform/manager'
 
 export async function SaveAccountCombination(
@@ -28,11 +30,11 @@ export async function SaveAccountCombination(
 
   const transformedData = dataAccountPair.map((accountPair) => {
     return {
+      account1: JSON.stringify(accountPair.account1),
+      account2: JSON.stringify(accountPair.account2),
       id: accountPair.id,
       isValid: accountPair.isValid,
-      key: accountPair.key,
-      account1: JSON.stringify(accountPair.account1),
-      account2: JSON.stringify(accountPair.account2)
+      key: accountPair.key
     }
   })
 
@@ -69,11 +71,11 @@ export async function SaveAccountCombinationByArray(
     }
     const normalized = transformedData.map((item) => {
       return {
+        account1: typeof item.account1 === 'string' ? item.account1 : JSON.stringify(item.account1),
+        account2: typeof item.account2 === 'string' ? item.account2 : JSON.stringify(item.account2),
         id: item.id,
         isValid: item.isValid,
-        key: item.key,
-        account1: typeof item.account1 === 'string' ? item.account1 : JSON.stringify(item.account1),
-        account2: typeof item.account2 === 'string' ? item.account2 : JSON.stringify(item.account2)
+        key: item.key
       }
     })
 
@@ -116,7 +118,7 @@ const createPlatformPair = (dataAccountPair: AccountPairType[]) => {
 
       const key = `${platform1}_${platform2}`
 
-      return { platform1, platform2, key }
+      return { key, platform1, platform2 }
     })
     .filter(
       (value, index, self) =>

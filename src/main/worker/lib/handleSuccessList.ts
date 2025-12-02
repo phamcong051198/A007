@@ -1,6 +1,7 @@
 import { clearTable, SettingTableView, SuccessList } from '@db/model'
-import { SettingTableViewType } from '@shared/common/types'
 import { BrowserWindow } from 'electron'
+
+import { SettingTableViewType } from '@shared/common/types'
 
 async function handleSuccessList(recordDB, mainWindow: BrowserWindow): Promise<void> {
   const SettingTableViewSuccessList = SettingTableView.findOne({

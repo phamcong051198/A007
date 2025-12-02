@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-
+import { useEffect } from 'react'
 import AppLayout from '@renderer/layouts/AppLayout'
+
 import { useCount } from '@renderer/context/CountContext'
 
 export default function Main() {

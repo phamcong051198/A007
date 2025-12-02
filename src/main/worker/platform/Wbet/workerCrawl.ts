@@ -1,16 +1,24 @@
 /* eslint-disable no-constant-condition */
-import { HttpsProxyAgent } from 'https-proxy-agent'
 import { setTimeout } from 'timers/promises'
-import { accountLogToFile } from '@/worker/lib/accountLogToFile'
-import { Account, clearTable, createModel, Setting } from '@db/model'
-import { AccountType, SettingType } from '@shared/common/types'
 import { parentPort } from 'worker_threads'
-import { isAccountActive } from '@/worker/lib/checkAccount'
-import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
+
+import { Account, clearTable, createModel, Setting } from '@db/model'
 import dataCrawlByPlatformSchema from '@db/schema/dataCrawlByPlatform'
-import { OPTIONS_PROXY, PLATFORM, STATUS_ACCOUNT, STATUS_LOGIN } from '@shared/main/constants'
+import rootLeagueSchema from '@db/schema/rootLeague'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 
 import { GAME_TYPES } from '@shared/common/constants'
+import { AccountType, SettingType } from '@shared/common/types'
+import { OPTIONS_PROXY, PLATFORM, STATUS_ACCOUNT, STATUS_LOGIN } from '@shared/main/constants'
+
+import { accountLogToFile } from '@/worker/lib/accountLogToFile'
+import { isAccountActive } from '@/worker/lib/checkAccount'
+import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
+import {
+  API_ENDPOINTS,
+  KEY_UX_MATCH_ODDS,
+  PARAM_UX_MATCH
+} from '@/worker/platform/Wbet/common/constants'
 import {
   buildBodyBalance,
   buildBodyMarket,
@@ -19,12 +27,6 @@ import {
   handleDataOdds_HDP,
   handleDataOdds_OU
 } from '@/worker/platform/Wbet/helper'
-import {
-  API_ENDPOINTS,
-  KEY_UX_MATCH_ODDS,
-  PARAM_UX_MATCH
-} from '@/worker/platform/Wbet/common/constants'
-import rootLeagueSchema from '@db/schema/rootLeague'
 
 let gameType: string | null = null
 
@@ -51,8 +53,8 @@ const handleCrawlData = async () => {
     const listAccount = Account.findAll({
       platformName: PLATFORM.WBET,
       status: STATUS_ACCOUNT.LOGOUT,
-      statusLogin: STATUS_LOGIN.SUCCESS,
-      statusDelete: 0
+      statusDelete: 0,
+      statusLogin: STATUS_LOGIN.SUCCESS
     }) as AccountType[]
 
     if (!listAccount.length) {
@@ -76,8 +78,8 @@ const fnCrawlData = async (account: AccountType) => {
 
   const accountInfo = Account.findOne({
     id: account.id,
-    statusDelete: 0,
     status: STATUS_ACCOUNT.LOGOUT,
+    statusDelete: 0,
     statusLogin: STATUS_LOGIN.SUCCESS
   }) as AccountType
   if (!accountInfo) return
@@ -99,8 +101,8 @@ const fnCrawlData = async (account: AccountType) => {
         }
       ) &&
       port.postMessage({
-        type: 'DataUpdateAccount',
-        idAccount: account.id
+        idAccount: account.id,
+        type: 'DataUpdateAccount'
       })
 
     return
@@ -118,8 +120,8 @@ const fnCrawlData = async (account: AccountType) => {
 
   try {
     const dataBalance = await fetchJsonWithDecompress(API_ENDPOINTS.BALANCE, account, {
-      method: 'POST',
       body: JSON.stringify(buildBodyBalance(account)),
+      method: 'POST',
       ...(proxyAgent && { agent: proxyAgent })
     })
 
@@ -130,17 +132,17 @@ const fnCrawlData = async (account: AccountType) => {
     isAccountActive(account.id) &&
       Account.update({ id: account.id }, { credit: String(dataBalance.balance) || 0 }) &&
       port.postMessage({
-        type: 'DataUpdateAccount',
-        idAccount: account.id
+        idAccount: account.id,
+        type: 'DataUpdateAccount'
       })
 
     const dataMarket = await fetchJsonWithDecompress(API_ENDPOINTS.UX_MARKET, account, {
-      method: 'POST',
       body: JSON.stringify(buildBodyMarket(gameType, account)),
+      method: 'POST',
       ...(proxyAgent && { agent: proxyAgent })
     })
 
-    await handleData({ dataMarket, account, proxyAgent })
+    await handleData({ account, dataMarket, proxyAgent })
   } catch (error) {
     console.error('Error Crawl Data Wbet:', error instanceof Error ? error.message : String(error))
 
@@ -154,17 +156,17 @@ const fnCrawlData = async (account: AccountType) => {
       Account.update(
         { id: account.id },
         {
-          statusLogin: STATUS_LOGIN.FAIL,
-          textLog: 'Logged Again ...',
-          credit: '0',
           cookie: null,
+          credit: '0',
           host: null,
-          socketUrl: null
+          socketUrl: null,
+          statusLogin: STATUS_LOGIN.FAIL,
+          textLog: 'Logged Again ...'
         }
       ) &&
       port.postMessage({
-        type: 'LoggedAgain',
-        idAccount: account.id
+        idAccount: account.id,
+        type: 'LoggedAgain'
       })
   }
 }
@@ -185,10 +187,10 @@ const handleData = async ({ dataMarket, account, proxyAgent }) => {
   if (isAccountActive(account.id)) {
     Account.updateMany(
       {
-        status: STATUS_ACCOUNT.LOGOUT,
-        statusLogin: STATUS_LOGIN.SUCCESS,
         platformName: PLATFORM.WBET,
-        statusDelete: 0
+        status: STATUS_ACCOUNT.LOGOUT,
+        statusDelete: 0,
+        statusLogin: STATUS_LOGIN.SUCCESS
       },
       {
         textLog: `Get Soccer ${gameType}...`
@@ -210,10 +212,10 @@ const handleData = async ({ dataMarket, account, proxyAgent }) => {
     if (isAccountActive(account.id)) {
       Account.updateMany(
         {
+          platformName: PLATFORM.WBET,
           status: STATUS_ACCOUNT.LOGOUT,
           statusDelete: 0,
-          statusLogin: STATUS_LOGIN.SUCCESS,
-          platformName: PLATFORM.WBET
+          statusLogin: STATUS_LOGIN.SUCCESS
         },
         {
           textLog: `Soccer ${gameType}: No data.`
@@ -234,8 +236,8 @@ const handleData = async ({ dataMarket, account, proxyAgent }) => {
       `${API_ENDPOINTS.UX_MATCH}?match=${PARAM_UX_MATCH[gameType]}`,
       account,
       {
-        method: 'POST',
         body: JSON.stringify(payload),
+        method: 'POST',
         ...(proxyAgent && { agent: proxyAgent })
       }
     )
@@ -261,10 +263,10 @@ const handleData = async ({ dataMarket, account, proxyAgent }) => {
     if (isAccountActive(account.id)) {
       Account.updateMany(
         {
+          platformName: PLATFORM.WBET,
           status: STATUS_ACCOUNT.LOGOUT,
           statusDelete: 0,
-          statusLogin: STATUS_LOGIN.SUCCESS,
-          platformName: PLATFORM.WBET
+          statusLogin: STATUS_LOGIN.SUCCESS
         },
         {
           textLog: `Handle Data All Event Done. (${eventsLength}, ${timeEnd - timeStart}ms)`

@@ -1,4 +1,5 @@
 import { Account, SportsBook } from '@db/model'
+
 import { AccountType, SportsBookType } from '@shared/common/types'
 
 export function handleGetAccountBySportsBook(activeSportsBook: string) {

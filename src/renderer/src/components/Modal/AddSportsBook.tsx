@@ -1,9 +1,11 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
-import { PlatformType } from '@shared/common/types'
-import InformationCircle from '@renderer/icons/information-circle'
+
 import { AlertDialog, AlertDialogContent } from '@renderer/components/ui/alert-dialog'
 import BookOpenBorder from '@renderer/icons/book-open-border'
+import InformationCircle from '@renderer/icons/information-circle'
 import SearchLg from '@renderer/icons/search-lg'
+
+import { PlatformType } from '@shared/common/types'
 
 export default function AddSportsBookModal({ openAddSportsBook, setOpenAddSportsBook }) {
   const [searchTerm, setSearchTerm] = useState('')

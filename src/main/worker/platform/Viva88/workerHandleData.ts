@@ -1,13 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { toPositiveNumber } from '@/worker/lib/toPositiveNumber'
+import { parentPort } from 'worker_threads'
+
 import Model, { createModel, EventViva88, IndexViva88, Setting } from '@db/model'
 import dataCrawlByPlatformSchema from '@db/schema/dataCrawlByPlatform'
 import { EventViva88Type } from '@db/schema/eventViva88'
 import rootLeagueSchema from '@db/schema/rootLeague'
+
 import { CONVERT_HDP } from '@shared/common/constants'
 import { SPREAD, TOTAL } from '@shared/common/constants'
 import { DataCrawlType, LeagueType, SettingType } from '@shared/common/types'
-import { parentPort } from 'worker_threads'
+
+import { toPositiveNumber } from '@/worker/lib/toPositiveNumber'
 
 const port = parentPort
 if (!port) throw new Error('IllegalState')
@@ -106,8 +109,8 @@ async function handleData(data: any) {
             if (!findLeague) {
               const data = {
                 idLeague: leagueInfo.leagueid,
-                nameLeague,
-                league: nameLeague.toUpperCase()
+                league: nameLeague.toUpperCase(),
+                nameLeague
               }
               League_Viva88Bet.create(data)
             }
@@ -165,21 +168,21 @@ async function handleData(data: any) {
 
           if (!existingEvent) {
             const newEvent = {
-              idEvent: matchInfo.matchid,
-              nameHome: home,
-              nameAway: away,
-              home: home.toUpperCase(),
               away: away.toUpperCase(),
+              awayred: matchInfo.awayred ?? null,
+              home: home.toUpperCase(),
+              homered: matchInfo.homered ?? null,
+              idEvent: matchInfo.matchid,
               idLeague: matchInfo.leagueid,
+              isht: matchInfo.isht ? 'HT' : '',
+              league: league_Viva88Bet.league,
               liveawayscore: matchInfo.liveawayscore ?? 0,
               livehomescore: matchInfo.livehomescore ?? 0,
-              livetimer: Number(matchInfo.livetimer) ?? null,
-              awayred: matchInfo.awayred ?? null,
-              homered: matchInfo.homered ?? null,
-              nameLeague: league_Viva88Bet.nameLeague,
-              league: league_Viva88Bet.league,
               liveperiod: matchInfo.liveperiod ?? 1,
-              isht: matchInfo.isht ? 'HT' : ''
+              livetimer: Number(matchInfo.livetimer) ?? null,
+              nameAway: away,
+              nameHome: home,
+              nameLeague: league_Viva88Bet.nameLeague
             }
             EventViva88.create(newEvent)
           } else {
@@ -280,31 +283,6 @@ async function handleData(data: any) {
               checkNumber = 1
             }
             const dataSave = {
-              platform: 'Viva88Bet',
-              idLeague: leagueid ?? matchInfo?.leagueid ?? '',
-              nameLeague: findLeague?.nameLeague ?? matchInfo?.league ?? '',
-              idEvent: matchInfo.matchid,
-              nameHome: matchInfo.hteamnameen,
-              nameAway: matchInfo.ateamnameen,
-              number: checkNumber,
-              altLineId: matchInfo.oddsid,
-              hdp_point:
-                matchInfo.parenttypeid === 1 || matchInfo.parenttypeid === 7
-                  ? matchInfo.hdp1 !== 0
-                    ? -matchInfo.hdp1
-                    : matchInfo.hdp2
-                  : matchInfo.hdp1 !== 0
-                    ? matchInfo.hdp1
-                    : -matchInfo.hdp1,
-              home_over: matchInfo.odds1a,
-              away_under: matchInfo.odds2a,
-              redCard: `${matchInfo.homered ?? 0}-${matchInfo.awayred ?? 0}`,
-              score: `${matchInfo.livehomescore ?? 0}-${matchInfo.liveawayscore ?? 0}`,
-              stat: getElapsedTime(matchInfo.livetimer, matchInfo.liveperiod, gameType) ?? '',
-              typeOdd:
-                matchInfo.parenttypeid === 1 || matchInfo.parenttypeid === 7 ? SPREAD : TOTAL,
-              type: matchInfo.parenttypeid === 1 || matchInfo.parenttypeid === 7 ? 'HDP' : 'OU',
-              bettype: matchInfo.bettype ?? '',
               HDP: CONVERT_HDP[
                 toPositiveNumber(
                   Math.abs(
@@ -318,10 +296,34 @@ async function handleData(data: any) {
                   )
                 )
               ],
-              specialOdd: null,
-              league: matchInfo.league,
+              altLineId: matchInfo.oddsid,
+              away: matchInfo.away,
+              away_under: matchInfo.odds2a,
+              bettype: matchInfo.bettype ?? '',
+              hdp_point:
+                matchInfo.parenttypeid === 1 || matchInfo.parenttypeid === 7
+                  ? matchInfo.hdp1 !== 0
+                    ? -matchInfo.hdp1
+                    : matchInfo.hdp2
+                  : matchInfo.hdp1 !== 0
+                    ? matchInfo.hdp1
+                    : -matchInfo.hdp1,
               home: matchInfo.home,
-              away: matchInfo.away
+              home_over: matchInfo.odds1a,
+              idEvent: matchInfo.matchid,
+              idLeague: leagueid ?? matchInfo?.leagueid ?? '',
+              league: matchInfo.league,
+              nameAway: matchInfo.ateamnameen,
+              nameHome: matchInfo.hteamnameen,
+              nameLeague: findLeague?.nameLeague ?? matchInfo?.league ?? '',
+              number: checkNumber,
+              platform: 'Viva88Bet',
+              redCard: `${matchInfo.homered ?? 0}-${matchInfo.awayred ?? 0}`,
+              score: `${matchInfo.livehomescore ?? 0}-${matchInfo.liveawayscore ?? 0}`,
+              specialOdd: null,
+              stat: getElapsedTime(matchInfo.livetimer, matchInfo.liveperiod, gameType) ?? '',
+              type: matchInfo.parenttypeid === 1 || matchInfo.parenttypeid === 7 ? 'HDP' : 'OU',
+              typeOdd: matchInfo.parenttypeid === 1 || matchInfo.parenttypeid === 7 ? SPREAD : TOTAL
             }
 
             const requiredFields = [

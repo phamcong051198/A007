@@ -1,13 +1,14 @@
 import { HttpsProxyAgent } from 'https-proxy-agent'
 
+import { GAME_TYPES, OVER } from '@shared/common/constants'
+import { AccountType, TicketInfoDataBetType } from '@shared/common/types'
+
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { handleBetError, handleBetSuccess } from '@/worker/lib/handleLogBet'
-import { AccountType, TicketInfoDataBetType } from '@shared/common/types'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
-import { fetchJsonWithDecompress } from '@/worker/platform/Wbet/helper'
-import { BetCheckResponse, TypeGetTickets_WBet } from '@/worker/platform/Wbet/common/types'
 import { API_ENDPOINTS, BET_TYPE_MAP, ODDS_COL_MAP } from '@/worker/platform/Wbet/common/constants'
-import { GAME_TYPES, OVER } from '@shared/common/constants'
+import { BetCheckResponse, TypeGetTickets_WBet } from '@/worker/platform/Wbet/common/types'
+import { fetchJsonWithDecompress } from '@/worker/platform/Wbet/helper'
 
 export const placeBet_WBet = async (
   ticket: TicketInfoDataBetType,
@@ -22,12 +23,12 @@ export const placeBet_WBet = async (
       'BetList'
     )
     return {
-      ErrorCode: 400,
       Data: {
         info: ticket.betRejectionReason,
         receiptID: '',
         receiptStatus: ''
-      }
+      },
+      ErrorCode: 400
     }
   }
 
@@ -38,12 +39,13 @@ export const placeBet_WBet = async (
   } = await bettingProcessBet__WBet(accountInfo, ticket, dataGetTicketInfo)
 
   return {
-    ErrorCode: ErrorCode_ProcessBet, // 0: Success, 1: Fail, 2: Retry
+    // 0: Success, 1: Fail, 2: Retry
     Data: {
       info: String(Info),
       receiptID,
       receiptStatus: ErrorCode_ProcessBet == 0 ? 'Success' : 'Fail'
-    }
+    },
+    ErrorCode: ErrorCode_ProcessBet
   }
 }
 
@@ -86,24 +88,24 @@ async function bettingProcessBet__WBet(
       ticket.gameType == GAME_TYPES.EARLY ? 1 : ticket.gameType == GAME_TYPES.TODAY ? 2 : 3
 
     const body = JSON.stringify({
-      odds_type: 1,
-      market_type,
+      accept_better_odds: 'false',
       account_id: accountInfo.loginID,
-      session_token: accountInfo.cookie,
-      parent_id: accountInfo.parent_id,
-      odds_id: ticket.altLineId,
-      submatch_id: ticket.submatch_id,
-      match_id: ticket.idEvent,
-      bet_type,
+      ball_display: ticket.HDP,
       bet_member: String(stake),
       bet_team_id,
+      bet_type,
       home_away,
+      market_type,
+      match_id: ticket.idEvent,
       odds_col,
-      accept_better_odds: 'false',
-      ball_display: ticket.HDP,
-      operator_type: null,
+      odds_display,
+      odds_id: ticket.altLineId,
       odds_mo,
-      odds_display
+      odds_type: 1,
+      operator_type: null,
+      parent_id: accountInfo.parent_id,
+      session_token: accountInfo.cookie,
+      submatch_id: ticket.submatch_id
     })
 
     await accountLogToFile(
@@ -117,8 +119,8 @@ async function bettingProcessBet__WBet(
       API_ENDPOINTS.BET_SINGLE,
       accountInfo,
       {
-        method: 'POST',
         body,
+        method: 'POST',
         ...(proxyAgent && { agent: proxyAgent })
       }
     )

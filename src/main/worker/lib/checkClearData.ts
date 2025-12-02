@@ -10,23 +10,23 @@ import {
 export const checkClearData = () => {
   const settings = [
     {
-      setting: SettingTableView.findOne({ tab: 'BetList' }) as { clear: number },
       count: () => BetListResult.count(),
+      setting: SettingTableView.findOne({ tab: 'BetList' }) as { clear: number },
       tableName: 'BetListResult'
     },
     {
-      setting: SettingTableView.findOne({ tab: 'WaitingList' }) as { clear: number },
       count: () => WaitingList.count(),
+      setting: SettingTableView.findOne({ tab: 'WaitingList' }) as { clear: number },
       tableName: 'WaitingList'
     },
     {
-      setting: SettingTableView.findOne({ tab: 'ContraList' }) as { clear: number },
       count: () => ContraList.count(),
+      setting: SettingTableView.findOne({ tab: 'ContraList' }) as { clear: number },
       tableName: 'ContraList'
     },
     {
-      setting: SettingTableView.findOne({ tab: 'SuccessList' }) as { clear: number },
       count: () => SuccessList.count(),
+      setting: SettingTableView.findOne({ tab: 'SuccessList' }) as { clear: number },
       tableName: 'SuccessList'
     }
   ]

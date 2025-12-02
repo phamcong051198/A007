@@ -1,4 +1,5 @@
 import React, { Fragment, useState } from 'react'
+
 import { ConfirmLogOut } from '@renderer/components/Modal/ConfirmLogOut'
 
 const AppTopBar: React.FC = () => {

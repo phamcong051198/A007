@@ -1,22 +1,23 @@
-import { v4 as uuidv4 } from 'uuid'
-import { CheckCircle } from 'lucide-react'
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { CheckCircle } from 'lucide-react'
+import { v4 as uuidv4 } from 'uuid'
 
+import { Confirmation } from '@renderer/components/NotificationPopup/Confirmation'
+import { NotificationError } from '@renderer/components/NotificationPopup/NotificationError'
 import { AccountPairContext, AccountPairProvider } from '@renderer/context/AccountPairContext'
 import { generateAccountData } from '@renderer/lib/generateAccountData'
 import { generateAddAllAccountPair } from '@renderer/lib/generateAddAllAccountPair'
 import { sanitizeAccountsData } from '@renderer/lib/sanitizeAccountsData'
-import { AccountPairType } from '@shared/common/types'
-import { AccountType } from '@shared/common/types'
-import { InputNumber } from '../ui/input-number'
-import { Label } from '../ui/label'
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
-import { Confirmation } from '@renderer/components/NotificationPopup/Confirmation'
-import { NotificationError } from '@renderer/components/NotificationPopup/NotificationError'
 import ExclamationTriangle from '@renderer/icons/exclamation-triangle'
 import QuestionMarkCircle from '@renderer/icons/question-mark-circle'
-import { Button } from '../ui/button'
+
 import { getThemeClass } from '@shared/common/constants'
+import { AccountPairType } from '@shared/common/types'
+import { AccountType } from '@shared/common/types'
+
+import { Button } from '../ui/button'
+import { Label } from '../ui/label'
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 
 // Create context for account selection
 const AccountSelectionContext = React.createContext<{
@@ -267,11 +268,11 @@ const ActionButtons = ({ setShowSaveSuccess, setMessageSuccess }) => {
     }
 
     const accountPair = {
+      account1: generateAccountData(firstAccount),
+      account2: generateAccountData(secondAccount),
       id: uuidv4() as string,
       isValid: 0,
-      key: '',
-      account1: generateAccountData(firstAccount),
-      account2: generateAccountData(secondAccount)
+      key: ''
     }
 
     accountPair.isValid = accountPair.account1.platform === accountPair.account2.platform ? 0 : 1
@@ -613,8 +614,8 @@ const AccountPairContent = () => {
   const handleSave = () => {
     const dataAccountPair = sanitizeAccountsData(listAccountPair)
     window.electron.ipcRenderer.send('AccountPairWindow', {
-      isClearInvalidAccount,
-      dataAccountPair
+      dataAccountPair,
+      isClearInvalidAccount
     })
 
     // Show success notification then redirect after a short delay

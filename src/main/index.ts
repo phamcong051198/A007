@@ -1,11 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { join } from 'path'
+
+import { Account, clearTable, Platform, Setting, SettingTableView } from '@db/model'
 import { is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
-import { join } from 'path'
-import { Account, clearTable, Platform, Setting, SettingTableView } from '@db/model'
+
 import { SettingTableViewType } from '@shared/common/types'
-import { DEFAULT_ACCOUNT_STATUS, DEFAULT_SETTING, PLATFORM_DATA } from '@shared/main/constants'
 import { SettingType } from '@shared/common/types'
+import { DEFAULT_ACCOUNT_STATUS, DEFAULT_SETTING, PLATFORM_DATA } from '@shared/main/constants'
+
 import { createMainWindow } from '@/browserWindows/mainWindow'
 
 let loginWindow: BrowserWindow | null = null
@@ -21,22 +24,22 @@ if (!gotTheLock) {
 
 function createWindow() {
   const loginWindow = new BrowserWindow({
-    width: 456,
-    height: 638,
-    show: false,
     autoHideMenuBar: true,
     center: true,
     frame: false,
+    height: 638,
+    show: false,
     titleBarOverlay: false,
+    trafficLightPosition: { x: 15, y: 10 },
     transparent: true,
     vibrancy: 'under-window',
     visualEffectState: 'active',
-    trafficLightPosition: { x: 15, y: 10 },
     webPreferences: {
+      contextIsolation: true,
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
-      contextIsolation: true
-    }
+      sandbox: false
+    },
+    width: 456
   })
 
   ipcMain.on('CloseLoginWindow', () => {
@@ -56,7 +59,7 @@ function createWindow() {
       }
       return
     }
-    return event.reply('LoginResult', { success: false, message: 'Invalid credentials.' })
+    return event.reply('LoginResult', { message: 'Invalid credentials.', success: false })
   })
 
   loginWindow.webContents.setWindowOpenHandler((details) => {
@@ -130,10 +133,10 @@ app.whenReady().then(async () => {
   const settingTableView = SettingTableView.findAll() as unknown as SettingTableViewType[]
   if (!settingTableView.length) {
     SettingTableView.insertMany([
-      { tab: 'BetList', contraStrategy: 'auto', clear: 1, scroll: 1 },
-      { tab: 'WaitingList', contraStrategy: '', clear: 1, scroll: 1 },
-      { tab: 'ContraList', contraStrategy: 'auto', clear: 1, scroll: 1 },
-      { tab: 'SuccessList', contraStrategy: '', clear: 0, scroll: 0 }
+      { clear: 1, contraStrategy: 'auto', scroll: 1, tab: 'BetList' },
+      { clear: 1, contraStrategy: '', scroll: 1, tab: 'WaitingList' },
+      { clear: 1, contraStrategy: 'auto', scroll: 1, tab: 'ContraList' },
+      { clear: 0, contraStrategy: '', scroll: 0, tab: 'SuccessList' }
     ])
   }
 })

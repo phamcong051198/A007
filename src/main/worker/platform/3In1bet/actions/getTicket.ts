@@ -1,10 +1,11 @@
-import fetch from 'node-fetch'
 import { HttpsProxyAgent } from 'https-proxy-agent'
+import fetch from 'node-fetch'
+
+import { TicketInfoDataBetType } from '@shared/common/types'
+import { AccountType } from '@shared/common/types'
 
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
-import { TicketInfoDataBetType } from '@shared/common/types'
-import { AccountType } from '@shared/common/types'
 import { API_ENDPOINTS } from '@/worker/platform/3In1bet/common/constants'
 import { SetDataResponse, UserInfoResponse } from '@/worker/platform/3In1bet/common/types'
 
@@ -20,12 +21,12 @@ export const getTicket_3in1Bet = async (
       'BetList'
     )
     return {
+      Data: null,
       ErrorCode: 400,
-      Message: 'No Bet By User',
-      Hdp_point: ticket.hdp_point,
       HDP: ticket.HDP,
-      Odds: 0,
-      Data: null
+      Hdp_point: ticket.hdp_point,
+      Message: 'No Bet By User',
+      Odds: 0
     }
   }
   await accountLogToFile(accountInfo.platformName, accountInfo.loginID, '', 'BetList')
@@ -87,11 +88,11 @@ export const getTicket_3in1Bet = async (
     ].join(',')
 
     const body = JSON.stringify({
+      bo: '0',
+      cb: 0,
       data: dataPayload,
       isAuto: true,
-      s: '0',
-      cb: 0,
-      bo: '0'
+      s: '0'
     })
 
     await accountLogToFile(
@@ -103,25 +104,25 @@ export const getTicket_3in1Bet = async (
 
     const [userInfoRes, setDataRes] = await Promise.all([
       fetch(API_ENDPOINTS.USER_INFO_PANEL_HOST, {
-        method: 'POST',
         headers: {
-          'User-Agent': 'Mozilla/5.0',
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-          'X-Requested-With': 'XMLHttpRequest',
           Cookie: accountInfo.cookie,
+          'User-Agent': 'Mozilla/5.0',
+          'X-Requested-With': 'XMLHttpRequest',
           ...(accountInfo.customIP ? { 'X-Forwarded-For': accountInfo.customIP } : {})
         },
+        method: 'POST',
         ...(proxyAgent && { agent: proxyAgent })
       }),
       fetch(API_ENDPOINTS.SET_DATA, {
-        method: 'POST',
         headers: {
-          'User-Agent': 'Mozilla/5.0',
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-          'X-Requested-With': 'XMLHttpRequest',
           Cookie: accountInfo.cookie,
+          'User-Agent': 'Mozilla/5.0',
+          'X-Requested-With': 'XMLHttpRequest',
           ...(accountInfo.customIP ? { 'X-Forwarded-For': accountInfo.customIP } : {})
         },
+        method: 'POST',
         ...(proxyAgent && { agent: proxyAgent }),
         body
       })
@@ -138,12 +139,12 @@ export const getTicket_3in1Bet = async (
       )
 
       return {
+        Data: null,
         ErrorCode: 1,
-        Message: `Error: Credit currently [${betCredit}] less than bet amount setting [${ticket.betAmount_Standard}]`,
-        Hdp_point: ticket.hdp_point,
         HDP: ticket.HDP,
-        Odds: 0,
-        Data: null
+        Hdp_point: ticket.hdp_point,
+        Message: `Error: Credit currently [${betCredit}] less than bet amount setting [${ticket.betAmount_Standard}]`,
+        Odds: 0
       }
     }
 
@@ -172,12 +173,12 @@ export const getTicket_3in1Bet = async (
       )
 
       return {
+        Data: null,
         ErrorCode: 1,
-        Message: `Error: Bet Amount [${ticket.betAmount_Standard}] less than Min Bet [${min}]`,
-        Hdp_point: ticket.hdp_point,
         HDP: ticket.HDP,
-        Odds: 0,
-        Data: null
+        Hdp_point: ticket.hdp_point,
+        Message: `Error: Bet Amount [${ticket.betAmount_Standard}] less than Min Bet [${min}]`,
+        Odds: 0
       }
     }
 
@@ -190,22 +191,22 @@ export const getTicket_3in1Bet = async (
       )
 
       return {
+        Data: null,
         ErrorCode: 1,
-        Message: `Error: Bet Amount [${ticket.betAmount_Standard}] more than Max Bet [${max}]`,
-        Hdp_point: ticket.hdp_point,
         HDP: ticket.HDP,
-        Odds: 0,
-        Data: null
+        Hdp_point: ticket.hdp_point,
+        Message: `Error: Bet Amount [${ticket.betAmount_Standard}] more than Max Bet [${max}]`,
+        Odds: 0
       }
     }
 
     return {
+      Data: setData,
       ErrorCode: 0,
-      Message: statusCode == 3 ? 'ODDS_CHANGE' : 'OK',
-      Hdp_point: ticket.hdp_point,
       HDP: ticket.HDP,
-      Odds: setData.d.Odds,
-      Data: setData
+      Hdp_point: ticket.hdp_point,
+      Message: statusCode == 3 ? 'ODDS_CHANGE' : 'OK',
+      Odds: setData.d.Odds
     }
   } catch (error) {
     console.log(
@@ -220,12 +221,12 @@ export const getTicket_3in1Bet = async (
       'BetList'
     )
     return {
+      Data: null,
       ErrorCode: 1,
-      Message: `Error: Get Ticket Fail ${error instanceof Error ? error.message : 'Unknown Error'}`,
-      Hdp_point: ticket.hdp_point,
       HDP: ticket.HDP,
-      Odds: 0,
-      Data: null
+      Hdp_point: ticket.hdp_point,
+      Message: `Error: Get Ticket Fail ${error instanceof Error ? error.message : 'Unknown Error'}`,
+      Odds: 0
     }
   }
 }

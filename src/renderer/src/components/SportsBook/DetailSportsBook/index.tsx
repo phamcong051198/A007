@@ -1,13 +1,15 @@
 import React from 'react'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
-import { DataPlatformType } from '@shared/common/types'
-import AccountPlatform from '@renderer/components/SportsBook/DetailSportsBook/AccountPlatform'
+import { useState } from 'react'
+
 import { NotificationError } from '@renderer/components/NotificationPopup/NotificationError'
-import ExclamationTriangle from '@renderer/icons/exclamation-triangle'
-import QuickActionsPlatform from '@renderer/components/SportsBook/DetailSportsBook/QuickActions'
+import AccountPlatform from '@renderer/components/SportsBook/DetailSportsBook/AccountPlatform'
 import AddAccount from '@renderer/components/SportsBook/DetailSportsBook/AddAccount'
 import DeletePlatform from '@renderer/components/SportsBook/DetailSportsBook/DeletePlatform'
 import HeaderListAccount from '@renderer/components/SportsBook/DetailSportsBook/HeaderListAccount'
+import QuickActionsPlatform from '@renderer/components/SportsBook/DetailSportsBook/QuickActions'
+import ExclamationTriangle from '@renderer/icons/exclamation-triangle'
+
+import { DataPlatformType } from '@shared/common/types'
 
 interface DetailSportsBookProps {
   sportsBook: DataPlatformType
@@ -23,8 +25,8 @@ const DetailSportsBook: React.FC<DetailSportsBookProps> = ({ sportsBook }) => {
     }
 
     window.electron.ipcRenderer.send('AddAccountPlatForm', {
-      platformName: sportsBook.platform,
-      loginURL: sportsBook.url
+      loginURL: sportsBook.url,
+      platformName: sportsBook.platform
     })
   }
 

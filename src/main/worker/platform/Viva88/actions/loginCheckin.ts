@@ -1,6 +1,8 @@
-import { accountLogToFile } from '@/worker/lib/accountLogToFile'
-import { AccountType } from '@shared/common/types'
 import { HttpsProxyAgent } from 'https-proxy-agent'
+
+import { AccountType } from '@shared/common/types'
+
+import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { LoginCheckinIndex } from '@/worker/platform/Viva88/common/types'
 import { configHeaders } from '@/worker/platform/Viva88/helper'
 
@@ -15,8 +17,8 @@ export async function loginCheckin_Viva88Bet(accountInfo: AccountType) {
     const proxyAgent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : undefined
     const urlLoginCheckin = `${accountInfo.host || 'https://d.viva88.net'}/LoginCheckin/Index`
     const resLoginCheckin = await fetch(urlLoginCheckin, {
-      method: 'POST',
       headers: configHeaders(accountInfo),
+      method: 'POST',
       ...(proxyAgent && { agent: proxyAgent })
     })
 
@@ -30,8 +32,8 @@ export async function loginCheckin_Viva88Bet(accountInfo: AccountType) {
         'BetList'
       )
       return {
-        ErrorCode: 1,
-        Data: 'Error: Get LoginCheckin Fail'
+        Data: 'Error: Get LoginCheckin Fail',
+        ErrorCode: 1
       }
     }
 
@@ -43,8 +45,8 @@ export async function loginCheckin_Viva88Bet(accountInfo: AccountType) {
     )
 
     return {
-      ErrorCode: 0,
-      Data: dataLoginCheckInIndex.Data.at
+      Data: dataLoginCheckInIndex.Data.at,
+      ErrorCode: 0
     }
   } catch (error) {
     console.log(
@@ -59,8 +61,8 @@ export async function loginCheckin_Viva88Bet(accountInfo: AccountType) {
     )
 
     return {
-      ErrorCode: 1,
-      Data: `Error: Get LoginCheckin Fail ${error instanceof Error ? error.message : 'Unknown Error'}`
+      Data: `Error: Get LoginCheckin Fail ${error instanceof Error ? error.message : 'Unknown Error'}`,
+      ErrorCode: 1
     }
   }
 }

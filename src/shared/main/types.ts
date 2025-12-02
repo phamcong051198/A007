@@ -1,5 +1,7 @@
-import { BrowserWindow } from 'electron'
 import { Worker, WorkerOptions } from 'worker_threads'
+
+import { BrowserWindow } from 'electron'
+
 import { AccountType, ListRangePlatformType, OtherSettingType } from '@shared/common/types'
 
 export type DataBetSettingPayload = {

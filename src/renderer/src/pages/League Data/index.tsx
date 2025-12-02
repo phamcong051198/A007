@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ColumnDef,
   flexRender,
@@ -7,6 +7,7 @@ import {
   SortingState,
   useReactTable
 } from '@tanstack/react-table'
+
 import { LeagueType, PlatformType } from '@shared/common/types'
 
 const EditableCell = ({
@@ -32,11 +33,11 @@ const EditableCell = ({
 
   const handleSave = useCallback(() => {
     window.electron.ipcRenderer.send('EditLeagueRoot', {
-      selectedPlatform,
       row: {
         ...row.original,
         league: value.trim()
-      }
+      },
+      selectedPlatform
     })
     setData((prev) =>
       prev.map((item) => (item.id === row.original.id ? { ...item, league: value } : item))
@@ -90,8 +91,8 @@ export default function LeagueData() {
   const [filters, setFilters] = useState<{ [key: string]: string }>({
     id: '',
     idLeague: '',
-    nameLeague: '',
-    league: ''
+    league: '',
+    nameLeague: ''
   })
 
   // ✅ state popup delete
@@ -136,8 +137,8 @@ export default function LeagueData() {
     if (!deleteTarget) return
 
     window.electron.ipcRenderer.send('DeleteLeagueRoot', {
-      selectedPlatform,
-      id: deleteTarget.id
+      id: deleteTarget.id,
+      selectedPlatform
     })
     setData((prev) => prev.filter((item) => item.id !== deleteTarget.id))
     setDeleteTarget(null)
@@ -162,8 +163,6 @@ export default function LeagueData() {
       },
       {
         accessorKey: 'league',
-        header: 'League',
-        size: 400,
         cell: ({ row }) => (
           <div className="flex">
             <div className="flex-1">
@@ -183,7 +182,9 @@ export default function LeagueData() {
               Delete
             </button>
           </div>
-        )
+        ),
+        header: 'League',
+        size: 400
       }
     ],
     [editingRowId, selectedPlatform]

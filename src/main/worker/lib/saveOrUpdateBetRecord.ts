@@ -3,31 +3,31 @@ import { PlatformPerMatchDetailsType } from '@db/schema/platformPerMatchDetails'
 
 export const saveOrUpdateBetRecordPerMatchDetail = (ticket) => {
   const existingRecord = PerMatchDetail.findOne({
-    platform: ticket.platform,
-    coverage: ticket.coverage,
-    gameStatus: ticket.gameType,
-    league: ticket.nameLeague,
-    home: ticket.home,
+    HDP: ticket.HDP,
     away: ticket.away,
     bet: ticket.bet,
-    HDP: ticket.HDP
+    coverage: ticket.coverage,
+    gameStatus: ticket.gameType,
+    home: ticket.home,
+    league: ticket.nameLeague,
+    platform: ticket.platform
   }) as PlatformPerMatchDetailsType
 
   if (!existingRecord) {
     PerMatchDetail.create({
-      platform: ticket.platform,
-      sport: 'Soccer',
-      coverage: ticket.coverage,
-      gameStatus: ticket.gameType,
-      redCard: ticket.redCard,
-      score: ticket.score,
-      league: ticket.nameLeague,
-      home: ticket.home,
-      away: ticket.away,
-      bet: ticket.bet,
       HDP: ticket.HDP,
       amount: ticket.betAmount_Standard,
-      count: '1'
+      away: ticket.away,
+      bet: ticket.bet,
+      count: '1',
+      coverage: ticket.coverage,
+      gameStatus: ticket.gameType,
+      home: ticket.home,
+      league: ticket.nameLeague,
+      platform: ticket.platform,
+      redCard: ticket.redCard,
+      score: ticket.score,
+      sport: 'Soccer'
     })
     return
   }

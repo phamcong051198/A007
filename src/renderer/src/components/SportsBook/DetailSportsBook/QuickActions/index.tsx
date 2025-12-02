@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger
 } from '@renderer/components/ui/dropdown-menu'
 import ChevronDown from '@renderer/icons/chevron-down'
+
 import { DataPlatformType } from '@shared/common/types'
 
 export default function QuickActionsPlatform({ sportsBook }: { sportsBook: DataPlatformType }) {

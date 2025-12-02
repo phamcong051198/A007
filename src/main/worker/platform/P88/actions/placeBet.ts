@@ -1,14 +1,15 @@
+import { HttpsProxyAgent } from 'https-proxy-agent'
 import fetch from 'node-fetch'
 import { v4 as uuidv4 } from 'uuid'
-import { HttpsProxyAgent } from 'https-proxy-agent'
+
+import { AccountType } from '@shared/common/types'
+import { TicketInfoDataBetType } from '@shared/common/types'
 
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
-import { AccountType } from '@shared/common/types'
 import { handleBetError, handleBetSuccess } from '@/worker/lib/handleLogBet'
-import { BetResponse_P88, TypeGetTickets_P88 } from '@/worker/platform/P88/common/types'
-import { TicketInfoDataBetType } from '@shared/common/types'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
 import { buildHeadersP88Bet } from '@/worker/platform/P88/common/contants'
+import { BetResponse_P88, TypeGetTickets_P88 } from '@/worker/platform/P88/common/types'
 
 export const placeBet_P88Bet = async (
   ticket: TicketInfoDataBetType,
@@ -23,12 +24,12 @@ export const placeBet_P88Bet = async (
       'BetList'
     )
     return {
-      ErrorCode: 400,
       Data: {
         info: ticket.betRejectionReason,
         receiptID: '',
         receiptStatus: ''
-      }
+      },
+      ErrorCode: 400
     }
   }
 
@@ -39,12 +40,13 @@ export const placeBet_P88Bet = async (
   } = await bettingProcessBet__P88Bet(accountInfo, ticket, dataGetTicketInfo)
 
   return {
-    ErrorCode: ErrorCode_ProcessBet, // 0: Success, 1: Fail, 2: Retry
+    // 0: Success, 1: Fail, 2: Retry
     Data: {
       info: String(Info),
       receiptID,
       receiptStatus: ErrorCode_ProcessBet == 0 ? 'Success' : 'Fail'
-    }
+    },
+    ErrorCode: ErrorCode_ProcessBet
   }
 }
 
@@ -71,8 +73,8 @@ async function bettingProcessBet__P88Bet(
     const stake = Number(ticket.betAmount_Standard)
 
     const body = JSON.stringify({
-      oddsFormat: 4,
       acceptBetterOdds: false,
+      oddsFormat: 4,
       selections: [
         {
           odds: dataGetTicketInfo.odds,
@@ -100,11 +102,11 @@ async function bettingProcessBet__P88Bet(
     )
 
     const resBetPlacement = await fetch(urlBetPlacement, {
-      method: 'POST',
       headers: {
         ...buildHeadersP88Bet(accountInfo),
         Cookie: cookie
       },
+      method: 'POST',
       ...(proxyAgent && { agent: proxyAgent }),
       body
     })

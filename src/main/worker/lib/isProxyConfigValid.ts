@@ -1,5 +1,5 @@
-import { OPTIONS_PROXY } from '@shared/main/constants'
 import { AccountType } from '@shared/common/types'
+import { OPTIONS_PROXY } from '@shared/main/constants'
 
 export function isProxyConfigValid(account: AccountType) {
   const { proxyIP, proxyPort, proxyUsername, proxyPassword, proxyScope } = account
@@ -25,8 +25,8 @@ export function isProxyConfigValid(account: AccountType) {
       !isIpValid ||
       !isPortValid)
   ) {
-    return { status: false, data: { proxyScope, newIpAddress, newPort, newUsername, newPassword } }
+    return { data: { newIpAddress, newPassword, newPort, newUsername, proxyScope }, status: false }
   }
 
-  return { status: true, data: { proxyScope, newIpAddress, newPort, newUsername, newPassword } }
+  return { data: { newIpAddress, newPassword, newPort, newUsername, proxyScope }, status: true }
 }

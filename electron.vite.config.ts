@@ -1,4 +1,5 @@
 import { resolve } from 'path'
+
 import react from '@vitejs/plugin-react'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 
@@ -7,12 +8,12 @@ export default defineConfig({
     plugins: [externalizeDepsPlugin()],
     resolve: {
       alias: {
-        '@/utils': resolve('src/main/utils'),
-        '@shared': resolve('src/shared'),
         '@/browserWindows': resolve('src/main/browserWindows'),
+        '@/utils': resolve('src/main/utils'),
         '@/worker': resolve('src/main/worker'),
         '@config': resolve('src/config'),
-        '@db': resolve('src/db')
+        '@db': resolve('src/db'),
+        '@shared': resolve('src/shared')
       }
     }
   },
@@ -21,18 +22,6 @@ export default defineConfig({
   },
   renderer: {
     assetsInclude: 'src/renderer/assets/**',
-    resolve: {
-      alias: {
-        '@renderer': resolve('src/renderer/src'),
-        '@shared': resolve('src/shared'),
-        '@/hooks': resolve('src/renderer/src/hooks'),
-        '@/assets': resolve('src/renderer/src/assets'),
-        '@/store': resolve('src/renderer/src/store'),
-        '@/components': resolve('src/renderer/src/components'),
-        '@/lib': resolve('src/renderer/src/lib')
-      }
-    },
-    plugins: [react()],
     optimizeDeps: {
       exclude: [
         'node_modules/.cache',
@@ -44,6 +33,18 @@ export default defineConfig({
         'chunk-NE2IJQC7.js',
         'chunk-3OL7OPAJ.js'
       ]
+    },
+    plugins: [react()],
+    resolve: {
+      alias: {
+        '@/assets': resolve('src/renderer/src/assets'),
+        '@/components': resolve('src/renderer/src/components'),
+        '@/hooks': resolve('src/renderer/src/hooks'),
+        '@/lib': resolve('src/renderer/src/lib'),
+        '@/store': resolve('src/renderer/src/store'),
+        '@renderer': resolve('src/renderer/src'),
+        '@shared': resolve('src/shared')
+      }
     }
   }
 })

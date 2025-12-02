@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ChevronUpIcon, ChevronDownIcon } from '@radix-ui/react-icons'
+import { ChevronDownIcon, ChevronUpIcon } from '@radix-ui/react-icons'
 
 const cn = (...classes: (string | undefined)[]) => classes.filter(Boolean).join(' ')
 

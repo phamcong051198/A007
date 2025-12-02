@@ -1,8 +1,9 @@
 import fs from 'fs'
 import path from 'path'
 
-import { generateHTML } from '@/browserWindows/service/generateHTML'
 import { TicketInfoDataBetType } from '@shared/common/types'
+
+import { generateHTML } from '@/browserWindows/service/generateHTML'
 
 export const handleListReportFile = (
   dataGenerateHTML: TicketInfoDataBetType[],

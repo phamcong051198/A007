@@ -1,6 +1,7 @@
 import { Account, Setting, SportsBook } from '@db/model'
-import { AccountType, SettingType, SportsBookType } from '@shared/common/types'
 import { BrowserWindow } from 'electron'
+
+import { AccountType, SettingType, SportsBookType } from '@shared/common/types'
 
 export function handleAddAccountPlatForm(
   mainWindow: BrowserWindow,
@@ -20,34 +21,34 @@ export function handleAddAccountPlatForm(
       : Math.max(...listAccountSamePlatform.map((acc) => acc.orderNumber ?? 0)) + 1
 
   Account.create({
-    loginID: null,
-    password: null,
-    limitMethod: 'TeamName',
-    livePreGame: 0,
-    limitType: 'TotalCount',
-    totalAmount: '5000',
-    totalCount: '2',
-    customIP: null,
-    proxyIP: null,
-    proxyPort: null,
-    proxyUsername: null,
-    proxyPassword: null,
-    proxyScope: 'None',
-    typeCrawl: settings[0].gameType,
-    checkBoxBet: 1,
-    checkBoxRefresh: 1,
     checkBoxAutoLogin: 0,
+    checkBoxBet: 1,
     checkBoxLockURL: 0,
-    credit: '0',
-    textLog: null,
+    checkBoxRefresh: 1,
     cookie: null,
+    credit: '0',
+    customIP: null,
     host: null,
+    limitMethod: 'TeamName',
+    limitType: 'TotalCount',
+    livePreGame: 0,
+    loginID: null,
+    orderNumber: newOrder,
+    password: null,
+    proxyIP: null,
+    proxyPassword: null,
+    proxyPort: null,
+    proxyScope: 'None',
+    proxyUsername: null,
     socketUrl: null,
-    statusLogin: null,
-    statusPair: 0,
     status: 'Login',
     statusDelete: 0,
-    orderNumber: newOrder,
+    statusLogin: null,
+    statusPair: 0,
+    textLog: null,
+    totalAmount: '5000',
+    totalCount: '2',
+    typeCrawl: settings[0].gameType,
     ...data
   })
 

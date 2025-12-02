@@ -1,8 +1,10 @@
-import { getTimeDifferenceInSeconds } from '@/worker/lib/getTimeDifferenceInSeconds'
 import { TicketDelaySec } from '@db/model'
+
 import { TicketInfoDataBetType } from '@shared/common/types'
-import { TicketForDelaySecType } from '@shared/main/types'
 import { SportsBookType } from '@shared/common/types'
+import { TicketForDelaySecType } from '@shared/main/types'
+
+import { getTimeDifferenceInSeconds } from '@/worker/lib/getTimeDifferenceInSeconds'
 
 export function checkTicketDelay(
   ticket: TicketInfoDataBetType,
@@ -10,13 +12,13 @@ export function checkTicketDelay(
 ): boolean {
   // Check same game delay
   const sameGameTicket = TicketDelaySec.findOne({
+    bet: ticket.bet,
     company: ticket.company,
-    idLeague: ticket.idLeague,
-    idEvent: ticket.idEvent,
-    number: ticket.number,
-    type: ticket.type,
     hdp_point: ticket.hdp_point,
-    bet: ticket.bet
+    idEvent: ticket.idEvent,
+    idLeague: ticket.idLeague,
+    number: ticket.number,
+    type: ticket.type
   }) as TicketForDelaySecType
 
   if (sameGameTicket) {

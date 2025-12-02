@@ -3,5 +3,5 @@ export function generateTs() {
 
   const sequence = Math.floor(1000 + Math.random() * 9000)
 
-  return { timestamp, sequence }
+  return { sequence, timestamp }
 }

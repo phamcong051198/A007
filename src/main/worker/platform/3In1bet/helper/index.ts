@@ -1,10 +1,11 @@
-import { BetInfo, BetTableData, Summary } from '@/worker/platform/3In1bet/common/types'
 import * as cheerio from 'cheerio'
+
+import { BetInfo, BetTableData, Summary } from '@/worker/platform/3In1bet/common/types'
 
 export function extractBetTable(html: string): BetTableData {
   const $ = cheerio.load(html)
   const bets: BetInfo[] = []
-  const summary: Summary = { subtotalWin: '0', subtotalCom: '0', total: '0' }
+  const summary: Summary = { subtotalCom: '0', subtotalWin: '0', total: '0' }
 
   $('#GV_MBBetTrans tr').each((_, row) => {
     const $row = $(row)
@@ -42,8 +43,8 @@ export function extractBetTable(html: string): BetTableData {
     // Chỉ thêm nếu có betId
     if (betId) {
       bets.push({
-        no,
         betId,
+        no,
         sport,
         status
       })
@@ -56,24 +57,24 @@ export function extractBetTable(html: string): BetTableData {
 export function createPayload(gameType) {
   const fcMap = {
     Early: '6',
-    Today: '1',
-    Running: '4'
+    Running: '4',
+    Today: '1'
   }
 
   return {
-    fc: fcMap[gameType],
-    m_accType: 'MY+MR',
+    SingleDouble: 'double',
     SystemLanguage: 'en-US',
     TimeFilter: '0',
-    m_gameType: 'S_',
-    m_SortByTime: '0',
-    m_LeagueList: '',
-    SingleDouble: 'double',
-    clientTime: '',
     c: 'A',
-    fav: '',
+    clientTime: '',
     exlist: '0',
+    fav: '',
+    fc: fcMap[gameType],
     keywords: '',
+    m_LeagueList: '',
+    m_SortByTime: '0',
+    m_accType: 'MY+MR',
+    m_gameType: 'S_',
     m_sp: '0'
   }
 }

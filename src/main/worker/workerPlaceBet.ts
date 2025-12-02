@@ -305,8 +305,9 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
     return
   }
 
-  const isFail =
-    (ErrorCodeBetI === 1 && ErrorCodeBetII === 1) || (ErrorCodeBetI === 2 && ErrorCodeBetII === 2)
+  const FAIL_CODES = [1, 2]
+  const isFail = FAIL_CODES.includes(ErrorCodeBetI) && FAIL_CODES.includes(ErrorCodeBetII)
+
   if (isFail) {
     const recordDB = BetListResult.create({
       dataPair: JSON.stringify(ticketUpdate)

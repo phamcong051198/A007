@@ -128,9 +128,9 @@ const TableData = ({ dataTable, enableScroll }) => {
                 <tr
                   key={row.id}
                   className={clsx(
-                    'hover:bg-layout-color',
-                    selectedRowId === row.id ? 'bg-blue-200' : '',
-                    isBetSuccess ? 'bg-black text-white font-medium' : 'bg-bg-gray'
+                    'hover:bg-red-950 text-white font-medium',
+                    selectedRowId === row.id ? 'bg-red-900' : '',
+                    isBetSuccess ? 'font-medium bg-neutral-950' : 'bg-black '
                   )}
                   onClick={() => handleRowClick(row.id)}
                 >

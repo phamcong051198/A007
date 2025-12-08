@@ -5,7 +5,7 @@ import { AccountType, TicketInfoDataBetType } from '@shared/common/types'
 
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
-import { buildHeadersP88Bet, ODD_CODE } from '@/worker/platform/P88/common/contants'
+import { API_ENDPOINTS, buildHeadersP88Bet, ODD_CODE } from '@/worker/platform/P88/common/contants'
 import { resBalance_P88, TypeGetTickets_P88 } from '@/worker/platform/P88/common/types'
 
 export const getTicket_P88Bet = async (accountInfo: AccountType, ticket: TicketInfoDataBetType) => {
@@ -62,7 +62,9 @@ export const getTicket_P88Bet = async (accountInfo: AccountType, ticket: TicketI
       ODD_CODE[halfType][betType][oddType + pointSide]
 
     const type = ticket.bet === 'Over' || ticket.bet === ticket.nameHome ? 0 : 1
-    const oddsId = `${ticket.idEvent}|${code}|${ticket.bet === ticket.nameHome ? ticket.hdp_point : ticket.hdp_point < 0 ? ticket.hdp_point * -1 : ticket.hdp_point}`
+    const point = ticket.bet === ticket.nameAway ? -ticket.hdp_point : ticket.hdp_point
+
+    const oddsId = `${ticket.idEvent}|${code}|${point}`
     const selectionId = `${ticket.altLineId}|${oddsId}|${type}`
 
     const body = JSON.stringify({
@@ -83,8 +85,20 @@ export const getTicket_P88Bet = async (accountInfo: AccountType, ticket: TicketI
       'BetList'
     )
 
-    const urlBalance = `https://www.p88.bet/member-service/v2/account-balance?locale=en_US&_=${Date.now()}&withCredentials=true`
-    const urlMultiTicket = `https://www.p88.bet/member-betslip/v2/all-odds-selections?locale=en_US&_=${Date.now()}&withCredentials=true`
+    const resKeepAlive = await fetch(API_ENDPOINTS.KEEP_ALIVE, {
+      headers: {
+        ...buildHeadersP88Bet(accountInfo),
+        Cookie: accountInfo.cookie
+      },
+      method: 'GET',
+      ...(proxyAgent && { agent: proxyAgent })
+    })
+
+    const vHucode = resKeepAlive.headers.get('v-hucode')
+
+    if (!vHucode) {
+      throw new Error('V-hucode not found')
+    }
 
     await accountLogToFile(
       accountInfo.platformName,
@@ -94,7 +108,7 @@ export const getTicket_P88Bet = async (accountInfo: AccountType, ticket: TicketI
     )
 
     const [resBalance, resGetTickets] = await Promise.all([
-      fetch(urlBalance, {
+      fetch(API_ENDPOINTS.BALANCE, {
         headers: {
           ...buildHeadersP88Bet(accountInfo),
           Cookie: accountInfo.cookie
@@ -102,9 +116,9 @@ export const getTicket_P88Bet = async (accountInfo: AccountType, ticket: TicketI
         method: 'GET',
         ...(proxyAgent && { agent: proxyAgent })
       }),
-      fetch(urlMultiTicket, {
+      fetch(API_ENDPOINTS.MULTI_TICKET, {
         headers: {
-          ...buildHeadersP88Bet(accountInfo),
+          ...buildHeadersP88Bet(accountInfo, vHucode),
           Cookie: accountInfo.cookie
         },
         method: 'POST',

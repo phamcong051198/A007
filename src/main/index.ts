@@ -117,9 +117,9 @@ app.whenReady().then(async () => {
     'PerMatchDetail',
     'DataBet',
     'BetListResult',
-    'WaitingList',
-    'ContraList',
-    'SuccessList'
+    'WaitingList'
+    // 'ContraList',
+    // 'SuccessList'
   ]
   clearTables.forEach(clearTable)
 

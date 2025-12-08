@@ -8,7 +8,7 @@ import { TicketInfoDataBetType } from '@shared/common/types'
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { handleBetError, handleBetSuccess } from '@/worker/lib/handleLogBet'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
-import { buildHeadersP88Bet } from '@/worker/platform/P88/common/contants'
+import { API_ENDPOINTS, buildHeadersP88Bet } from '@/worker/platform/P88/common/contants'
 import { BetResponse_P88, TypeGetTickets_P88 } from '@/worker/platform/P88/common/types'
 
 export const placeBet_P88Bet = async (
@@ -68,8 +68,6 @@ async function bettingProcessBet__P88Bet(
 
     const proxyAgent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : undefined
 
-    const urlBetPlacement = `https://www.p88.bet/bet-placement/buyV2?uniqueRequestId=${uuidv4()}&locale=en_US&_=${Date.now()}&withCredentials=true`
-
     const stake = Number(ticket.betAmount_Standard)
 
     const body = JSON.stringify({
@@ -101,7 +99,7 @@ async function bettingProcessBet__P88Bet(
       'BetList'
     )
 
-    const resBetPlacement = await fetch(urlBetPlacement, {
+    const resBetPlacement = await fetch(API_ENDPOINTS.BET_PLACEMENT, {
       headers: {
         ...buildHeadersP88Bet(accountInfo),
         Cookie: cookie

@@ -1,9 +1,14 @@
-export const API_BASE_URL = 'https://www.p88.bet'
+import { v4 as uuidv4 } from 'uuid'
+
+export const API_BASE_URL = 'https://www.ps3838.com'
 
 export const API_ENDPOINTS = {
   AUTH: `${API_BASE_URL}/member-auth/v2/authenticate?locale=en_US&_=${Date.now()}&withCredentials=true`,
   BALANCE: `${API_BASE_URL}/member-service/v2/account-balance?locale=en_US&_=${Date.now()}&withCredentials=true`,
-  RESULT_BET: `${API_BASE_URL}/member-service/v2/wager-filter?locale=en_US`
+  BET_PLACEMENT: `${API_BASE_URL}/bet-placement/buyV2?uniqueRequestId=${uuidv4()}&locale=en_US&_=${Date.now()}&withCredentials=true`,
+  KEEP_ALIVE: `${API_BASE_URL}/member-auth/v2/keep-alive?locale=en_US&_=${Date.now()}&withCredentials=true`,
+  MULTI_TICKET: `${API_BASE_URL}/member-betslip/v2/all-odds-selections?locale=en_US&_=${Date.now()}&withCredentials=true`,
+  WAGER: `${API_BASE_URL}/member-service/v2/wager-filter?locale=en_US`
 }
 
 export const gameTypeMapP88: { [key: string]: number } = {
@@ -43,7 +48,7 @@ export const ODD_CODE = {
   }
 }
 
-export const buildHeadersP88Bet = (account: { customIP?: string | null }) => ({
+export const buildHeadersP88Bet = (account: { customIP?: string | null }, vHucode?: string) => ({
   Accept: 'application/json, text/javascript, */*; q=0.01',
   'Accept-Encoding': 'gzip, deflate, br',
   'Accept-Language':
@@ -53,6 +58,7 @@ export const buildHeadersP88Bet = (account: { customIP?: string | null }) => ({
   'User-Agent':
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
   'X-Requested-With': 'XMLHttpRequest',
+  ...(vHucode ? { 'v-hucode': vHucode } : {}),
   ...(account?.customIP ? { 'X-Forwarded-For': account.customIP } : {})
 })
 

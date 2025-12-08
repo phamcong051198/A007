@@ -5,6 +5,7 @@ import fetch from 'node-fetch'
 import { AccountType, WaitingSuccessContraDBType } from '@shared/common/types'
 
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
+import { API_ENDPOINTS } from '@/worker/platform/P88/common/contants'
 
 export const getResultBet_P88 = async (
   account: AccountType,
@@ -57,8 +58,7 @@ export const getResultBet_P88 = async (
   })
 
   try {
-    const url = 'https://www.p88.bet/member-service/v2/wager-filter?locale=en_US'
-    const res = await fetch(url, {
+    const res = await fetch(API_ENDPOINTS.WAGER, {
       headers: {
         accept: '*/*',
         'accept-language': 'vi,en-US;q=0.9,en;q=0.8,ko;q=0.7',

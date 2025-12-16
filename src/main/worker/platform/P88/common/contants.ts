@@ -1,11 +1,8 @@
-import { v4 as uuidv4 } from 'uuid'
-
-export const API_BASE_URL = 'https://www.ps3838.com'
+export const API_BASE_URL = 'https://www.p88.bet'
 
 export const API_ENDPOINTS = {
   AUTH: `${API_BASE_URL}/member-auth/v2/authenticate?locale=en_US&_=${Date.now()}&withCredentials=true`,
   BALANCE: `${API_BASE_URL}/member-service/v2/account-balance?locale=en_US&_=${Date.now()}&withCredentials=true`,
-  BET_PLACEMENT: `${API_BASE_URL}/bet-placement/buyV2?uniqueRequestId=${uuidv4()}&locale=en_US&_=${Date.now()}&withCredentials=true`,
   KEEP_ALIVE: `${API_BASE_URL}/member-auth/v2/keep-alive?locale=en_US&_=${Date.now()}&withCredentials=true`,
   MULTI_TICKET: `${API_BASE_URL}/member-betslip/v2/all-odds-selections?locale=en_US&_=${Date.now()}&withCredentials=true`,
   WAGER: `${API_BASE_URL}/member-service/v2/wager-filter?locale=en_US`

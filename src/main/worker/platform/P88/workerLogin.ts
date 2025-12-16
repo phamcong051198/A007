@@ -26,9 +26,6 @@ port.on('message', async ({ account }: { account: AccountType }) => {
   await loginToP88Bet(port, account)
 })
 
-/**
- * Hàm login chính
- */
 async function loginToP88Bet(port: MessagePort, account: AccountType) {
   try {
     if (!Account.findOne({ id: account.id })) {
@@ -73,6 +70,23 @@ async function loginToP88Bet(port: MessagePort, account: AccountType) {
         password: account.password
       })
     })
+
+    if (res.status === 405) {
+      await accountLogToFile(account.platformName, account.loginID, 'UNDER MAINTENANCE', 'Program')
+      port.postMessage({
+        data: Account.update(
+          { id: account.id },
+          {
+            status: STATUS_ACCOUNT.EXIT,
+            statusLogin: STATUS_LOGIN.FAIL,
+            textLog: 'UNDER MAINTENANCE'
+          }
+        ),
+        type: 'DataUpdateAccount'
+      })
+
+      process.exit(0)
+    }
 
     const cookieHeader = extractCookie(res.headers.get('set-cookie'))
     const { status: loginStatus, message } = await parseLoginResponse(res)

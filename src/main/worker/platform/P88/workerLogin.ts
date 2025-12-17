@@ -77,6 +77,7 @@ async function loginToP88Bet(port: MessagePort, account: AccountType) {
         data: Account.update(
           { id: account.id },
           {
+            checkBoxAutoLogin: 1,
             status: STATUS_ACCOUNT.EXIT,
             statusLogin: STATUS_LOGIN.FAIL,
             textLog: 'UNDER MAINTENANCE'

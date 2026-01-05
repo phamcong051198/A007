@@ -20,6 +20,7 @@ import {
   WaitingSuccessContraDBType
 } from '@shared/common/types'
 import { AccountType, DataBetType, SettingType } from '@shared/common/types'
+import { BetData } from '@shared/main/types'
 
 import { checkArbitrageMy } from '@/worker/handlePairPlatform/helper/scanArbitrage'
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
@@ -271,13 +272,57 @@ const handlePlaceBet = async (ticketPair: TicketInfoDataBetType[]) => {
     ticketIIUpdate.profit = arbitrage.profitIfBWin
   }
 
-  const [
-    { ErrorCode: ErrorCodeBetI, Data: DataBetI },
-    { ErrorCode: ErrorCodeBetII, Data: DataBetII }
-  ] = await Promise.all([
-    handleBetTicket(ticketIUpdate, accountInfoI, DataI),
-    handleBetTicket(ticketIIUpdate, accountInfoII, DataII)
-  ])
+  const is3in1Bet_I = ticketIUpdate.platform == '3in1Bet'
+  const is3in1Bet_II = ticketIIUpdate.platform == '3in1Bet'
+
+  let ErrorCodeBetI = null
+  let ErrorCodeBetII = null
+  let DataBetI: BetData | null = null
+  let DataBetII: BetData | null = null
+
+  if (is3in1Bet_I) {
+    const resultI = await handleBetTicket(ticketIUpdate, accountInfoI, DataI)
+    ErrorCodeBetI = resultI.ErrorCode
+    DataBetI = resultI.Data
+
+    if (ErrorCodeBetI !== 0) return
+    const resultII = await handleBetTicket(ticketIIUpdate, accountInfoII, DataII)
+    ErrorCodeBetII = resultII.ErrorCode
+    DataBetII = resultII.Data
+  } else if (is3in1Bet_II) {
+    const resultII = await handleBetTicket(ticketIIUpdate, accountInfoII, DataII)
+    ErrorCodeBetII = resultII.ErrorCode
+    DataBetII = resultII.Data
+
+    if (ErrorCodeBetII !== 0) return
+    const resultI = await handleBetTicket(ticketIUpdate, accountInfoI, DataI)
+    ErrorCodeBetI = resultI.ErrorCode
+    DataBetI = resultI.Data
+  } else {
+    const [
+      { ErrorCode: errorCodeBetI, Data: dataBetI },
+      { ErrorCode: errorCodeBetII, Data: dataBetII }
+    ] = await Promise.all([
+      handleBetTicket(ticketIUpdate, accountInfoI, DataI),
+      handleBetTicket(ticketIIUpdate, accountInfoII, DataII)
+    ])
+
+    ErrorCodeBetI = errorCodeBetI
+    DataBetI = dataBetI
+    ErrorCodeBetII = errorCodeBetII
+    DataBetII = dataBetII
+  }
+
+  const isPlainObject = (v: unknown): v is BetData =>
+    v !== null && typeof v === 'object' && !Array.isArray(v)
+
+  if (
+    ErrorCodeBetI == null ||
+    ErrorCodeBetII == null ||
+    !isPlainObject(DataBetI) ||
+    !isPlainObject(DataBetII)
+  )
+    return
 
   const ticketUpdate = [
     { ...ticketIUpdate, ...DataBetI, resultBet: null },

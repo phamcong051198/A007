@@ -38,3 +38,9 @@ export type SchedulerType = {
   schedulerEarly: number
   schedulerInputEarly: string
 }
+
+export type BetData = {
+  info: string
+  receiptID: string
+  receiptStatus: string
+}

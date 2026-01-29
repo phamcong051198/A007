@@ -1,7 +1,7 @@
 export const API_BASE_URL = 'https://www.8611357.com'
 
 export const API_ENDPOINTS = {
-  AR: `${API_BASE_URL}/member/betsview/tradein.asmx/ar`,
+  AR: `${API_BASE_URL}/member/betsview/data.asmx/sports/order/unify`,
   BET_NOW: `${API_BASE_URL}/member/betsview/Bet.asmx/BetNow`,
   CHECK: `${API_BASE_URL}/check.aspx`,
   DATA_ODDS: `${API_BASE_URL}/Member/BetsView/BetLight/DataOdds.ashx`,

@@ -148,7 +148,14 @@ const fnCrawlData = async (account: AccountType) => {
     if (!arRes.ok) {
       throw new Error(`Request failed ${arRes.status}`)
     }
+
     const arResJson: unknown = await arRes.json()
+    await accountLogToFile(
+      account.platformName,
+      account.loginID,
+      `ArResJson: ${JSON.stringify(arResJson)}`,
+      'Program'
+    )
 
     if (isArError(arResJson) && arResJson.Au === 0) {
       if (account.checkBoxAutoLogin == 1) {
@@ -244,23 +251,50 @@ const fnCrawlData = async (account: AccountType) => {
       throw new Error(`Request failed ${res.status}`)
     }
 
-    const data = (await res.json()) as DataOddsResponse
+    const text = await res.text()
 
+    if (text === 'TimeOut') {
+      throw new Error('DATA_ODDS_TIMEOUT')
+    }
+
+    const data = JSON.parse(text) as DataOddsResponse
     const dataOdds = [GAME_TYPES.EARLY, GAME_TYPES.TODAY].includes(gameType)
       ? ((data as DataOddsEarly).today ?? [])
       : ((data as DataOddsNormal).data ?? [])
 
     handleData({ account, dataOdds })
   } catch (error) {
-    console.error(
-      'Error Crawl Data 3in1Bet:',
-      error instanceof Error ? error.message : String(error)
-    )
+    const message = error instanceof Error ? error.message : String(error)
+    console.error('Error Crawl Data 3in1Bet:', message)
+
+    if (message === 'DATA_ODDS_TIMEOUT') {
+      await accountLogToFile(
+        account.platformName,
+        account.loginID,
+        `[ERROR] Crawl Data 3in1Bet: ${message}`,
+        'Program'
+      )
+      if (isAccountActive(account.id)) {
+        Account.updateMany(
+          {
+            platformName: PLATFORM['3IN1BET'],
+            status: STATUS_ACCOUNT.LOGOUT,
+            statusDelete: 0,
+            statusLogin: STATUS_LOGIN.SUCCESS
+          },
+          {
+            textLog: `Get Soccer ${gameType} timeout. System will retry automatically.`
+          }
+        )
+        port.postMessage({ type: 'LogHandleData3in1Bet' })
+      }
+      return
+    }
 
     await accountLogToFile(
       account.platformName,
       account.loginID,
-      `Error Crawl Data 3in1Bet And LoggedAgain: ${error instanceof Error ? error.message : 'Fetch DATA_ODDS error.'}`,
+      `Error Crawl Data 3in1Bet And LoggedAgain: ${message}`,
       'Program'
     )
     isAccountActive(account.id) &&

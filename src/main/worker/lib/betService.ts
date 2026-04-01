@@ -7,6 +7,8 @@ import { getTicket_3in1Bet } from '@/worker/platform/3In1bet/actions/getTicket'
 import { placeBet_3in1Bet } from '@/worker/platform/3In1bet/actions/placeBet'
 import { getTicket_P88Bet } from '@/worker/platform/P88/actions/getTicket'
 import { placeBet_P88Bet } from '@/worker/platform/P88/actions/placeBet'
+import { getTicket_Ps3838 } from '@/worker/platform/Ps3838/actions/getTicket'
+import { placeBet_Ps3838 } from '@/worker/platform/Ps3838/actions/placeBet'
 import { getTicket_Viva88Bet } from '@/worker/platform/Viva88/actions/getTicket'
 import { placeBet_Viva88Bet } from '@/worker/platform/Viva88/actions/placeBet'
 import { getTicket_WBet } from '@/worker/platform/Wbet/actions/getTicket'
@@ -20,6 +22,10 @@ const BetPlatformServices = {
   P88Bet: {
     getTicket: getTicket_P88Bet,
     placeBet: placeBet_P88Bet
+  },
+  Ps3838: {
+    getTicket: getTicket_Ps3838,
+    placeBet: placeBet_Ps3838
   },
   Sbobet: {
     getTicket: getTicket_Sbobet,

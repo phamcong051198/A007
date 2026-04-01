@@ -302,6 +302,7 @@ const handleData = async ({ dataPs3838, account }) => {
 
   if (!gameType || gameType === GAME_TYPES.NONE) return
   const Ps3838 = createModel(PLATFORM.PS3838, dataCrawlByPlatformSchema)
+  const League_P88Bet = createModel('League_P88Bet', rootLeagueSchema)
   const League_Ps3838 = createModel('League_Ps3838', rootLeagueSchema)
 
   const timeStart = new Date().getTime()
@@ -323,7 +324,15 @@ const handleData = async ({ dataPs3838, account }) => {
       const home = event[1].trim()
       const away = event[2].trim()
 
+      const league_P88Bet = League_P88Bet.findOne({ nameLeague: name.trim() }) as LeagueType
+
       const league_Ps3838 = League_Ps3838.findOne({ nameLeague: name.trim() }) as LeagueType
+
+      if (league_P88Bet && league_P88Bet.league && league_Ps3838 && !league_Ps3838.league) {
+        League_Ps3838.update({ id: league_Ps3838.id }, { league: league_P88Bet.league })
+        continue
+      }
+
       if (!league_Ps3838) {
         const newLeague: Partial<LeagueType> = {
           idLeague: id,

@@ -9,15 +9,12 @@ import { AccountType, SettingType } from '@shared/common/types'
 import { OPTIONS_PROXY, STATUS_ACCOUNT, STATUS_LOGIN } from '@shared/main/constants'
 
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
+import { handleLoginFail } from '@/worker/lib/handleLoginFail'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
+import { updateAccountStatus } from '@/worker/lib/updateAccountStatus'
 import { getBalanceP88bet } from '@/worker/platform/P88/actions/getBalance'
-import { API_ENDPOINTS, buildHeadersLogin } from '@/worker/platform/P88/common/contants'
-import {
-  extractCookie,
-  handleLoginFail,
-  parseLoginResponse,
-  updateAccountStatus
-} from '@/worker/platform/P88/helper'
+import { buildHeadersLogin } from '@/worker/platform/P88/common/contants'
+import { buildPlatformUrl, extractCookie, parseLoginResponse } from '@/worker/platform/P88/helper'
 
 const port = parentPort
 if (!port) throw new Error('IllegalState')
@@ -59,7 +56,7 @@ async function loginToP88Bet(port: MessagePort, account: AccountType) {
     const proxyAgent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : undefined
 
     // call API
-    const res = await fetch(API_ENDPOINTS.AUTH, {
+    const res = await fetch(buildPlatformUrl(account, 'AUTH'), {
       headers: buildHeadersLogin(account),
       method: 'POST',
       ...(proxyAgent && { agent: proxyAgent }),
@@ -71,8 +68,38 @@ async function loginToP88Bet(port: MessagePort, account: AccountType) {
       })
     })
 
+    const resClone = res.clone()
+
+    const text = await res.text()
+
+    if (text === '-1') {
+      await accountLogToFile(
+        account.platformName,
+        account.loginID,
+        'Login failed. Please contact Customer Service Support.',
+        'Program'
+      )
+      port.postMessage({
+        data: Account.update(
+          { id: account.id },
+          {
+            status: STATUS_ACCOUNT.EXIT,
+            statusLogin: STATUS_LOGIN.FAIL,
+            textLog: 'Login failed. Please contact Customer Service Support.'
+          }
+        ),
+        type: 'DataUpdateAccount'
+      })
+      process.exit(0)
+    }
+
     if (res.status === 405) {
-      await accountLogToFile(account.platformName, account.loginID, 'UNDER MAINTENANCE', 'Program')
+      await accountLogToFile(
+        account.platformName,
+        account.loginID,
+        'Login Fail: OUR WEBSITE IS UNDER SYSTEM MAINTENANCE',
+        'Program'
+      )
       port.postMessage({
         data: Account.update(
           { id: account.id },
@@ -80,7 +107,7 @@ async function loginToP88Bet(port: MessagePort, account: AccountType) {
             checkBoxAutoLogin: 1,
             status: STATUS_ACCOUNT.EXIT,
             statusLogin: STATUS_LOGIN.FAIL,
-            textLog: 'UNDER MAINTENANCE'
+            textLog: 'OUR WEBSITE IS UNDER SYSTEM MAINTENANCE'
           }
         ),
         type: 'DataUpdateAccount'
@@ -90,7 +117,24 @@ async function loginToP88Bet(port: MessagePort, account: AccountType) {
     }
 
     const cookieHeader = extractCookie(res.headers.get('set-cookie'))
-    const { status: loginStatus, message } = await parseLoginResponse(res)
+    const { status: loginStatus, message } = await parseLoginResponse(resClone)
+
+    if (loginStatus === 'expired') {
+      await accountLogToFile(account.platformName, account.loginID, message, 'Program')
+      port.postMessage({
+        data: Account.update(
+          { id: account.id },
+          {
+            status: STATUS_ACCOUNT.EXIT,
+            statusLogin: STATUS_LOGIN.FAIL,
+            textLog: message
+          }
+        ),
+        type: 'DataUpdateAccount'
+      })
+
+      process.exit(0)
+    }
 
     if (loginStatus === 'success') {
       await accountLogToFile(account.platformName, account.loginID, 'Login Success', 'Program')
@@ -124,6 +168,27 @@ async function loginToP88Bet(port: MessagePort, account: AccountType) {
           type: 'DataUpdateAccount'
         })
         await delay(2000)
+        process.exit(0)
+      } else {
+        const message = 'Failed to get balance for account'
+        await accountLogToFile(
+          account.platformName,
+          account.loginID,
+          `Login Fail: ${message}`,
+          'Program'
+        )
+        port.postMessage({
+          data: Account.update(
+            { id: account.id },
+            {
+              status: STATUS_ACCOUNT.EXIT,
+              statusLogin: STATUS_LOGIN.FAIL,
+              textLog: `Login failed: ${message}`
+            }
+          ),
+          type: 'DataUpdateAccount'
+        })
+
         process.exit(0)
       }
     }

@@ -5,8 +5,9 @@ import { AccountType, TicketInfoDataBetType } from '@shared/common/types'
 
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
-import { API_ENDPOINTS, buildHeadersP88Bet, ODD_CODE } from '@/worker/platform/P88/common/contants'
+import { buildHeadersP88Bet, ODD_CODE } from '@/worker/platform/P88/common/contants'
 import { resBalance_P88, TypeGetTickets_P88 } from '@/worker/platform/P88/common/types'
+import { buildPlatformUrl } from '@/worker/platform/P88/helper'
 
 export const getTicket_P88Bet = async (accountInfo: AccountType, ticket: TicketInfoDataBetType) => {
   if (!ticket.isBetAllowed) {
@@ -85,7 +86,7 @@ export const getTicket_P88Bet = async (accountInfo: AccountType, ticket: TicketI
       'BetList'
     )
 
-    const resKeepAlive = await fetch(API_ENDPOINTS.KEEP_ALIVE, {
+    const resKeepAlive = await fetch(buildPlatformUrl(accountInfo, 'KEEP_ALIVE'), {
       headers: {
         ...buildHeadersP88Bet(accountInfo),
         Cookie: accountInfo.cookie
@@ -108,7 +109,7 @@ export const getTicket_P88Bet = async (accountInfo: AccountType, ticket: TicketI
     )
 
     const [resBalance, resGetTickets] = await Promise.all([
-      fetch(API_ENDPOINTS.BALANCE, {
+      fetch(buildPlatformUrl(accountInfo, 'BALANCE'), {
         headers: {
           ...buildHeadersP88Bet(accountInfo),
           Cookie: accountInfo.cookie
@@ -116,7 +117,7 @@ export const getTicket_P88Bet = async (accountInfo: AccountType, ticket: TicketI
         method: 'GET',
         ...(proxyAgent && { agent: proxyAgent })
       }),
-      fetch(API_ENDPOINTS.MULTI_TICKET, {
+      fetch(buildPlatformUrl(accountInfo, 'MULTI_TICKET'), {
         headers: {
           ...buildHeadersP88Bet(accountInfo, vHucode),
           Cookie: accountInfo.cookie

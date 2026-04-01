@@ -5,7 +5,7 @@ import fetch from 'node-fetch'
 import { AccountType, WaitingSuccessContraDBType } from '@shared/common/types'
 
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
-import { API_ENDPOINTS } from '@/worker/platform/P88/common/contants'
+import { buildPlatformUrl } from '@/worker/platform/P88/helper'
 
 export const getResultBet_P88 = async (
   account: AccountType,
@@ -58,7 +58,7 @@ export const getResultBet_P88 = async (
   })
 
   try {
-    const res = await fetch(API_ENDPOINTS.WAGER, {
+    const res = await fetch(buildPlatformUrl(account, 'WAGER'), {
       headers: {
         accept: '*/*',
         'accept-language': 'vi,en-US;q=0.9,en;q=0.8,ko;q=0.7',

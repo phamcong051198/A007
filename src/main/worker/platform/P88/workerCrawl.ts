@@ -205,7 +205,7 @@ const fnCrawlData = async (account: AccountType) => {
       port.postMessage({ type: 'LogHandleDataP88' })
     } else return
 
-    const url = `https://www.p88.bet/sports-service/sv/odds/events?mk=${mk}&sp=29&ot=4&btg=1&o=1&lg=&ev=&d=&l=100&v=0&me=0&more=false&c=MY&tm=0&g=QQ%3D%3D&pa=0&cl=100&_g=0&wm=dz&_=${Date.now()}&locale=en_US`
+    const url = `${account.loginURL}sports-service/sv/odds/events?mk=${mk}&sp=29&ot=4&btg=1&o=1&lg=&ev=&d=&l=100&v=0&me=0&more=false&c=MY&tm=0&g=QQ%3D%3D&pa=0&cl=100&_g=0&wm=dz&_=${Date.now()}&locale=en_US`
     const res = await fetch(url, {
       headers: {
         ...buildHeadersP88Bet(account),

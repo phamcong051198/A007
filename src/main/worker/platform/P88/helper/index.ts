@@ -1,14 +1,24 @@
-import { MessagePort } from 'worker_threads'
-
-import { Account } from '@db/model'
 import fetch from 'node-fetch'
 
 import { AccountType } from '@shared/common/types'
 
-import { accountLogToFile } from '@/worker/lib/accountLogToFile'
+export function buildPlatformUrl(account: AccountType, type: string) {
+  const timestamp = Date.now()
+  const url = account.loginURL
+
+  const urlMap = {
+    AUTH: `${url}member-auth/v2/authenticate?locale=en_US&_=${timestamp}&withCredentials=true`,
+    BALANCE: `${url}member-service/v2/account-balance?locale=en_US&_=${timestamp}&withCredentials=true`,
+    KEEP_ALIVE: `${url}member-auth/v2/keep-alive?locale=en_US&_=${timestamp}&withCredentials=true`,
+    MULTI_TICKET: `${url}member-betslip/v2/all-odds-selections?locale=en_US&_=${timestamp}&withCredentials=true`,
+    WAGER: `${url}member-service/v2/wager-filter?locale=en_US&_=${timestamp}&withCredentials=true`
+  }
+
+  return urlMap[type] ?? url
+}
 
 export async function parseLoginResponse(res: fetch.Response): Promise<{
-  status: 'success' | 'fail' | 'blocked' | 'unknown'
+  status: 'success' | 'expired' | 'fail' | 'blocked' | 'unknown'
   message: string
 }> {
   const raw = await res.text()
@@ -20,8 +30,19 @@ export async function parseLoginResponse(res: fetch.Response): Promise<{
     parsed = raw.trim()
   }
 
-  if (typeof parsed === 'object' && parsed?.code === 1 && parsed.tokens) {
-    return { message: 'Login success', status: 'success' }
+  if (typeof parsed === 'object' && parsed !== null && 'code' in parsed) {
+    const { code, tokens } = parsed as { code?: number; tokens?: unknown }
+
+    if (code === 1 && tokens) {
+      return { message: 'Login success', status: 'success' }
+    }
+
+    if (code === 2 && tokens) {
+      return {
+        message: 'Account password has expired. Please update it on website.',
+        status: 'expired'
+      }
+    }
   }
   if (parsed === 0 || parsed === '0') {
     return { message: 'Invalid loginId or password', status: 'fail' }
@@ -38,30 +59,4 @@ export function extractCookie(setCookieHeader: string | null): string {
     .split(',')
     .map((c) => c.split(';')[0])
     .join('; ')
-}
-
-export async function updateAccountStatus(
-  port: MessagePort,
-  account: AccountType,
-  textLog: string
-) {
-  port.postMessage({
-    data: Account.update({ id: account.id }, { textLog }),
-    type: 'DataUpdateAccount'
-  })
-}
-
-export async function handleLoginFail(port: MessagePort, account: AccountType, textLog: string) {
-  port.postMessage({
-    data: Account.update(
-      { id: account.id },
-      {
-        status: 'Exit',
-        statusLogin: 'Fail',
-        textLog
-      }
-    ),
-    type: 'DataUpdateAccount'
-  })
-  await accountLogToFile(account.platformName, account.loginID, `Error: ${textLog}`, 'Program')
 }

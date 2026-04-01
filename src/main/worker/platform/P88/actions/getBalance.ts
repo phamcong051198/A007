@@ -5,7 +5,8 @@ import { AccountType } from '@shared/common/types'
 
 import { accountLogToFile } from '@/worker/lib/accountLogToFile'
 import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
-import { API_ENDPOINTS, buildHeadersP88Bet } from '@/worker/platform/P88/common/contants'
+import { buildHeadersP88Bet } from '@/worker/platform/P88/common/contants'
+import { buildPlatformUrl } from '@/worker/platform/P88/helper'
 
 export const getBalanceP88bet = async (account: AccountType) => {
   const { cookie } = account
@@ -34,7 +35,7 @@ export const getBalanceP88bet = async (account: AccountType) => {
   const proxyAgent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : undefined
 
   try {
-    const res = await fetch(API_ENDPOINTS.BALANCE, {
+    const res = await fetch(buildPlatformUrl(account, 'BALANCE'), {
       headers: {
         ...buildHeadersP88Bet(account),
         cookie: cookie,

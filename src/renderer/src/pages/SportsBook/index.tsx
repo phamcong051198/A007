@@ -43,6 +43,7 @@ export default function SportsBook() {
             <div className="flex items-center">
               <div className="mr-5">
                 <SwitchCustom checked={Boolean(enable)} onCheckedChange={handleActionEnable} />
+                <span>Đỏ là cào data không bet</span>
               </div>
               <QuickActions />
               <AddSportsBook />

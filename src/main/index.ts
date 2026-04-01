@@ -57,9 +57,9 @@ function createWindow() {
       loginWindow.close()
 
       mainWindow = await createMainWindow()
-      if (!Platform.count()) {
-        Platform.insertMany(PLATFORM_DATA)
-      }
+      clearTable('Platform')
+      Platform.insertMany(PLATFORM_DATA)
+
       return
     }
     return event.reply('LoginResult', { message: 'Invalid credentials.', success: false })

@@ -11,6 +11,8 @@ import createWorkerCrawl3IN1Bet from './platform/3In1bet/workerCrawl?nodeWorker'
 import createWorkerLogin3IN1Bet from './platform/3In1bet/workerLogin?nodeWorker'
 import createWorkerCrawlP88 from './platform/P88/workerCrawl?nodeWorker'
 import createWorkerLoginP88 from './platform/P88/workerLogin?nodeWorker'
+import createWorkerCrawlPs3838 from './platform/Ps3838/workerCrawl?nodeWorker'
+import createWorkerLoginPs3838 from './platform/Ps3838/workerLogin?nodeWorker'
 import createWorkerCrawlSbobet from './platform/Sbobet/workerCrawl?nodeWorker'
 import createWorkerLoginSbobet from './platform/Sbobet/workerLogin?nodeWorker'
 import createWorkerCrawlViva88 from './platform/Viva88/workerCrawl?nodeWorker'
@@ -30,6 +32,7 @@ import { sendCount } from '@/worker/lib/sendCount'
 import { sendPlatformUpdate } from '@/worker/lib/sendPlatformUpdate'
 
 let workerCrawlP88: Worker | null = null
+let workerCrawlPs3838: Worker | null = null
 let workerCrawlWbet: Worker | null = null
 let workerCrawlSbobet: Worker | null = null
 let workerCrawl3in1bet: Worker | null = null
@@ -79,6 +82,31 @@ const platformHandlers: Record<string, QueueHandler> = {
       const accountInfo = Account.findOne({
         id: account.id,
         platformName: PLATFORM.P88BET,
+        statusDelete: 0
+      }) as AccountType
+      if (!accountInfo) return
+
+      handler.isProcessing = true
+      startWorker(accountInfo, mainWindow)
+    },
+
+    queue: []
+  },
+
+  Ps3838: {
+    createWorkerCrawl: createWorkerCrawlPs3838,
+    createWorkerLogin: createWorkerLoginPs3838,
+    isProcessing: false,
+    processor(mainWindow: BrowserWindow) {
+      const handler = platformHandlers[PLATFORM.PS3838]
+      if (handler.isProcessing || handler.queue.length === 0) return
+
+      const account = handler.queue.shift()
+      if (!account) return
+
+      const accountInfo = Account.findOne({
+        id: account.id,
+        platformName: PLATFORM.PS3838,
         statusDelete: 0
       }) as AccountType
       if (!accountInfo) return
@@ -206,6 +234,34 @@ async function startWorker(account: AccountType, mainWindow: BrowserWindow) {
         })
       }
     }
+
+    if (account.platformName === 'Ps3838') {
+      if (!workerCrawlPs3838) {
+        workerCrawlPs3838 = handler.createWorkerCrawl({ workerData: 'worker' })
+
+        workerCrawlPs3838.postMessage('Start')
+        workerCrawlPs3838.on('message', async ({ type, idAccount }) => {
+          if (type == 'LogHandleDataPs3838') {
+            await sendPlatformUpdate('Ps3838', mainWindow)
+          }
+
+          if (type === 'DataUpdateAccount') {
+            sendAccountUpdate(idAccount, mainWindow)
+          }
+
+          if (type === 'LoggedAgain') {
+            sendAccountUpdate(idAccount, mainWindow)
+            enqueueWorker(Account.findById(idAccount), mainWindow)
+          }
+        })
+
+        workerCrawlPs3838.on('exit', async () => {
+          console.log('WorkerCrawlPs3838 Exit')
+          workerCrawlPs3838 = null
+        })
+      }
+    }
+
     if (account.platformName === 'Sbobet') {
       if (!workerCrawlSbobet) {
         workerCrawlSbobet = handler.createWorkerCrawl({ workerData: 'worker' })

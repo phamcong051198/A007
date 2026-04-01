@@ -45,6 +45,7 @@ export const PLATFORM = {
   '3IN1BET': '3in1Bet',
   ISN88BET: 'Isn88Bet',
   P88BET: 'P88Bet',
+  PS3838: 'Ps3838',
   SBOBET: 'Sbobet',
   VIVA88BET: 'Viva88Bet',
   WBET: 'WBet'
@@ -88,6 +89,11 @@ export const PLATFORM_DATA = [
     name: 'P88Bet',
     url: 'https://www.p88.bet/',
     uuid: 'd4990a1a-c8ae-41d2-bd54-851967141d6b'
+  },
+  {
+    name: 'Ps3838',
+    url: 'https://www.ps3838.com/',
+    uuid: 'd4990a1a-c8ae-41d2-bd54-851967141d6c'
   },
   {
     name: 'Viva88Bet',

@@ -1,6 +1,7 @@
 import { useContext, useState } from 'react'
 import { CheckCircle } from 'lucide-react'
 
+import { InputNumber } from '@renderer/components/ui/input-number'
 import { SettingContext } from '@renderer/context/SettingContext'
 
 import { Button } from '../ui/button'
@@ -66,7 +67,7 @@ export default function GeneralSetting() {
           </div>
         </div>
       </div>
-      {/* <div className="grid grid-cols-1 gap-2 mb-2 border-b border-[#22262F]">
+      <div className="grid grid-cols-1 gap-2 mb-2 border-b border-[#22262F]">
         <div className="flex flex-col space-y-6 p-4 pl-0">
           <div className="flex">
             <div className="w-1/3 flex-shrink-0">Profit Commission</div>
@@ -102,7 +103,7 @@ export default function GeneralSetting() {
             </div>
           </div>
         </div>
-      </div> */}
+      </div>
 
       <div className="grid grid-cols-1 gap-2 mb-2 border-b border-[#22262F]">
         <div className="flex flex-col space-y-6 p-4 pl-0">

@@ -23,6 +23,7 @@ export async function validateSettingAccountPairBeforeBet(
   | {
       valid: true
       accounts: AccountInfo[]
+      betAmountStandardValid: string[]
       isTicketBetFlags: [number, number]
     }
   | { valid: false; fieldError: string }
@@ -77,8 +78,23 @@ export async function validateSettingAccountPairBeforeBet(
   if (!(await checkBetLimit(dataTicket, [account1Info, account2Info], port)))
     return { fieldError: 'Bet Limit', valid: false }
 
+  const hasBetAmount = accounts.some(
+    (acc) => Number(acc.setting.betAmount) === 0 && acc.setting.generalSetting !== 'NoBet'
+  )
+
+  const hasBetAmountZero = accounts.every((acc) => Number(acc.setting.betAmount) === 0)
+
+  if (hasBetAmount || hasBetAmountZero) {
+    sendFail((acc) =>
+      Number(acc.setting.betAmount) === 0
+        ? `Get Ticket Failed: Account ${acc.info.platformName}-${acc.info.loginID} setting bet amount 0!`
+        : 'Get Ticket Failed: Do not have any available account for betting!'
+    )
+    return { fieldError: 'Setting bet amount 0', valid: false }
+  }
+
   const isBetAmountExceedsCredit = accounts.some(
-    (acc) => Number(acc.ticket.stake) > Number(acc.info.credit)
+    (acc) => Number(acc.setting.betAmount) > Number(acc.info.credit)
   )
   if (isBetAmountExceedsCredit) {
     sendFail((acc) =>
@@ -89,10 +105,30 @@ export async function validateSettingAccountPairBeforeBet(
     return { fieldError: 'Insufficient credit', valid: false }
   }
 
+  const isNoBetAccountPair = accounts.every((acc) => acc.setting.generalSetting == 'NoBet')
+  if (isNoBetAccountPair) {
+    sendFail(
+      (acc) =>
+        `Get Ticket Failed: Account ${acc.info.platformName}-${acc.info.loginID} setting select ${acc.setting.generalSetting}!`
+    )
+    return { fieldError: 'Setting select NoBet', valid: false }
+  }
+
   const isTicketBetFlags: [number, number] = [1, 1]
+
+  const betAmountStandardValid = accounts.map(({ setting }) => {
+    const betAmount = setting.betAmount
+    return betAmount
+  })
+
+  const isInvalidCredit = betAmountStandardValid.some(
+    (amount, idx) => Number(amount) > Number(accounts[idx].info.credit)
+  )
+  if (isInvalidCredit) return { fieldError: 'Setting BetAmount > Credit', valid: false }
 
   return {
     accounts,
+    betAmountStandardValid,
     isTicketBetFlags,
     valid: true
   }

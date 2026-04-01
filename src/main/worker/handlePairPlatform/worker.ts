@@ -13,7 +13,7 @@ import { GAME_TYPES } from '@shared/common/constants'
 import { OVER, SPREAD, UNDER } from '@shared/common/constants'
 import { DataCrawlType, SettingType } from '@shared/common/types'
 
-import { checkArbitrageMy } from '@/worker/handlePairPlatform/helper/scanArbitrage'
+import { calculateProfit } from '@/worker/lib/calculateProfit'
 import { checkOddsSetting } from '@/worker/lib/checkOddsSetting'
 import { clearTablesForGameType } from '@/worker/lib/clearTablesForGameType'
 import { findMatchingData } from '@/worker/lib/findMatchingData'
@@ -106,6 +106,11 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
     ]
 
     for (const { odd1, odd2, bet1, bet2 } of profitCombos) {
+      const profitResult = calculateProfit(Number(odd1), Number(odd2))
+      if (profitResult.status !== 'OK') continue
+
+      const checkOdds = checkOddsSetting()
+
       const stat1 = dataCrawlPlatform1?.stat
       const stat2 = dataCrawlPlatform2?.stat
 
@@ -114,14 +119,6 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
 
       const stat = stat1 ?? stat2
       const type = dataCrawlPlatform1?.type ?? dataCrawlPlatform2?.type
-
-      const totalStake = settingInfo[0].credit || 40
-
-      const arbitrage = checkArbitrageMy(odd1, odd2, totalStake)
-
-      if (arbitrage.isArbitrage == false) continue
-
-      const checkOdds = checkOddsSetting()
 
       const score =
         gameType === GAME_TYPES.RUNNING
@@ -136,15 +133,11 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
 
       const dataTicketI = {
         ...dataCrawlPlatform1,
-        ...commonData,
-        profit: arbitrage.profitIfAWin,
-        stake: arbitrage.stakeA
+        ...commonData
       }
       const dataTicketII = {
         ...dataCrawlPlatform2,
-        ...commonData,
-        profit: arbitrage.profitIfBWin,
-        stake: arbitrage.stakeB
+        ...commonData
       }
 
       const ticketUpdate = generateTicketUpdate(
@@ -156,6 +149,7 @@ async function handleCombinationPlatform(platformPair: PlatformPairType) {
         bet2,
         odd2,
         checkOdds.Data.infoOdd2,
+        profitResult.profit,
         settingInfo[0].gameType
       )
 

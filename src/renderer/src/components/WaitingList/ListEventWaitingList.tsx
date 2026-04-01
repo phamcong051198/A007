@@ -54,6 +54,7 @@ const ListEventWaitingList = () => {
   const handleSave = () => {
     handleSaveReport('WaitingListReport', dataTable)
   }
+  console.log('dataTable', dataTable)
   return (
     <div className="h-full px-1 flex flex-col text-sm">
       <div className="flex justify-between items-center min-w-[968px] border border-border-default h-[40px] px-[24px] mb-9 rounded-[12px] ">

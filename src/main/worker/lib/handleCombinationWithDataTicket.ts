@@ -26,7 +26,7 @@ export const handleCombinationWithDataTicket = async (
   )
   if (!resultValidate.valid) return
 
-  const { accounts, isTicketBetFlags } = resultValidate
+  const { accounts, betAmountStandardValid, isTicketBetFlags } = resultValidate
 
   const dataTicketBet = [
     accounts.map((account, idx) => {
@@ -34,6 +34,7 @@ export const handleCombinationWithDataTicket = async (
 
       const company = `${info.platformName}-${info.loginID}`
       const coverage = ticket.number === 0 ? 'FT' : 'FirstHalf'
+      const betAmount_Standard = betAmountStandardValid[idx]
 
       let isBetAllowed = setting.generalSetting !== 'NoBet'
       let betRejectionReason = isBetAllowed ? '' : 'No Bet By User'
@@ -46,7 +47,7 @@ export const handleCombinationWithDataTicket = async (
 
       return {
         ...account.ticket,
-        betAmount_Standard: account.ticket.stake,
+        betAmount_Standard,
         betRejectionReason,
         checkContra: setting.contra,
         checkOdd: setting.checkOdd,

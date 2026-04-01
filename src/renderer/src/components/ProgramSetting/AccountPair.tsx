@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { Confirmation } from '@renderer/components/NotificationPopup/Confirmation'
 import { NotificationError } from '@renderer/components/NotificationPopup/NotificationError'
+import { InputNumber } from '@renderer/components/ui/input-number'
 import { AccountPairContext, AccountPairProvider } from '@renderer/context/AccountPairContext'
 import { generateAccountData } from '@renderer/lib/generateAccountData'
 import { generateAddAllAccountPair } from '@renderer/lib/generateAddAllAccountPair'
@@ -471,18 +472,6 @@ const PlatformSettingsSection = ({ typeAccount }: { typeAccount: 'account1' | 'a
     updateField('betAmount', value)
   }
 
-  const updateCheckOdd = (checked: boolean) => {
-    updateField('checkOdd', Number(checked))
-  }
-
-  const updateOddFrom = (value: number) => {
-    updateField('oddFrom', value)
-  }
-
-  const updateOddTo = (value: number) => {
-    updateField('oddTo', value)
-  }
-
   if (!currentAccountPair || !dataAccountPair) {
     return <div className="text-gray-500">Select a combination to configure settings</div>
   }
@@ -496,7 +485,7 @@ const PlatformSettingsSection = ({ typeAccount }: { typeAccount: 'account1' | 'a
         <p className="text-gray-400 text-sm">{dataAccountPair.loginID || 'Unknown Account'}</p>
       </div>
 
-      {/* <div className="space-y-4">
+      <div className="space-y-4">
         <div>
           <label className="text-gray-300 text-sm">Bet Amount ($)</label>
           <InputNumber
@@ -506,7 +495,7 @@ const PlatformSettingsSection = ({ typeAccount }: { typeAccount: 'account1' | 'a
             onChange={(value) => updateBetAmount(value)}
           />
         </div>
-      </div> */}
+      </div>
     </div>
   )
 }

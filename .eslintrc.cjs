@@ -9,7 +9,7 @@ module.exports = {
   parserOptions: {
     warnOnUnsupportedTypeScriptVersion: false
   },
-  plugins: ['simple-import-sort', 'sort-keys-fix', 'unused-imports'],
+  plugins: ['simple-import-sort', 'unused-imports'],
   rules: {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
@@ -42,9 +42,6 @@ module.exports = {
       }
     ],
 
-    // object key sorting
-    'sort-keys-fix/sort-keys-fix': 'warn',
-
     // unused imports
     'unused-imports/no-unused-imports': 'error',
 
@@ -57,10 +54,5 @@ module.exports = {
         varsIgnorePattern: '^_'
       }
     ]
-  },
-  settings: {
-    react: {
-      version: 'detect'
-    }
   }
 }

@@ -1,3 +1,5 @@
+import JSEncrypt from 'jsencrypt'
+
 import { AccountType } from '@shared/common/types'
 
 export const configHeaders = (accountInfo: AccountType) => ({
@@ -36,54 +38,79 @@ export const toJsonPayload = (
   return JSON.stringify(payload)
 }
 
-export function CFS(password: string, IsSecond = null) {
+export function CFS(codeStr, IsSecond = null) {
   function CfsCode(nWord) {
     let result = ''
     for (let cc = 1; cc <= nWord.length; cc++) {
       result += nWord.charAt(cc - 1).charCodeAt(0)
     }
-    const DecimalValue = Number(result)
-    return DecimalValue.toString(16)
+    const DecimalValue = new Number(result)
+    result = DecimalValue.toString(16)
+    return result
   }
 
   const CodeLen = 30
-  let s = String(password)
-  const CodeSpace = CodeLen - s.length
+  const CodeSpace = CodeLen - codeStr.length
+
   if (CodeSpace > 1) {
     for (let cecr = 1; cecr <= CodeSpace; cecr++) {
-      s += String.fromCharCode(21)
+      codeStr += String.fromCharCode(21)
     }
   }
-
   let NewCode = 1
+
   for (let cecb = 1; cecb <= CodeLen; cecb++) {
-    const Been = CodeLen + s.charCodeAt(cecb - 1) * cecb
+    const Been = CodeLen + codeStr.charAt(cecb - 1).charCodeAt(0) * cecb
     NewCode *= Been
   }
 
-  const tmpNewCode = Number(NewCode).toPrecision(15)
-  let codeStr2 = String(tmpNewCode).toUpperCase()
+  const tmpNewCode = new Number(NewCode.toPrecision(15))
+  codeStr = tmpNewCode.toString().toUpperCase()
 
-  if (IsSecond != null && codeStr2.indexOf('E') !== -1) {
-    const idx = codeStr2.indexOf('E')
-    const atemp = Number(codeStr2.substring(0, idx))
-    const adj = atemp - 0.00000000000001
-    const btemp = codeStr2.substring(idx)
-    codeStr2 = adj + btemp
+  if (IsSecond != null) {
+    let atemp = +new Number(codeStr.substring(0, codeStr.indexOf('E')))
+    atemp -= 0.00000000000001
+    const btemp = codeStr.substring(codeStr.indexOf('E'), codeStr.length)
+    codeStr = atemp + btemp
   }
-
   let NewCode2 = ''
-  for (let cec = 1; cec <= codeStr2.length; cec++) {
-    const sub = codeStr2.substring(cec - 1, cec + 2)
-    NewCode2 += CfsCode(sub)
+
+  for (let cec = 1; cec <= codeStr.length; cec++) {
+    NewCode2 += CfsCode(codeStr.substring(cec - 1, cec + 2))
   }
 
   let CfsEncodeStr = ''
   for (let cec = 20; cec <= NewCode2.length - 18; cec += 2) {
     CfsEncodeStr += NewCode2.charAt(cec - 1)
   }
-
   return CfsEncodeStr.toUpperCase()
+}
+
+export const RSA = (password, rsaInfo: { mkey: string; ekey: string }) => {
+  const rsaPublicKey = rsaInfo?.mkey || ''
+  const exponentHex = rsaInfo?.ekey || ''
+
+  if (rsaPublicKey === '' || exponentHex === '') {
+    return ''
+  }
+
+  const encryptor = new JSEncrypt()
+  const key = encryptor.getKey()
+  key.setPublic(rsaPublicKey, exponentHex)
+  const encryptedPassword = encryptor.encrypt(password)
+
+  if (encryptedPassword) {
+    // JSEncrypt returns Base64, convert to Hex
+    const bytes = atob(encryptedPassword)
+      .split('')
+      .map((c) => {
+        return `0${c.charCodeAt(0).toString(16)}`.slice(-2)
+      })
+      .join('')
+    return bytes.toUpperCase()
+  }
+
+  return encryptedPassword
 }
 
 export async function extractTkAndId(html) {

@@ -55,6 +55,7 @@
     "electron-updater": "^6.6.2",
     "https-proxy-agent": "^7.0.5",
     "i18next": "^23.15.1",
+    "jsencrypt": "^3.5.4",
     "lucide-react": "^0.453.0",
     "node-fetch": "^2.7.0",
     "react-router-dom": "^6.23.1",

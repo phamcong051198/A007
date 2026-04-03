@@ -14,7 +14,7 @@ import { mergeCookies } from '@/worker/lib/mergeCookies'
 import { getBalanceViva88bet } from '@/worker/platform/Viva88/actions/getBalance'
 import { API_BASE_URL, API_ENDPOINTS } from '@/worker/platform/Viva88/common/constants'
 import { LoginResponse } from '@/worker/platform/Viva88/common/types'
-import { buildSocketIoWsUrl, CFS, extractTkAndId } from '@/worker/platform/Viva88/helper'
+import { buildSocketIoWsUrl, CFS, extractTkAndId, RSA } from '@/worker/platform/Viva88/helper'
 
 const port = parentPort
 
@@ -68,9 +68,18 @@ async function loginToViva88Bet(port: MessagePort, account: AccountType) {
         'User-Agent': 'Mozilla/5.0',
         ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
       },
-      redirect: 'manual',
+      redirect: 'follow',
       ...(proxyAgent && { agent: proxyAgent })
     })
+
+    const html = await preRes.text()
+
+    const mkeyMatch = html.match(/"mkey":"(.*?)"/i)
+    const ekeyMatch = html.match(/"ekey":"(.*?)"/i)
+
+    const mkey = mkeyMatch?.[1] || ''
+    const ekey = ekeyMatch?.[1] || ''
+
     cookieHeader = mergeCookies(cookieHeader, preRes.headers.get('set-cookie'))
     accountLogToFile(
       account.platformName,
@@ -86,6 +95,7 @@ async function loginToViva88Bet(port: MessagePort, account: AccountType) {
         language: 'en',
         loginCode: '',
         password: CFS(account.password),
+        rsaPassword: RSA(account.password, { ekey, mkey }),
         platform: 'desktop',
         username: account.loginID
       }),

@@ -32,6 +32,7 @@ import { isProxyConfigValid } from '@/worker/lib/isProxyConfigValid'
 import { logTime } from '@/worker/lib/logTime'
 import { systemLogToFile } from '@/worker/lib/systemLogToFile'
 import { toPositiveNumber } from '@/worker/lib/toPositiveNumber'
+import { buildPlatformUrl } from '@/worker/platform/P88/helper'
 import { PLATFORM } from '@/worker/platform/platform.config'
 import { getBalancePs3838 } from '@/worker/platform/Ps3838/actions/getBalance'
 import { buildHeadersPs3838, gameTypeMapPs3838 } from '@/worker/platform/Ps3838/common/contants'
@@ -193,6 +194,21 @@ const fnCrawlData = async (account: AccountType) => {
     })
 
   try {
+    const resKeepAlive = await fetch(buildPlatformUrl(account, 'KEEP_ALIVE'), {
+      method: 'GET',
+      headers: {
+        ...buildHeadersPs3838(account),
+        Cookie: account.cookie
+      },
+      ...(proxyAgent && { agent: proxyAgent })
+    })
+
+    const vHucode = resKeepAlive.headers.get('v-hucode')
+
+    if (!vHucode) {
+      throw new Error('V-hucode not found')
+    }
+
     const mk: number = gameTypeMapPs3838[gameType] //(0-Early;1-Today;2-Live)
 
     await accountLogToFile(
@@ -219,7 +235,7 @@ const fnCrawlData = async (account: AccountType) => {
     const url = `${account.loginURL}sports-service/sv/odds/events?mk=${mk}&sp=29&ot=4&btg=1&o=1&lg=&ev=&d=&l=100&v=0&me=0&more=false&c=MY&tm=0&g=QQ%3D%3D&pa=0&cl=100&_g=0&wm=dz&_=${Date.now()}&locale=en_US`
     const res = await fetch(url, {
       headers: {
-        ...buildHeadersPs3838(account),
+        ...buildHeadersPs3838(account, vHucode),
         Cookie: account.cookie
       },
       method: 'GET',

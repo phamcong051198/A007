@@ -23,6 +23,7 @@ import { systemLogToFile } from '@/worker/lib/systemLogToFile'
 import { toPositiveNumber } from '@/worker/lib/toPositiveNumber'
 import { getBalanceP88bet } from '@/worker/platform/P88/actions/getBalance'
 import { buildHeadersP88Bet, gameTypeMapP88 } from '@/worker/platform/P88/common/contants'
+import { buildPlatformUrl } from '@/worker/platform/P88/helper'
 
 let gameType: string | null = null
 
@@ -182,6 +183,21 @@ const fnCrawlData = async (account: AccountType) => {
     })
 
   try {
+    const resKeepAlive = await fetch(buildPlatformUrl(account, 'KEEP_ALIVE'), {
+      method: 'GET',
+      headers: {
+        ...buildHeadersP88Bet(account),
+        Cookie: account.cookie
+      },
+      ...(proxyAgent && { agent: proxyAgent })
+    })
+
+    const vHucode = resKeepAlive.headers.get('v-hucode')
+
+    if (!vHucode) {
+      throw new Error('V-hucode not found')
+    }
+
     const mk: number = gameTypeMapP88[gameType] //(0-Early;1-Today;2-Live)
 
     await accountLogToFile(
@@ -208,7 +224,7 @@ const fnCrawlData = async (account: AccountType) => {
     const url = `${account.loginURL}sports-service/sv/odds/events?mk=${mk}&sp=29&ot=4&btg=1&o=1&lg=&ev=&d=&l=100&v=0&me=0&more=false&c=MY&tm=0&g=QQ%3D%3D&pa=0&cl=100&_g=0&wm=dz&_=${Date.now()}&locale=en_US`
     const res = await fetch(url, {
       headers: {
-        ...buildHeadersP88Bet(account),
+        ...buildHeadersP88Bet(account, vHucode),
         Cookie: account.cookie
       },
       method: 'GET',

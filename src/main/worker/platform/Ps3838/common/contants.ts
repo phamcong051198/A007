@@ -1,11 +1,4 @@
-// export const API_BASE_URL = 'https://www.ps3838.com'
-
-// export const API_ENDPOINTS = {
-//   AUTH: `${API_BASE_URL}/member-auth/v2/authenticate?locale=en_US&_=${Date.now()}&withCredentials=true`,
-//   BALANCE: `${API_BASE_URL}/member-service/v2/account-balance?locale=en_US&_=${Date.now()}&withCredentials=true`,
-//   KEEP_ALIVE: `${API_BASE_URL}/member-auth/v2/keep-alive?locale=en_US&_=${Date.now()}&withCredentials=true`,
-//   MULTI_TICKET: `${API_BASE_URL}/member-betslip/v2/all-odds-selections?locale=en_US&_=${Date.now()}&withCredentials=true`
-// }
+import crypto from 'crypto'
 
 export const gameTypeMapPs3838: { [key: string]: number } = {
   Early: 0,
@@ -63,7 +56,11 @@ export const buildHeadersPs3838 = (
   ...(account?.customIP ? { 'X-Forwarded-For': account.customIP } : {})
 })
 
-export const buildHeadersLogin = (account: { customIP?: string | null; loginURL: string }) => ({
+export const buildHeadersLogin = (account: {
+  customIP?: string | null
+  loginURL: string
+  loginID: string
+}) => ({
   accept: 'application/json, text/plain, */*',
   'accept-language': 'vi,en-US;q=0.9,en;q=0.8,ko;q=0.7',
   'content-type': 'application/x-www-form-urlencoded',
@@ -78,8 +75,9 @@ export const buildHeadersLogin = (account: { customIP?: string | null; loginURL:
   'trust-code': '',
   'user-agent':
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36',
-  'x-app-data':
-    'z2F1H=mAIrHp7p;pctag=3877f697-88f4-4b3d-a04c-140d8b0670b4;directusToken=TwEdnphtyxsfMpXoJkCkWaPsL2KJJ3lo',
+  'X-User-Identifier': crypto.createHash('md5').update(account.loginID).digest('hex'),
+  'x-app-data': 'directusToken=TwEdnphtyxsfMpXoJkCkWaPsL2KJJ3lo;dp5W=2rxe_eQHnXpR4ucTrt;lang=en_US',
+
   'x-trust-client': 'false',
   ...(account.customIP ? { 'X-Forwarded-For': account.customIP } : {})
 })

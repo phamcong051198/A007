@@ -7,7 +7,7 @@ export function buildPlatformUrl(account: AccountType, type: string) {
   const url = account.loginURL
 
   const urlMap = {
-    AUTH: `${url}member-auth/v2/authenticate?locale=en_US&_=${timestamp}&withCredentials=true`,
+    AUTH: `${url}member-auth/v2/auth?locale=en_US&_=${timestamp}&withCredentials=true`,
     BALANCE: `${url}member-service/v2/account-balance?locale=en_US&_=${timestamp}&withCredentials=true`,
     KEEP_ALIVE: `${url}member-auth/v2/keep-alive?locale=en_US&_=${timestamp}&withCredentials=true`,
     MULTI_TICKET: `${url}member-betslip/v2/all-odds-selections?locale=en_US&_=${timestamp}&withCredentials=true`,

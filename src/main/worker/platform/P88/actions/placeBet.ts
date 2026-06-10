@@ -99,7 +99,7 @@ async function bettingProcessBet__P88Bet(
       'BetList'
     )
 
-    const url = `${accountInfo.loginURL}bet-placement/buyV2?uniqueRequestId=${uuidv4()}&locale=en_US&_=${Date.now()}&withCredentials=true`
+    const url = `${accountInfo.loginURL}bet-placement/buyV4?uniqueRequestId=${uuidv4()}&locale=en_US&_=${Date.now()}&withCredentials=true`
     const resBetPlacement = await fetch(url, {
       headers: {
         ...buildHeadersP88Bet(accountInfo),

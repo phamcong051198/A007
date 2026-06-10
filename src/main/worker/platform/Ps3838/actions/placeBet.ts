@@ -114,7 +114,7 @@ async function bettingProcessBet__Ps3838(
     )
     await accountLogToFile(platformName, loginID, `Payload: ${body}`, 'BetList')
 
-    const url = `${accountInfo.loginURL}bet-placement/buyV2?uniqueRequestId=${uuidv4()}&locale=en_US&_=${Date.now()}&withCredentials=true`
+    const url = `${accountInfo.loginURL}bet-placement/buyV4?uniqueRequestId=${uuidv4()}&locale=en_US&_=${Date.now()}&withCredentials=true`
     const resBetPlacement = await fetch(url, {
       headers: {
         ...buildHeadersPs3838(accountInfo),

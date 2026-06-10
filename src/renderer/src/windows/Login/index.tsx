@@ -104,10 +104,10 @@ export default function Login() {
       <div className="h-full">
         <div className="mb-[32px]">
           <div className="pb-[16px] flex justify-center">
-            <img src={'images/logo-main-login.png'} alt="LogoLogin" className="cursor-pointer" />
+            <img src={'images/logo-app.png'} alt="LogoLogin" className="cursor-pointer" />
           </div>
           <div className="flex flex-col gap-3 items-center">
-            <p className="text-white text-3xl">Log in to your account</p>
+            <p className=" text-3xl">Log in to your account</p>
             <p className="text-base text-[#94979C]">Welcome back! Please enter your details.</p>
           </div>
           <div className="text-[#FF0000] font-semibold text-center h-1 mb-9">
@@ -118,11 +118,11 @@ export default function Login() {
         <div>
           <div>
             <div className="mb-[20px]">
-              <p className="text-sm text-[#CECFD2] mb-[6px]">Username</p>
+              <p className="text-sm  mb-[6px]">Username</p>
               <input
                 type="text"
                 maxLength={20}
-                className={`${'focus:border-blue-color'} w-full h-[44px] outline-none text-white bg-layout-color border border-border-default rounded-[8px] px-[14px] py-[10px]`}
+                className={`${'focus:border-blue-color'} w-full h-[44px] outline-none  bg-layout-color border border-border-default rounded-[8px] px-[14px] py-[10px]`}
                 value={username}
                 onChange={(e) => {
                   setUserName(e.target.value)
@@ -132,7 +132,7 @@ export default function Login() {
             </div>
 
             <div>
-              <p className="text-sm text-[#CECFD2] mb-[6px]">Password</p>
+              <p className="text-sm  mb-[6px]">Password</p>
               <div
                 className={`${'focus-within:border-blue-color'} border h-[44px] border-border-default rounded-[8px] bg-layout-color flex  items-center justify-between`}
               >
@@ -140,7 +140,7 @@ export default function Login() {
                   type={isPasswordVisible ? 'text' : 'password'}
                   maxLength={20}
                   value={password}
-                  className="w-full outline-none bg-layout-color text-white px-[14px]"
+                  className="w-full outline-none bg-layout-color  px-[14px]"
                   onChange={(e) => {
                     setPassword(e.target.value)
                     setErrorMessage('')
@@ -148,7 +148,7 @@ export default function Login() {
                 />
                 <button
                   type="button"
-                  className=" w-4 text-gray-400 hover:text-gray-200 mr-1"
+                  className=" w-4 mr-1"
                   onClick={() => setIsPasswordVisible((prev) => !prev)}
                 >
                   {isPasswordVisible ? <Eye /> : <EyeSlash />}
@@ -182,7 +182,7 @@ export default function Login() {
               Login
             </button>
             <button
-              className="text-white h-[44px] w-full rounded-[8px] border border-border-default hover:border-gray-600"
+              className=" h-[44px] w-full rounded-[8px] border border-border-default hover:border-gray-600"
               onClick={CloseLoginWindow}
             >
               Cancel

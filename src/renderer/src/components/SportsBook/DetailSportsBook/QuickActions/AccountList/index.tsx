@@ -17,21 +17,21 @@ function AccountList({ sportsBook }: { sportsBook: SportsBookType }) {
           e.preventDefault()
           setOpenModalSetting(true)
         }}
-        className="font-semibold cursor-pointer focus:text-white focus:bg-[#22262F] px-[16px] py-[8px] rounded-[4px]"
+        className="font-semibold cursor-pointer  focus:bg-hover-default px-[16px] py-[4px] rounded-[4px]"
         onClick={() => setOpenModalSetting(true)}
       >
         Account List
       </DropdownMenuItem>
 
       <AlertDialog open={openModalSetting}>
-        <AlertDialogContent className="p-0 px-[16px] rounded-[12px] h-5/6 w-11/12 min-w-[650px] border-border-default bg-black flex flex-col gap-0">
+        <AlertDialogContent className="p-0 px-[16px] rounded-[12px] h-5/6 w-11/12 min-w-[650px] border-border-default bg-white flex flex-col gap-0">
           <header className="flex pt-[16px]">
             <UsersICon />
             <div className="ml-[16px] flex flex-col">
               <div className="flex justify-between">
-                <p className="text-lg font-semibold text-[#F7F7F7]"> Account List</p>
+                <p className="text-lg font-semibold"> Account List</p>
                 <button
-                  className="absolute top-[6px] right-[6px] font-normal block w-9 h-9 leading-none text-[#85888E] hover:bg-gray-900 hover:rounded-full"
+                  className="absolute top-[6px] right-[6px] font-normal block w-9 h-9 leading-none  hover:bg-gray-200 hover:rounded-full"
                   onClick={() => setOpenModalSetting(false)}
                 >
                   ✕

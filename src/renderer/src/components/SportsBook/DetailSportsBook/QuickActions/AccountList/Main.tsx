@@ -485,7 +485,7 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
       <div className="h-full flex flex-col">
         <div className="flex-1 overflow-hidden pt-2">
           <div
-            className="h-full w-full border border-border-default bg-bg-gray overflow-hidden"
+            className="h-full w-full border border-border-default bg-white overflow-hidden"
             onContextMenu={handleRightClick}
           >
             <div
@@ -508,7 +508,7 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
                             whiteSpace: 'nowrap',
                             width: header.getSize()
                           }}
-                          className="sticky top-[-1px] z-10 truncate border border-border-default text-start pl-1 text-sm bg-bg-gray"
+                          className="sticky top-[-1px] z-10 truncate border border-border-default text-start pl-1 text-sm bg-white"
                         >
                           {header.isPlaceholder
                             ? null
@@ -553,7 +553,7 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
                               width: cell.column.getSize()
                             }}
                             className={`border border-border-default p-0 h-3 truncate cursor-pointer text-sm ${
-                              isSelected ? 'bg-blue-200 text-black' : ''
+                              isSelected ? 'bg-blue-200' : ''
                             }`}
                             onMouseDown={(e) => handleMouseDown(rowIndex, cell.column.id, e)}
                             onMouseEnter={() => handleMouseEnter(rowIndex, cell.column.id)}
@@ -599,7 +599,7 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
 
             {contextMenu.visible && (
               <div
-                className="absolute z-[1000] w-32 bg-black text-sm"
+                className="absolute z-[1000] w-32 bg-white text-sm"
                 style={{
                   left: contextMenu.x - 4,
                   top: contextMenu.y - 90,
@@ -607,7 +607,7 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
                 }}
               >
                 <div
-                  className="pl-8 cursor-pointer border border-gray-700 hover:border-gray-300"
+                  className="pl-8 cursor-pointer border hover:bg-hover-default "
                   onClick={() =>
                     handleCut(new KeyboardEvent('keydown', { ctrlKey: true, key: 'x' }))
                   }
@@ -615,7 +615,7 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
                   Cut
                 </div>
                 <div
-                  className="pl-8 cursor-pointer border border-gray-700 hover:border-gray-300 "
+                  className="pl-8 cursor-pointer border border-t-0 border-b-0 hover:bg-hover-default"
                   onClick={(e) => {
                     e.preventDefault()
                     const clipboardEvent = new ClipboardEvent('copy', {
@@ -627,7 +627,7 @@ export const Main = ({ setOpenModalSetting, sportsBook }) => {
                   Copy
                 </div>
                 <div
-                  className="pl-8 cursor-pointer border border-gray-700 hover:border-gray-300 "
+                  className="pl-8 cursor-pointer border hover:bg-hover-default"
                   onClick={async (e) => {
                     e.preventDefault()
                     const clipboardText = await navigator.clipboard.readText()

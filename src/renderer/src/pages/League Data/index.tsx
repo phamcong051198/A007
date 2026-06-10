@@ -49,7 +49,7 @@ const EditableCell = ({
     return (
       <div className="flex gap-2 items-center justify-between">
         <input
-          className="flex-1 border px-2 py-[3px] rounded text-black"
+          className="flex-1 border px-2 py-[3px] rounded text-black border-red-color"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           autoFocus
@@ -211,11 +211,11 @@ export default function LeagueData() {
       <div className="flex gap-5 h-full px-5">
         <div className="w-48">
           <h2 className="font-extrabold text-lg">Platform</h2>
-          <ul className="border border-border-default bg-bg-gray">
+          <ul className="border border-border-default bg-white">
             {listPlatForm.map((plat) => (
               <li
                 key={plat.id}
-                className={`p-2 hover:bg-gray-700 cursor-pointer ${
+                className={`p-2 hover:bg-hover-default cursor-pointer ${
                   selectedPlatform?.id === plat.id ? 'bg-blue-600 text-white' : ''
                 }`}
                 onClick={() => setSelectedPlatform(plat)}
@@ -229,8 +229,8 @@ export default function LeagueData() {
           <h2 className="font-extrabold text-lg">List League</h2>
           <div className="border border-border-default h-[870px]">
             <div className="h-full overflow-auto text-sm">
-              <table className="w-full table-fixed bg-bg-gray">
-                <thead className="sticky top-0 bg-gray-800 z-10">
+              <table className="w-full table-fixed bg-white">
+                <thead className="sticky top-0 bg-hover-default z-index:1 ">
                   {table.getHeaderGroups().map((headerGroup) => (
                     <React.Fragment key={headerGroup.id}>
                       <tr>

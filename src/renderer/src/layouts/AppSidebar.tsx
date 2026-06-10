@@ -64,8 +64,8 @@ const NavItemComponent = ({
     <Link to={item.path} title={collapsed ? item.name : ''}>
       <li
         className={clsx(
-          'flex items-center px-4 py-[10px] my-[4px] rounded-[6px] hover:bg-[#22262F]',
-          isActive && 'bg-[#22262F]'
+          'flex items-center px-4 py-[10px] my-[4px] rounded-[6px] hover:bg-hover-default',
+          isActive && 'bg-hover-default'
         )}
       >
         <span className="relative menu-item-icon-size">
@@ -144,7 +144,7 @@ const AppSidebar: React.FC = () => {
         >
           {!collapsed && (
             <Link to="sports-book">
-              <img src={'images/logo-main-app.png'} alt="Logo" className="cursor-pointer" />
+              <img src={'images/logo-app.png'} alt="Logo" className="cursor-pointer w-20" />
             </Link>
           )}
           <button className="cursor-pointer" onClick={toggleSidebar} aria-label="Toggle sidebar">
@@ -172,8 +172,8 @@ const AppSidebar: React.FC = () => {
               <Link to="program-settings">
                 <li
                   className={clsx(
-                    'flex items-center px-4 py-[10px] my-[2px] hover:bg-[#22262F] rounded-[6px]',
-                    location.pathname.includes('program-settings') && 'bg-[#22262F]'
+                    'flex items-center px-4 py-[10px] my-[2px] hover:bg-hover-default rounded-[6px]',
+                    location.pathname.includes('program-settings') && 'bg-hover-default'
                   )}
                   title={collapsed ? 'Program Settings' : ''}
                 >
@@ -208,7 +208,7 @@ const AppSidebar: React.FC = () => {
                     tabIndex={0}
                     aria-label="User info"
                   >
-                    <p className="text-white text-sm">{username ?? profile?.username}</p>
+                    <p className="text-sm font-semibold ">{username ?? profile?.username}</p>
                   </div>
                 )}
               </div>

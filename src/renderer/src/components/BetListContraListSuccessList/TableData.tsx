@@ -73,7 +73,7 @@ const TableData = ({ dataTable, enableScroll }) => {
 
   return (
     <div
-      className=" flex-1 flex flex-col min-w-[968px] border border-border-default overflow-y-auto custom-scrollbar"
+      className=" flex-1 flex flex-col min-w-[968px] border border-border-default overflow-y-auto custom-scrollbar bg-white"
       ref={tableContainerRef}
       style={{ direction: table.options.columnResizeDirection }}
     >
@@ -93,7 +93,7 @@ const TableData = ({ dataTable, enableScroll }) => {
                       whiteSpace: 'nowrap',
                       width: header.getSize()
                     }}
-                    className="sticky top-[-1px] z-10 truncate border border-border-default text-start pl-1 text-sm bg-bg-gray"
+                    className="sticky top-[-1px] z-10 truncate border border-border-default text-start pl-1 text-sm bg-white"
                   >
                     {header.isPlaceholder
                       ? null

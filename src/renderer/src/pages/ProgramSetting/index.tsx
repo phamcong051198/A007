@@ -11,17 +11,17 @@ export default function ProgramSetting() {
         <div className="mt-[32px] mx-[32px] h-full flex flex-col">
           <div className="mb-3">
             <div className="flex justify-between">
-              <p className="text-white text-2xl font-semibold">Program Settings</p>
+              <p className=" text-2xl font-semibold">Program Settings</p>
             </div>
-            <div className="border border-border-default rounded-[8px] bg-[#13161B] mt-[20px] px-[4px] flex gap-[3px] h-[44px] items-center overflow-hidden">
+            <div className="border border-border-default rounded-[8px] bg-hover-default mt-[20px] px-[2px] flex gap-[3px] h-[36px] items-center overflow-hidden">
               <div className="flex gap-[3px] scrollbar-hide">
                 {PROGRAM_SETTING_LIST.map(({ id, label }) => (
                   <NavLink
                     key={id}
                     to={id}
                     className={({ isActive }) => `
-                      px-[8px] h-[36px] text-sm flex justify-center items-center rounded-[8px] cursor-pointer shadow-2xl leading-none font-semibold flex-shrink-0
-                      ${isActive ? 'bg-layout-color text-white' : 'text-[#94979C] hover:bg-layout-color hover:text-white'}`}
+                      px-[8px] h-[32px] text-sm flex justify-center items-center rounded-[8px] cursor-pointer shadow-2xl leading-none font-semibold flex-shrink-0
+                      ${isActive ? 'bg-white' : ' hover:bg-white'}`}
                     style={{ minWidth: '106px' }}
                   >
                     {label}

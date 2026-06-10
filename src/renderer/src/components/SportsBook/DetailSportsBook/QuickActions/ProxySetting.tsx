@@ -39,14 +39,14 @@ function ProxySetting({ sportsBook }: { sportsBook: SportsBookType }) {
           e.preventDefault()
           setOpenModalSetting(true)
         }}
-        className="font-semibold cursor-pointer focus:text-white focus:bg-[#22262F] px-[16px] py-[8px] rounded-[4px]"
+        className="font-semibold cursor-pointer focus:bg-hover-default px-[16px] py-[4px] rounded-[4px]"
         onClick={() => setOpenModalSetting(true)}
       >
         Quick Proxy Setting
       </DropdownMenuItem>
 
       <AlertDialog open={openModalSetting}>
-        <AlertDialogContent className="p-0 rounded-[12px] h-[420px] w-[430px] border-border-default bg-black flex flex-col gap-0">
+        <AlertDialogContent className="p-0 rounded-[12px] h-[420px] w-[430px] bg-white flex flex-col gap-0">
           <header>
             <div className="flex p-[16px]">
               <div>
@@ -54,9 +54,9 @@ function ProxySetting({ sportsBook }: { sportsBook: SportsBookType }) {
               </div>
               <div className="ml-[16px] flex flex-col">
                 <div className="flex justify-between">
-                  <p className="text-lg font-semibold text-[#F7F7F7]">Proxy Settings</p>
+                  <p className="text-lg font-semibold">Proxy Settings</p>
                   <button
-                    className="absolute top-[6px] right-[6px] font-normal block w-9 h-9 leading-none text-[#85888E] hover:bg-gray-900 hover:rounded-full"
+                    className="absolute top-[6px] right-[6px] font-normal block w-9 h-9 leading-none text-[#85888E] hover:bg-gray-200 hover:rounded-full"
                     onClick={closeModal}
                   >
                     ✕

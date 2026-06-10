@@ -10,7 +10,7 @@ export default function AddSportsBook() {
   return (
     <Fragment>
       <button
-        className={`${'bg-blue-color'} hover:opacity-90 text-sm w-[165px] h-[40px] rounded-[8px] text-white gap-[4px] flex items-center justify-center`}
+        className={`${'bg-blue-color'} hover:opacity-90 text-sm w-[150px] h-[35px] rounded-[8px] text-white gap-[4px] flex items-center justify-center`}
         onClick={() => setOpenAddSportsBook(true)}
       >
         <Plus />

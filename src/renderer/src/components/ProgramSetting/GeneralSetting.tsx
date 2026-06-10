@@ -45,21 +45,23 @@ export default function GeneralSetting() {
 
   return (
     <div className="bg-layout-color flex flex-col overflow-y-auto overflow-x-hidden max-h-[calc(100vh-200px)]">
-      <h1 className="text-lg font-bold mb-5 border-b pb-2 mt-8 border-b-[#22262F]">
+      <h1 className="text-lg font-bold mb-5 border-b pb-2 mt-8 border-border-default">
         Game Configuration
       </h1>
-      <div className="grid grid-cols-1 gap-2 mb-2 border-b border-[#22262F]">
+      <div className="grid grid-cols-1 gap-2 mb-2 border-b border-border-default">
         <div className="flex flex-col p-4 pl-0">
           <div className="flex">
             <div className="w-1/3 flex-shrink-0">Odds Type</div>
             <div className="w-1/3 flex-shrink-0">
               <div>
                 <Select defaultValue="Malay">
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full bg-white border border-border-default">
                     <SelectValue placeholder="Default" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Malay">Malay</SelectItem>
+                    <SelectItem value="Malay" className="bg-white border border-border-default">
+                      Malay
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -67,7 +69,7 @@ export default function GeneralSetting() {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-2 mb-2 border-b border-[#22262F]">
+      <div className="grid grid-cols-1 gap-2 mb-2 border-b border-border-default">
         <div className="flex flex-col space-y-6 p-4 pl-0">
           <div className="flex">
             <div className="w-1/3 flex-shrink-0">Profit Commission</div>
@@ -105,7 +107,7 @@ export default function GeneralSetting() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-2 mb-2 border-b border-[#22262F]">
+      <div className="grid grid-cols-1 gap-2 mb-2 border-b border-border-default">
         <div className="flex flex-col space-y-6 p-4 pl-0">
           <div className="flex">
             <div className="w-1/3 flex-shrink-0">Game Type</div>
@@ -142,7 +144,7 @@ export default function GeneralSetting() {
       <div className="flex justify-end space-x-2 mt-4 py-5 pr-5">
         <Button
           variant="bordered-white"
-          className="border-red whitespace-nowrap w-28"
+          className="border-red whitespace-nowrap w-28 bg-white border border-border-default hover:border-gray-500"
           onClick={handleCancel}
         >
           Cancel

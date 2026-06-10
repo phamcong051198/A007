@@ -51,15 +51,15 @@ export default function AddSportsBookModal({ openAddSportsBook, setOpenAddSports
   return (
     <Fragment>
       <AlertDialog open={openAddSportsBook} onOpenChange={setOpenAddSportsBook}>
-        <AlertDialogContent className="p-0 rounded-[12px] h-3/6 w-6/12 min-w-[360px] border-border-default bg-black flex flex-col gap-0">
+        <AlertDialogContent className="p-0 rounded-[12px] h-3/6 w-6/12 min-w-[360px] bg-white flex flex-col gap-0">
           <header>
             <div className="flex p-[18px]">
               <BookOpenBorder />
               <div className="ml-[16px] flex flex-col">
                 <div className="flex justify-between">
-                  <p className="text-lg font-semibold text-[#F7F7F7]">Add SportsBook</p>
+                  <p className="text-lg font-semibold">Add SportsBook</p>
                   <button
-                    className="absolute top-[6px] right-[6px] font-normal block w-9 h-9 leading-none text-[#85888E] hover:bg-gray-900 hover:rounded-full"
+                    className="absolute top-[6px] right-[6px] font-normal block w-9 h-9 leading-none text-[#85888E] hover:bg-gray-200 hover:rounded-full"
                     onClick={() => setOpenAddSportsBook(false)}
                   >
                     ✕
@@ -70,7 +70,7 @@ export default function AddSportsBookModal({ openAddSportsBook, setOpenAddSports
                 </p>
               </div>
             </div>
-            <div className="bg-[#13161B] h-[45px] flex items-center justify-end px-[24px]">
+            <div className="bg-layout-color h-[45px] flex items-center justify-end px-[24px]">
               <div className="relative">
                 <span className="absolute top-[9px] left-[12px]">
                   <SearchLg />
@@ -79,7 +79,7 @@ export default function AddSportsBookModal({ openAddSportsBook, setOpenAddSports
                   value={searchTerm}
                   onChange={handleSearch}
                   placeholder="Search"
-                  className="h-[35px] w-[280px] bg-layout-color border border-border-default rounded-[8px] pl-9 pr-3 text-white placeholder-gray-400"
+                  className="h-[35px] w-[280px] bg-white border border-border-default rounded-[8px] pl-9 pr-3 text-white placeholder-gray-400"
                 />
               </div>
             </div>
@@ -99,15 +99,15 @@ export default function AddSportsBookModal({ openAddSportsBook, setOpenAddSports
               </thead>
               <tbody>
                 {filteredData.map((platform) => (
-                  <tr key={platform.id} className="hover:bg-color-hover ">
-                    <td className="border-b border-border-default text-start transition duration-300 text-[#F7F7F7] text-sm font-medium py-[8px] pl-[24px]">
+                  <tr key={platform.id} className="hover:bg-hover-default cursor-pointer">
+                    <td className="border-b border-border-default text-start transition duration-300 text-sm font-medium py-[8px] pl-[24px]">
                       {platform.name}
                     </td>
                     <td className="border-b border-border-default text-start transition duration-300 text-sm font-normal">
                       {platform.url}
                     </td>
                     <td
-                      className="border-b border-border-default text-center transition duration-300 text-[#F7F7F7] text-sm font-semibold hover:underline decoration-white cursor-pointer"
+                      className="border-b border-border-default text-center transition duration-300 text-sm font-semibold hover:underline decoration-white cursor-pointer"
                       onClick={() => {
                         addInfoWeb(platform)
                       }}
@@ -121,7 +121,7 @@ export default function AddSportsBookModal({ openAddSportsBook, setOpenAddSports
           </main>
           <footer className="flex gap-[12px] justify-end px-[24px] py-[16px]">
             <button
-              className={`${'bg-blue-color'} text-sm border-none block w-[80px] h-[40px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
+              className={`${'bg-blue-color'} text-white text-sm border-none block w-[100px] h-[34px] font-semibold  hover:bg-opacity-90 rounded-[8px]`}
               onClick={() => setOpenAddSportsBook(false)}
             >
               Exit
@@ -131,11 +131,11 @@ export default function AddSportsBookModal({ openAddSportsBook, setOpenAddSports
       </AlertDialog>
 
       <AlertDialog open={notification} onOpenChange={setNotification}>
-        <AlertDialogContent className="gap-0 p-0 w-72 h-[150px] border-border-default bg-black">
+        <AlertDialogContent className="gap-0 p-0 w-72 h-[150px] border-border-default bg-white">
           <header className="flex-1 p-2 text-sm font-medium">
             <span>Message</span>
             <button
-              className="absolute top-[2px] right-[2px] font-normal block w-9 h-9 leading-none text-[#85888E] hover:bg-gray-900 hover:rounded-full"
+              className="absolute top-[2px] right-[2px] font-normal block w-9 h-9 leading-none text-[#85888E] hover:bg-gray-200 hover:rounded-full"
               onClick={() => setNotification(false)}
             >
               ✕
@@ -147,7 +147,7 @@ export default function AddSportsBookModal({ openAddSportsBook, setOpenAddSports
           </main>
           <footer className="rounded-b-lg items-center flex justify-end pr-4 pb-2">
             <button
-              className={`${'bg-blue-color'} h-[24px] w-[80px] font-semibold text-xs rounded-[6px] border-none hover:bg-opacity-90 `}
+              className={`${'bg-blue-color'} text-white h-[28px] w-[100px] font-semibold text-xs rounded-[6px] border-none hover:bg-opacity-90 `}
               onClick={() => setNotification(false)}
             >
               OK

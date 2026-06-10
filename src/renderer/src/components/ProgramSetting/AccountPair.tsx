@@ -44,9 +44,9 @@ const Account1List = () => {
   }
 
   return (
-    <div className="w-1/2 bg-[#0C0E12] rounded-lg border-t border-r border-l border-[#22262F] overflow-hidden rounded-r-none">
+    <div className="w-1/2 bg-white text-sm rounded-lg border-t border-r border-l border-border-default overflow-hidden rounded-r-none">
       {/* Header */}
-      <div className="px-4 py-2 bg-[#0C0E12] text-gray-200 font-semibold border-b border-[#22262F]">
+      <div className="px-4 py-2 bg-white  font-semibold border-b border-border-default">
         Account 1
       </div>
 
@@ -55,8 +55,8 @@ const Account1List = () => {
         {listAccount.map((account) => (
           <div
             key={account.id}
-            className={`px-4 py-2 text-gray-300 border-b border-[#22262F] hover:${getThemeClass('bg')} cursor-pointer transition-colors ${
-              selectionContext.account1?.id === account.id ? getThemeClass('bg') : ''
+            className={`px-4 py-1  border-b border-border-default hover:bg-blue-500 hover:text-white cursor-pointer transition-colors ${
+              selectionContext.account1?.id === account.id ? 'bg-blue-500 text-white ' : ''
             }`}
             onClick={() => handleSelectAccount(account)}
           >
@@ -82,9 +82,9 @@ const Account2List = () => {
   }
 
   return (
-    <div className="w-1/2 bg-[#0C0E12] rounded-lg border-t border-r border-l-0 border-[#22262F] overflow-hidden rounded-l-none">
+    <div className="w-1/2 bg-white text-sm rounded-lg border-t border-r border-l-0 border-border-default overflow-hidden rounded-l-none">
       {/* Header */}
-      <div className="px-4 py-2 bg-[#0C0E12] font-semibold border-b border-[#22262F]">
+      <div className="px-4 py-2 bg-white font-semibold border-b border-border-default">
         Account 2
       </div>
 
@@ -93,8 +93,8 @@ const Account2List = () => {
         {listAccount.map((account) => (
           <div
             key={account.id}
-            className={`px-4 py-2 text-gray-300 border-b border-[#22262F] hover:${getThemeClass('bg')} cursor-pointer transition-colors ${
-              selectionContext.account2?.id === account.id ? getThemeClass('bg') : ''
+            className={`px-4 py-1  border-b border-border-default hover:bg-blue-500 hover:text-white cursor-pointer transition-colors ${
+              selectionContext.account2?.id === account.id ? 'bg-blue-500 text-white' : ''
             }`}
             onClick={() => handleSelectAccount(account)}
           >
@@ -179,10 +179,10 @@ const CombinationsList = () => {
   return (
     <div
       ref={containerRef}
-      className="bg-[#0C0E12] rounded-lg border border-[#22262F] overflow-hidden h-[500px]"
+      className="bg-white rounded-lg border border-border-default overflow-hidden h-[500px]"
     >
       {/* Header */}
-      <div className="px-4 py-2 bg-[#0C0E12] text-gray-200 font-semibold border-b border-[#22262F]">
+      <div className="px-4 py-1 bg-white  font-semibold border-b border-border-default">
         Combination(s)
       </div>
 
@@ -191,20 +191,20 @@ const CombinationsList = () => {
         {listAccountPair.map((accountPair) => (
           <div
             key={accountPair.id}
-            className={`px-4 py-2 text-gray-300 border-b border-[#22262F] hover:${getThemeClass('bg')} cursor-pointer transition-colors flex justify-between items-center ${
-              currentAccountPair.id === accountPair.id ? getThemeClass('bg') : ''
+            className={`px-4 py-1  border-b border-border-default text-text-default hover:bg-blue-color hover:text-white cursor-pointer transition-colors flex justify-between items-center ${
+              currentAccountPair.id === accountPair.id ? 'bg-blue-color text-white' : ''
             }`}
             onClick={() => handleSelectAccountPair(accountPair)}
           >
             <div className="flex  items-center ">
               <div className="flex items-center gap-2 w-[170px]">
-                <span className="text-white text-sm">
+                <span className=" text-sm">
                   {accountPair.account1.platform}__{accountPair.account1.loginID}
                 </span>
               </div>
               <div className="text-gray-500 text-center mr-3">vs</div>
               <div className="flex items-center gap-2 ">
-                <span className="text-white text-sm">
+                <span className=" text-sm">
                   {accountPair.account2.platform}__{accountPair.account2.loginID}
                 </span>
               </div>
@@ -388,13 +388,13 @@ const ActionButtons = ({ setShowSaveSuccess, setMessageSuccess }) => {
   }
   return (
     <>
-      <div className="flex gap-2 bg-[#13161B] p-4 mb-4 items-center justify-between rounded-lg border border-border-default">
+      <div className="flex gap-2  mb-4 items-center justify-between rounded-lg ">
         <div className="flex gap-4 items-center">
           <Button className="whitespace-nowrap" onClick={addAccountPair}>
             Add Combination
           </Button>
           <Button
-            className="whitespace-nowrap border-border-default hover:border-gray-600"
+            className="whitespace-nowrap border-border-default hover:border-gray-600 bg-white"
             onClick={addAllCombinations}
             variant="bordered-white"
           >
@@ -404,14 +404,14 @@ const ActionButtons = ({ setShowSaveSuccess, setMessageSuccess }) => {
         <div className="flex items-center gap-4">
           <div
             onClick={clearInvalidAccounts}
-            className="font-medium text-[14px] cursor-pointer whitespace-nowrap border text-[#F97066] border-[#F97066]  py-[5px] px-3 rounded-md"
+            className="font-medium text-[14px] cursor-pointer whitespace-nowrap border text-red-color border-red-color  py-[5px] px-3 rounded-md bg-white"
           >
             Clear Invalid Account
           </div>
           <Button
             onClick={removeAllCombinations}
             variant="bordered-white"
-            className="text-[#F97066] border-[#F97066] whitespace-nowrap"
+            className="text-red-color border-red-color whitespace-nowrap bg-white"
           >
             Remove All Combinations
           </Button>
@@ -482,12 +482,12 @@ const PlatformSettingsSection = ({ typeAccount }: { typeAccount: 'account1' | 'a
         <h4 className={`${getThemeClass('text')} font-semibold`}>
           {dataAccountPair.platform || 'Unknown Platform'}
         </h4>
-        <p className="text-gray-400 text-sm">{dataAccountPair.loginID || 'Unknown Account'}</p>
+        <p className=" text-sm">{dataAccountPair.loginID || 'Unknown Account'}</p>
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className="text-gray-300 text-sm">Bet Amount ($)</label>
+          <label className=" text-sm">Bet Amount ($)</label>
           <InputNumber
             precision={0}
             step={1}
@@ -538,13 +538,13 @@ const GeneralSettingsSection = ({ typeAccount }: { typeAccount: 'account1' | 'ac
       >
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="BetAll" id={`BetAll_${typeAccount}`} />
-          <Label htmlFor={`BetAll_${typeAccount}`} className="text-gray-300">
+          <Label htmlFor={`BetAll_${typeAccount}`} className="">
             Bet All
           </Label>
         </div>
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="NoBet" id={`NoBet_${typeAccount}`} />
-          <Label htmlFor={`NoBet_${typeAccount}`} className="text-gray-300">
+          <Label htmlFor={`NoBet_${typeAccount}`} className="">
             No Bet
           </Label>
         </div>
@@ -560,23 +560,23 @@ const BetSettingsSection = () => {
 
   if (!currentAccountPair || !currentAccountPair.id) {
     return (
-      <div className="mt-4 bg-[#0C0E12] border border-[#22262F] rounded p-8 text-center">
+      <div className="mt-4 bg-white border border-border-default rounded p-8 text-center">
         <p className="text-gray-500">Select a combination to configure bet settings</p>
       </div>
     )
   }
 
   return (
-    <div className="mt-4 bg-[#0C0E12] border border-[#22262F] rounded">
+    <div className="mt-4 bg-white border border-border-default rounded">
       {/* Header */}
-      <div className="px-4 py-2 bg-[#0C0E12] border-b border-[#22262F]">
-        <h3 className="text-gray-200 font-semibold">Bet Settings</h3>
+      <div className="px-4 py-2 bg-white border-b border-border-default">
+        <h3 className=" font-semibold">Bet Settings</h3>
       </div>
 
       {/* Content */}
       <div className="px-4">
         <div className="grid grid-cols-2">
-          <div className="border-r border-[#22262F]">
+          <div className="border-r border-border-default">
             <PlatformSettingsSection typeAccount="account1" />
             <GeneralSettingsSection typeAccount="account1" />
           </div>
@@ -618,7 +618,7 @@ const AccountPairContent = () => {
 
   return (
     <AccountSelectionContext.Provider value={{ account1, account2, setAccount1, setAccount2 }}>
-      <div className="bg-[#0C0E12] mt-2 flex flex-col overflow-y-auto overflow-x-hidden max-h-[calc(100vh-200px)]">
+      <div className=" mt-2 flex flex-col overflow-y-auto overflow-x-hidden max-h-[calc(100vh-200px)]">
         {/* Action Buttons */}
         <ActionButtons
           setShowSaveSuccess={setShowSaveSuccess}
@@ -642,7 +642,7 @@ const AccountPairContent = () => {
         </div>
 
         <div
-          className={`pt-6 flex  border-t border-[#22262F] mt-6 ${currentAccountPair && currentAccountPair?.id ? 'justify-between' : 'justify-end'}`}
+          className={`pt-6 flex  border-t border-border-default mt-6 ${currentAccountPair && currentAccountPair?.id ? 'justify-between' : 'justify-end'}`}
         >
           <div>
             <Button onClick={handleSave} className="w-40">

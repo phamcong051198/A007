@@ -111,13 +111,13 @@ function AccountInfo({ account }) {
       </div>
 
       <AlertDialog open={openModalSetting}>
-        <AlertDialogContent className="p-0  rounded-[12px] border-border-default bg-black flex flex-col gap-0">
+        <AlertDialogContent className="p-0  rounded-[12px] bg-white flex flex-col gap-0">
           <header className="flex p-[16px] border-b border-border-default">
             <div className="ml-[16px] flex flex-col">
               <div className="flex justify-between">
-                <p className="text-lg font-semibold text-[#F7F7F7]">Account Information </p>
+                <p className="text-lg font-semibold ">Account Information </p>
                 <button
-                  className="absolute top-[6px] right-[6px] font-normal block w-9 h-9 leading-none text-[#85888E] hover:bg-gray-900 hover:rounded-full"
+                  className="absolute top-[6px] right-[6px] font-normal block w-9 h-9 leading-none text-[#85888E] hover:bg-gray-200 hover:rounded-full"
                   onClick={() => setOpenModalSetting(false)}
                 >
                   ✕

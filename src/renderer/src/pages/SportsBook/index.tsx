@@ -35,13 +35,12 @@ export default function SportsBook() {
   return (
     <div className="w-full bg-layout-color h-[calc(100vh-95px)]">
       <div className="mt-[24px] mx-[24px] h-full flex flex-col">
-        <div className="mb-[24px]">
+        <div className="mb-[22px]">
           <div className="flex justify-between ">
             <p className="text-2xl font-semibold">SportsBook</p>
 
-            {/* Switch + actions */}
             <div className="flex items-center">
-              <div className="mr-5">
+              <div className="mr-5 flex items-center gap-1">
                 <SwitchCustom checked={Boolean(enable)} onCheckedChange={handleActionEnable} />
                 <span>Đỏ là cào data không bet</span>
               </div>
@@ -51,14 +50,14 @@ export default function SportsBook() {
           </div>
 
           {/* Tabs */}
-          <div className="min-w-[600px] border border-border-default rounded-[8px] bg-[#13161B] mt-[20px] px-[4px] flex gap-[3px] h-[44px] items-center">
+          <div className="min-w-[600px] border border-border-default rounded-[8px] bg-hover-default mt-[10px] px-[2px] flex gap-[3px] h-[36px] items-center">
             {SPORTS_BOOK_LIST.map(({ id, label }) => (
               <NavLink
                 key={id}
                 to={id}
                 className={({ isActive }) => `
-                  w-[114px] h-[36px] text-sm flex justify-center items-center rounded-[8px] cursor-pointer shadow-2xl leading-none font-semibold
-                  ${isActive ? 'bg-layout-color text-white' : 'text-[#94979C] hover:bg-layout-color hover:text-white'}`}
+                  w-[110px] h-[30px] text-sm flex justify-center items-center rounded-[8px] cursor-pointer shadow-2xl leading-none font-semibold
+                  ${isActive ? 'bg-white' : ' hover:bg-white'}`}
               >
                 {label}
               </NavLink>

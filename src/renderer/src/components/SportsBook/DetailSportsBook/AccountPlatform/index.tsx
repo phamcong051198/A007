@@ -142,11 +142,11 @@ const AccountPlatform: React.FC<AccountPlatformProps> = ({ account, index, highl
         accountState.statusLogin === 'Fail') ||
       (accountState.buttonText === 'In-Progress' && accountState.log?.includes('ERROR'))
     ) {
-      return 'text-red-400'
+      return 'text-red-color'
     }
 
     if (['In-Progress', 'Logout'].includes(accountState.buttonText)) {
-      return 'text-green-400'
+      return 'text-green-color'
     }
 
     return 'text-[#a9a9a9]'
@@ -222,7 +222,7 @@ const AccountPlatform: React.FC<AccountPlatformProps> = ({ account, index, highl
       </button>
 
       <div className="flex h-6 justify-center items-center">
-        <p className="h-full w-[52px] flex items-center justify-center">
+        <p className="font-medium h-full w-[52px] flex items-center justify-center">
           {accountState.buttonText === 'Login' || accountState.buttonText === 'In-Progress'
             ? 0
             : (Math.floor(Number(accountState.betCredit.replace(/,/g, '')) * 100) / 100).toFixed(2)}
@@ -248,7 +248,7 @@ const AccountPlatform: React.FC<AccountPlatformProps> = ({ account, index, highl
       </div>
       <div
         className={twMerge(
-          'flex-1 w-1 h-6 flex items-center justify-start overflow-hidden text-ellipsis ml-6 mr-1 border border-border-default bg-black rounded-md',
+          'flex-1 w-1 h-6 flex font-medium items-center justify-start overflow-hidden text-ellipsis ml-6 mr-1 border border-border-default  rounded-md',
           getLogClass
         )}
       >

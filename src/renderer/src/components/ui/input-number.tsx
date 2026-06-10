@@ -193,10 +193,10 @@ const InputNumber = React.forwardRef<HTMLInputElement, InputNumberProps>(
     }
 
     return (
-      <div className="w-full">
+      <div className="w-full ">
         <div
           className={cn(
-            'flex items-stretch relative w-full rounded-md border bg-transparent transition-colors focus-within:outline-none focus-within:ring-1',
+            'flex items-stretch relative w-full rounded-md border bg-transparent transition-colors focus-within:outline-none focus-within:ring-1 bg-white pr-2 border-border-default ',
             themeClasses[theme],
             errorClasses,
             className
@@ -205,7 +205,7 @@ const InputNumber = React.forwardRef<HTMLInputElement, InputNumberProps>(
           <input
             type="text"
             inputMode="decimal"
-            className="flex-grow h-9 px-3 py-1 text-sm rounded-l-md border-0 focus:outline-none focus:ring-0 disabled:cursor-not-allowed disabled:opacity-50 bg-inherit [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none w-full"
+            className="flex-grow h-8 px-3 py-1 text-sm rounded-l-md border-0 focus:outline-none focus:ring-0 disabled:cursor-not-allowed disabled:opacity-50 bg-inherit [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none w-full"
             value={displayValue}
             onChange={handleChange}
             onBlur={handleBlur}
@@ -216,7 +216,7 @@ const InputNumber = React.forwardRef<HTMLInputElement, InputNumberProps>(
             {...props}
           />
 
-          <div className="flex flex-col absolute inset-y-0 right-0">
+          <div className="flex flex-col absolute inset-y-0 right-2">
             <button
               type="button"
               tabIndex={-1}

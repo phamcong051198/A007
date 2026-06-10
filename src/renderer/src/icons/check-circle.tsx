@@ -12,12 +12,12 @@ const CheckCircle = ({ className }) => (
     <g filter="url(#filter0_d_1027_6213)">
       <path
         d="M2 13C2 6.37258 7.37258 1 14 1H38C44.6274 1 50 6.37258 50 13V37C50 43.6274 44.6274 49 38 49H14C7.37258 49 2 43.6274 2 37V13Z"
-        fill="#0C0E12"
+        fill="#e8e8e8"
         shapeRendering="crispEdges"
       />
       <path
         d="M14 1.5H38C44.3513 1.5 49.5 6.64873 49.5 13V37C49.5 43.3513 44.3513 48.5 38 48.5H14C7.64873 48.5 2.5 43.3513 2.5 37V13C2.5 6.64873 7.64873 1.5 14 1.5Z"
-        stroke="#22262F"
+        stroke="#e8e8e8"
         shapeRendering="crispEdges"
       />
       <path

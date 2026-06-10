@@ -25,7 +25,7 @@ export function ConfirmLogOut({ openConfirmLogOut, setOpenConfirmLogOut }) {
               <div className="flex justify-between relative ">
                 <p>Log out of all VIP accounts?</p>
                 <button
-                  className="absolute top-[-16px] right-[-17px] font-normal block w-8 h-8 leading-none text-[#85888E] hover:bg-gray-900 hover:rounded-full"
+                  className="absolute top-[-16px] right-[-17px] font-normal block w-8 h-8 leading-none text-[#85888E] hover:bg-gray-200 hover:rounded-full"
                   onClick={() => setOpenConfirmLogOut(false)}
                 >
                   ✕

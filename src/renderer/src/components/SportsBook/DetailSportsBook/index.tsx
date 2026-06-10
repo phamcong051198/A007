@@ -31,11 +31,11 @@ const DetailSportsBook: React.FC<DetailSportsBookProps> = ({ sportsBook }) => {
   }
 
   return (
-    <div className="min-w-[800px] mb-[32px] border border-border-default rounded-[12px]">
+    <div className="min-w-[800px] mb-[20px] border bg-white border-border-default rounded-[12px] shadow-md">
       <div className="flex rounded-t-md items-center">
         <div className="h-full flex-1">
-          <div className="flex items-center px-[11px] py-[1px] justify-between rounded-t-[11px] bg-bg-gray border-b border-border-default">
-            <p className="text-[18px] font-semibold">{sportsBook.platform}</p>
+          <div className="flex items-center px-[11px] py-[1px] justify-between rounded-t-[11px]  border-b border-border-default">
+            <p className="text-sm font-semibold">{sportsBook.platform}</p>
 
             <div className=" border-gray-500 flex items-center gap-[12px]">
               <QuickActionsPlatform sportsBook={sportsBook} />

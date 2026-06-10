@@ -15,7 +15,7 @@ export default function AddAccount({ handleAddAccount, sportsBook }) {
   return (
     <Fragment>
       <button
-        className={`${'bg-blue-color'} hover:opacity-90 text-sm w-[130px] h-[33px] rounded-[8px] text-white gap-[4px] flex items-center justify-center`}
+        className={`${'bg-blue-color'} hover:opacity-90 text-sm w-[130px] h-[30px] rounded-[8px] text-white gap-[4px] flex items-center justify-center`}
         onClick={() => handleAddAccount()}
         onContextMenu={handleRightClick}
       >

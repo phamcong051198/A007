@@ -12,12 +12,12 @@ const UsersICon = ({ className }) => (
     <g filter="url(#filter0_d_1057_1058)">
       <path
         d="M2 13.5C2 6.87258 7.37258 1.5 14 1.5H38C44.6274 1.5 50 6.87258 50 13.5V37.5C50 44.1274 44.6274 49.5 38 49.5H14C7.37258 49.5 2 44.1274 2 37.5V13.5Z"
-        fill="#0C0E12"
+        fill="#e8e8e8"
         shapeRendering="crispEdges"
       />
       <path
         d="M14 2H38C44.3513 2 49.5 7.14873 49.5 13.5V37.5C49.5 43.8513 44.3513 49 38 49H14C7.64873 49 2.5 43.8513 2.5 37.5V13.5C2.5 7.14873 7.64873 2 14 2Z"
-        stroke="#22262F"
+        stroke="#e8e8e8"
         shapeRendering="crispEdges"
       />
       <path

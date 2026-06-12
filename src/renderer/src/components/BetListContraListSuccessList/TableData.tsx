@@ -73,7 +73,7 @@ const TableData = ({ dataTable, enableScroll }) => {
 
   return (
     <div
-      className=" flex-1 flex flex-col min-w-[968px] border border-border-default overflow-y-auto custom-scrollbar bg-white"
+      className="text-xs flex-1 flex flex-col min-w-[968px] border border-border-default overflow-y-auto custom-scrollbar bg-white"
       ref={tableContainerRef}
       style={{ direction: table.options.columnResizeDirection }}
     >
@@ -129,9 +129,9 @@ const TableData = ({ dataTable, enableScroll }) => {
                 <tr
                   key={row.id}
                   className={clsx(
-                    'hover:bg-red-950 text-white font-medium',
-                    isBetSuccess ? 'bg-neutral-900' : 'bg-black',
-                    selectedRowId === row.id && '!bg-red-900'
+                    'hover:bg-blue-200 font-medium',
+                    isBetSuccess ? 'bg-blue-100' : 'bg-white',
+                    selectedRowId === row.id && 'bg-blue-200'
                   )}
                   onClick={() => handleRowClick(row.id)}
                 >

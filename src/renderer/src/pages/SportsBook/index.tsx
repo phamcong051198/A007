@@ -34,8 +34,8 @@ export default function SportsBook() {
 
   return (
     <div className="w-full bg-layout-color h-[calc(100vh-95px)]">
-      <div className="mt-[24px] mx-[24px] h-full flex flex-col">
-        <div className="mb-[22px]">
+      <div className="mt-[24px] mx-[10px] h-full flex flex-col">
+        <div className="mb-[20px]">
           <div className="flex justify-between ">
             <p className="text-2xl font-semibold">SportsBook</p>
 

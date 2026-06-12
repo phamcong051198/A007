@@ -29,7 +29,7 @@ export const defaultColumns = [
     },
     footer: (props: { column: { id: string } }) => props.column.id,
     header: () => <span>Coverage</span>,
-    size: 80
+    size: 72
   },
   {
     accessorKey: 'gameType',
@@ -45,20 +45,20 @@ export const defaultColumns = [
     header: () => <span>GameType</span>,
     size: 80
   },
-  {
-    accessorKey: 'type',
-    cell: ({ getValue }) => {
-      const text = getValue()
-      return (
-        <span className={`px-2 `} style={{ whiteSpace: 'nowrap' }}>
-          {text}
-        </span>
-      )
-    },
-    footer: (props: { column: { id: string } }) => props.column.id,
-    header: () => <span>Type</span>,
-    size: 50
-  },
+  // {
+  //   accessorKey: 'type',
+  //   cell: ({ getValue }) => {
+  //     const text = getValue()
+  //     return (
+  //       <span className={`px-2 `} style={{ whiteSpace: 'nowrap' }}>
+  //         {text}
+  //       </span>
+  //     )
+  //   },
+  //   footer: (props: { column: { id: string } }) => props.column.id,
+  //   header: () => <span>Type</span>,
+  //   size: 40
+  // },
   {
     accessorKey: 'stat',
     cell: ({ getValue }) => {
@@ -132,14 +132,14 @@ export const defaultColumns = [
     accessorKey: 'bet',
     cell: ({ getValue }) => {
       return (
-        <span className="text-green-400 px-2" style={{ whiteSpace: 'nowrap' }}>
+        <span className="text-green-color px-2" style={{ whiteSpace: 'nowrap' }}>
           {getValue()}
         </span>
       )
     },
     footer: (props: { column: { id: string } }) => props.column.id,
     header: () => <span>Bet</span>,
-    size: 170
+    size: 100
   },
   {
     accessorKey: 'HDP',
@@ -152,7 +152,7 @@ export const defaultColumns = [
     },
     footer: (props: { column: { id: string } }) => props.column.id,
     header: () => <span>HDP</span>,
-    size: 60
+    size: 50
   },
   {
     accessorKey: 'odd',
@@ -170,6 +170,23 @@ export const defaultColumns = [
     size: 70
   },
   {
+    accessorKey: 'profit',
+    cell: ({ row }) => {
+      const company = row.original.company
+      const profit = row.original.profit
+      const color = profit > 0 ? '#32CD32' : '#FF0000'
+
+      return (
+        <span className={`px-2 font-bold`} style={{ color }}>
+          {company === '' ? '' : profit}
+        </span>
+      )
+    },
+    footer: (props: { column: { id: string } }) => props.column.id,
+    header: () => <span>Profit</span>,
+    size: 55
+  },
+  {
     accessorKey: 'betAmount_Standard',
     cell: ({ row: { original } }) => {
       const { company, betAmount_Standard } = original
@@ -179,22 +196,22 @@ export const defaultColumns = [
     header: () => <span>Amount</span>,
     size: 60
   },
-  {
-    accessorKey: 'time',
-    cell: ({ row }) => {
-      const company = row.original.company
-      const fullDateTime = row.original.time
+  // {
+  //   accessorKey: 'time',
+  //   cell: ({ row }) => {
+  //     const company = row.original.company
+  //     const fullDateTime = row.original.time
 
-      return (
-        <span className="px-2" style={{ whiteSpace: 'nowrap' }}>
-          {company === '' ? '' : fullDateTime}
-        </span>
-      )
-    },
-    footer: (props: { column: { id: string } }) => props.column.id,
-    header: () => <span>Time</span>,
-    size: 150
-  },
+  //     return (
+  //       <span className="px-2" style={{ whiteSpace: 'nowrap' }}>
+  //         {company === '' ? '' : fullDateTime}
+  //       </span>
+  //     )
+  //   },
+  //   footer: (props: { column: { id: string } }) => props.column.id,
+  //   header: () => <span>Time</span>,
+  //   size: 130
+  // },
   {
     accessorKey: 'info',
     cell: ({ getValue }) => {
@@ -221,25 +238,10 @@ export const defaultColumns = [
       )
     },
     footer: (props: { column: { id: string } }) => props.column.id,
-    header: () => <span>Info</span>
+    header: () => <span>Info</span>,
+    size: 82
   },
-  {
-    accessorKey: 'profit',
-    cell: ({ row }) => {
-      const company = row.original.company
-      const profit = row.original.profit
-      const color = profit > 0 ? '#00FF7F' : '#FF0000'
 
-      return (
-        <span className={`px-2`} style={{ color }}>
-          {company === '' ? '' : profit}
-        </span>
-      )
-    },
-    footer: (props: { column: { id: string } }) => props.column.id,
-    header: () => <span>Profit</span>,
-    size: 65
-  },
   {
     accessorKey: 'receiptID',
     cell: ({ row }) => {
@@ -260,13 +262,13 @@ export const defaultColumns = [
       const isWin = resultBet === 'WIN' || resultBet === 'WON'
 
       return (
-        <span className={`px-2 font-semibold ${isWin ? 'text-[#00FF7F]' : 'text-[#FF0000]'}`}>
+        <span className={`px-2 font-semibold ${isWin ? 'text-[#0000FF]' : 'text-[#FF0000]'}`}>
           {resultBet}
         </span>
       )
     },
     footer: (props: { column: { id: string } }) => props.column.id,
     header: () => <span>ResultBet</span>,
-    size: 180
+    size: 72
   }
 ]

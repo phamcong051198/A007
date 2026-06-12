@@ -17,11 +17,11 @@ export function ConfirmLogOut({ openConfirmLogOut, setOpenConfirmLogOut }) {
 
   return (
     <AlertDialog open={openConfirmLogOut} onOpenChange={setOpenConfirmLogOut}>
-      <AlertDialogContent className="rounded-[12px] h-[196px] w-[480px] border-none bg-black">
+      <AlertDialogContent className="rounded-[12px] h-[196px] w-[480px] border-none bg-white">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex">
             <AlertOctagon />
-            <div className="ml-[16px] flex flex-col text-[#F7F7F7]">
+            <div className="ml-[16px] flex flex-col">
               <div className="flex justify-between relative ">
                 <p>Log out of all VIP accounts?</p>
                 <button
@@ -40,7 +40,7 @@ export function ConfirmLogOut({ openConfirmLogOut, setOpenConfirmLogOut }) {
         <AlertDialogFooter className=" flex gap-[14px] items-end">
           <AlertDialogCancel
             onClick={() => setOpenConfirmLogOut(false)}
-            className="text-[#CECFD2] text-base block bg-transparent flex-1 w-[209px] h-[44px] hover:bg-transparent font-semibold border border-border-default hover:text-[#cecfd2d3]"
+            className="text-base block bg-transparent flex-1 w-[209px] h-[44px] hover:bg-transparent font-semibold border border-border-default hover:border-gray-500"
           >
             Cancel
           </AlertDialogCancel>

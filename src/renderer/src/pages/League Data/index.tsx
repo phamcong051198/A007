@@ -49,7 +49,7 @@ const EditableCell = ({
     return (
       <div className="flex gap-2 items-center justify-between">
         <input
-          className="flex-1 border px-2 py-[3px] rounded text-black border-red-color"
+          className="flex-1 border px-2 py-[1px] leading-none rounded text-black border-red-color text-sm"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           autoFocus
@@ -208,15 +208,15 @@ export default function LeagueData() {
 
   return (
     <div className="h-full">
-      <div className="flex gap-5 h-full px-5">
+      <div className="flex gap-2 h-full px-2">
         <div className="w-48">
           <h2 className="font-extrabold text-lg">Platform</h2>
-          <ul className="border border-border-default bg-white">
+          <ul className="border border-border-default border-b-0 bg-white">
             {listPlatForm.map((plat) => (
               <li
                 key={plat.id}
-                className={`p-2 hover:bg-hover-default cursor-pointer ${
-                  selectedPlatform?.id === plat.id ? 'bg-blue-600 text-white' : ''
+                className={`px-2 py-1 hover:bg-blue-500 hover:text-white cursor-pointer border-b text-sm ${
+                  selectedPlatform?.id === plat.id ? 'bg-blue-500 text-white' : ''
                 }`}
                 onClick={() => setSelectedPlatform(plat)}
               >
@@ -276,7 +276,7 @@ export default function LeagueData() {
                         <td
                           key={cell.id}
                           style={{ width: cell.column.getSize() }}
-                          className="border-r-[1px] border-border-default px-2 py-1"
+                          className="border-r-[1px] border-border-default px-2 py-[2px] text-sm"
                         >
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </td>

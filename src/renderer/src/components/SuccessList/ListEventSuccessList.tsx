@@ -85,7 +85,7 @@ const ListEventSuccessList = () => {
 
   return (
     <div className="h-full px-1 flex flex-col text-sm">
-      <div className="flex justify-between bg-white items-center min-w-[968px] border border-border-default h-[40px] px-[24px] mb-9 rounded-[12px] ">
+      <div className="flex justify-between items-center min-w-[968px] border bg-white border-border-default h-[40px] px-[6px] mb-[12px] rounded-[12px] ">
         <div className="flex gap-5">
           <SettingCheckBox settings={settings} handleCheckboxChange={handleCheckboxChange} />
           <div className="flex gap-1 mr-5">

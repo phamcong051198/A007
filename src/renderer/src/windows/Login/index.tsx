@@ -96,7 +96,7 @@ export default function Login() {
   }, [handleLogin])
 
   return (
-    <div className="h-full py-[64px] px-[48px] border border-border-default">
+    <div className="bg-white h-full py-[64px] px-[48px] border border-border-default">
       <div
         className="absolute top-0 left-0 w-full h-[40px]"
         style={{ ['-webkit-app-region']: 'drag' } as React.CSSProperties}
@@ -122,7 +122,7 @@ export default function Login() {
               <input
                 type="text"
                 maxLength={20}
-                className={`${'focus:border-blue-color'} w-full h-[44px] outline-none  bg-layout-color border border-border-default rounded-[8px] px-[14px] py-[10px]`}
+                className={`${'focus:border-blue-color'} w-full h-[44px] outline-none  bg-white border border-border-default rounded-[8px] px-[14px] py-[10px]`}
                 value={username}
                 onChange={(e) => {
                   setUserName(e.target.value)
@@ -134,13 +134,13 @@ export default function Login() {
             <div>
               <p className="text-sm  mb-[6px]">Password</p>
               <div
-                className={`${'focus-within:border-blue-color'} border h-[44px] border-border-default rounded-[8px] bg-layout-color flex  items-center justify-between`}
+                className={`${'focus-within:border-blue-color'} border h-[44px] border-border-default rounded-[8px] bg-white flex  items-center justify-between`}
               >
                 <input
                   type={isPasswordVisible ? 'text' : 'password'}
                   maxLength={20}
                   value={password}
-                  className="w-full outline-none bg-layout-color  px-[14px]"
+                  className="w-full outline-none bg-white  px-[14px]"
                   onChange={(e) => {
                     setPassword(e.target.value)
                     setErrorMessage('')
